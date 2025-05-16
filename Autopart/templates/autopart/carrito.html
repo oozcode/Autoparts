@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts - Carrito</title>
+    <link rel="stylesheet" href="{% static 'autopart/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito (<span id="cart-count">0</span>)</a>
+            <a href="{% url 'registro' %}">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <main class="cart-container">
+        <div class="cart-items" id="cart-items">
+            <!-- Los items del carrito se insertarán aquí -->
+        </div>
+        
+        <div class="cart-summary" id="cart-summary">
+            <!-- El resumen del carrito se insertará aquí -->
+        </div>
+    </main>
+
+    <script>
+        // Función para mostrar los productos en el carrito
+        function displayCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartSummary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="empty-cart">
+                        <h2>Tu carrito está vacío</h2>
+                        <a href="{% url 'catalogo' %}" class="continue-shopping">Ir al Catálogo</a>
+                    </div>
+                `;
+                cartSummary.style.display = 'none';
+                return;
+            }
+
+            // Mostrar productos
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="cart-item" data-product-id="${item.id}">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="quantity-btn minus">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn plus">+</button>
+                    </div>
+                    <div class="item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                    <button class="remove-item">×</button>
+                </div>
+            `).join('');
+
+            // Calcular totales
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const iva = subtotal * 0.19;
+            const shipping = 150;
+            const total = subtotal + iva + shipping;
+
+            // Mostrar resumen
+            cartSummary.style.display = 'block';
+            cartSummary.innerHTML = `
+                <h2>Resumen de Compra</h2>
+                <div class="summary-item">
+                    <span>Subtotal</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="summary-item">
+                    <span>IVA (19%)</span>
+                    <span>$${iva.toFixed(2)}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Envío</span>
+                    <span>$${shipping.toFixed(2)}</span>
+                </div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+                <button class="checkout-btn">Proceder al Pago</button>
+            `;
+        }
+
+        // Cargar el carrito cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCart();
+            updateCartCount(); // Asegúrate de que esta función esté disponible
+        });
+    </script>
+    <script src="{% static 'autopart/js/cart.js' %}"></script>
+</body>
+</html>

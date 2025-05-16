@@ -1,0 +1,75 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts - Electricidad y Baterías</title>
+    <link rel="stylesheet" href="{% static 'autopart/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito de compras</a>
+            <a href="{% url 'registro' %}">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="category-header">
+            <h1>Electricidad y Baterías</h1>
+            <p>Todo para el sistema eléctrico de tu vehículo</p>
+        </div>
+
+        <div class="category-filters">
+            <select name="ordenar" id="ordenar">
+                <option value="">Ordenar por</option>
+                <option value="precio-bajo">Precio: Menor a Mayor</option>
+                <option value="precio-alto">Precio: Mayor a Menor</option>
+                <option value="nombre">Nombre</option>
+            </select>
+        </div>
+
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Alternador">
+                <h3>Alternador Bosch</h3>
+                <p class="description">Alternador 120A para motores 4 cilindros</p>
+                <p class="price">$1,499.99</p>
+                <button class="add-to-cart">Agregar al carrito</button>
+            </div>
+
+            <div class="product-card">
+                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Batería">
+                <h3>Batería LTH 65Ah</h3>
+                <p class="description">Batería libre de mantenimiento</p>
+                <p class="price">$1,999.99</p>
+                <button class="add-to-cart">Agregar al carrito</button>
+            </div>
+
+            <div class="product-card">
+                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Faros LED">
+                <h3>Faros LED Philips</h3>
+                <p class="description">Par de faros LED de alta intensidad</p>
+                <p class="price">$699.99</p>
+                <button class="add-to-cart">Agregar al carrito</button>
+            </div>
+
+            <div class="product-card">
+                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Kit de fusibles">
+                <h3>Kit Fusibles y Sensores</h3>
+                <p class="description">Kit completo de fusibles y sensores básicos</p>
+                <p class="price">$299.99</p>
+                <button class="add-to-cart">Agregar al carrito</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        console.log(localStorage.getItem('cart'));
+    </script>
+</body>
+</html>

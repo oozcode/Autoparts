@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts</title>
+    <!-- Usar la etiqueta static de Django para cargar el archivo CSS -->
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="/catalogo">Catálogo</a>
+            <a href="/carrito">Carrito de compras</a>
+            <a href="/login">Iniciar Sesión</a>
+        </div>
+    </nav>
+    
+    {% block content %}{% endblock %}
+</body>
+</html>

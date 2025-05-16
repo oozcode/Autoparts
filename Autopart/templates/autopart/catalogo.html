@@ -1,0 +1,181 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts - Catálogo</title>
+    <link rel="stylesheet" href="{% static 'autopart/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito (<span id="cart-count">0</span>)</a>
+            <a href="{% url 'registro' %}">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="category-header">
+            <h1>Catálogo Completo</h1>
+        </div>
+
+        <!-- Sección Motores y Componentes -->
+        <section class="category-section">
+            <h2>Motores y Componentes</h2>
+            <div class="products-grid">
+                <div class="product-card" data-product-id="motor1">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Filtro de aceite">
+                    <h3>Filtro de Aceite Premium</h3>
+                    <p class="description">Filtro de aceite de alta calidad para motores de 4 cilindros</p>
+                    <p class="price">299.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="motor2">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Filtro de aire">
+                    <h3>Filtro de Aire K&N</h3>
+                    <p class="description">Filtro de aire de alto flujo para mejor rendimiento</p>
+                    <p class="price">449.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="motor3">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Bujías">
+                    <h3>Bujías NGK Iridium</h3>
+                    <p class="description">Set de 4 bujías de iridio de larga duración</p>
+                    <p class="price">599.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="motor4">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Correa">
+                    <h3>Kit Correa Gates</h3>
+                    <p class="description">Kit completo de distribución con tensor y rodillos</p>
+                    <p class="price">899.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Frenos y Suspensión -->
+        <section class="category-section">
+            <h2>Frenos y Suspensión</h2>
+            <div class="products-grid">
+                <div class="product-card" data-product-id="freno1">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Pastillas de freno">
+                    <h3>Pastillas Brembo Sport</h3>
+                    <p class="description">Pastillas de freno de alto rendimiento</p>
+                    <p class="price">799.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="freno2">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Discos de freno">
+                    <h3>Discos Brembo Perforados</h3>
+                    <p class="description">Par de discos ventilados y perforados</p>
+                    <p class="price">1299.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="freno3">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Amortiguadores">
+                    <h3>Amortiguadores Monroe</h3>
+                    <p class="description">Par de amortiguadores delanteros gas</p>
+                    <p class="price">899.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="freno4">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Rótulas">
+                    <h3>Rótulas 555</h3>
+                    <p class="description">Par de rótulas de suspensión</p>
+                    <p class="price">399.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Electricidad y Baterías -->
+        <section class="category-section">
+            <h2>Electricidad y Baterías</h2>
+            <div class="products-grid">
+                <div class="product-card" data-product-id="elec1">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Alternador">
+                    <h3>Alternador Bosch</h3>
+                    <p class="description">Alternador 120A para motores 4 cilindros</p>
+                    <p class="price">1499.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="elec2">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Batería">
+                    <h3>Batería LTH 65Ah</h3>
+                    <p class="description">Batería libre de mantenimiento</p>
+                    <p class="price">1999.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="elec3">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Faros">
+                    <h3>Faros LED Philips</h3>
+                    <p class="description">Par de faros LED de alta intensidad</p>
+                    <p class="price">699.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="elec4">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Kit fusibles">
+                    <h3>Kit Fusibles y Sensores</h3>
+                    <p class="description">Kit completo de fusibles y sensores básicos</p>
+                    <p class="price">299.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Accesorios y Seguridad -->
+        <section class="category-section">
+            <h2>Accesorios y Seguridad</h2>
+            <div class="products-grid">
+                <div class="product-card" data-product-id="acc1">
+                    <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Alarma">
+                    <h3>Alarma Viper</h3>
+                    <p class="description">Sistema de alarma con control remoto</p>
+                    <p class="price">899.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="acc2">
+                    <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Cinturón">
+                    <h3>Cinturón de Seguridad</h3>
+                    <p class="description">Cinturón de seguridad universal 3 puntos</p>
+                    <p class="price">499.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="acc3">
+                    <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Cubre asientos">
+                    <h3>Cubre Asientos Deportivos</h3>
+                    <p class="description">Set completo de cubre asientos</p>
+                    <p class="price">799.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <div class="product-card" data-product-id="acc4">
+                    <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Kit emergencia">
+                    <h3>Kit de Emergencia</h3>
+                    <p class="description">Kit completo de emergencia vial</p>
+                    <p class="price">599.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{% static 'autopart/js/cart.js' %}"></script>
+</body>
+</html>

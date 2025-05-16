@@ -1,0 +1,130 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts - Inicio</title>
+    <link rel="stylesheet" href="{% static 'autopart/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="catalogo.html">Catálogo</a>
+            <a href="carrito.html">Carrito (<span id="cart-count">0</span>)</a>
+            <a href="registro.html">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="categories-section">
+            <h2>Categorías</h2>
+            <div class="categories-grid">
+                <!-- Categoría Motores -->
+                <a href="categorias/motores.html" class="category-card">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Motores y Componentes">
+                    <h3>Motores y Componentes</h3>
+                    <ul class="category-items">
+                        <li>Filtros de aceite</li>
+                        <li>Filtros de aire</li>
+                        <li>Bujías</li>
+                        <li>Correas de distribución</li>
+                    </ul>
+                </a>
+
+                <!-- Categoría Frenos -->
+                <a href="categorias/frenos.html" class="category-card">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Frenos y Suspensión">
+                    <h3>Frenos y Suspensión</h3>
+                    <ul class="category-items">
+                        <li>Pastillas de freno</li>
+                        <li>Discos de freno</li>
+                        <li>Amortiguadores</li>
+                        <li>Rótulas</li>
+                    </ul>
+                </a>
+
+                <!-- Categoría Eléctrico -->
+                <a href="categorias/electrico.html" class="category-card">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Electricidad y Baterías">
+                    <h3>Electricidad y Baterías</h3>
+                    <ul class="category-items">
+                        <li>Alternadores</li>
+                        <li>Baterías</li>
+                        <li>Luces y faros</li>
+                        <li>Sensores y fusibles</li>
+                    </ul>
+                </a>
+
+                <!-- Categoría Accesorios -->
+                <a href="categorias/accesorios.html" class="category-card">
+                    <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Accesorios y Seguridad">
+                    <h3>Accesorios y Seguridad</h3>
+                    <ul class="category-items">
+                        <li>Alarmas</li>
+                        <li>Cinturones de seguridad</li>
+                        <li>Cubre asientos</li>
+                        <li>Kits de emergencia</li>
+                    </ul>
+                </a>
+            </div>
+        </section>
+
+        <!-- Sección de Productos Más Vendidos -->
+        <section class="best-sellers-section">
+            <h2>Los Más Vendidos</h2>
+            <div class="products-grid">
+                <!-- Producto 1 -->
+                <div class="product-card" data-product-id="best1">
+                    <img src="{% static 'autopart/img/bujias.jpg' %}" alt="Bujías Premium">
+                    <h3>Bujías NGK Iridium</h3>
+                    <p class="description">Set de 4 bujías de alto rendimiento</p>
+                    <p class="price">599.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <!-- Producto 2 -->
+                <div class="product-card" data-product-id="best2">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Pastillas de Freno">
+                    <h3>Pastillas Brembo Sport</h3>
+                    <p class="description">Pastillas de freno de cerámica</p>
+                    <p class="price">799.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <!-- Producto 3 -->
+                <div class="product-card" data-product-id="best3">
+                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Batería">
+                    <h3>Batería LTH Premium</h3>
+                    <p class="description">Batería de alto rendimiento 65Ah</p>
+                    <p class="price">1999.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <!-- Producto 4 -->
+                <div class="product-card" data-product-id="best4">
+                    <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Filtro de Aire">
+                    <h3>Filtro de Aire K&N</h3>
+                    <p class="description">Filtro de aire de alto flujo</p>
+                    <p class="price">449.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+
+                <!-- Producto 5 -->
+                <div class="product-card" data-product-id="best5">
+                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Amortiguadores">
+                    <h3>Amortiguadores Monroe</h3>
+                    <p class="description">Par de amortiguadores delanteros</p>
+                    <p class="price">899.99</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Script del carrito -->
+    <script src="{% static 'autopart/js/cart.js' %}"></script>
+</body>
+</html>

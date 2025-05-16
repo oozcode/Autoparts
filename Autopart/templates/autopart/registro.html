@@ -1,0 +1,22 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoParts - Iniciar Sesión</title>
+    <!-- Utilizar {% static %} para cargar el archivo CSS correctamente -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="catalogo.html">Catálogo</a>
+            <a href="carrito.html">Carrito de compras</a>
+            <a href="registro.html">Iniciar Sesión</a>
+        </div>
+    </nav>
+</body>
+</html>
