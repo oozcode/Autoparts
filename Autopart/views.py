@@ -34,5 +34,5 @@ def frenos(request):
     return render(request, 'autopart/frenos.html')
 
 # Vista para la página de electricidad y baterías
-def electricidad(request):
-    return render(request, 'autopart/electricidad.html')
+def electrico(request):
+    return render(request, 'autopart/electrico.html')
