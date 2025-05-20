@@ -13,3 +13,4 @@ urlpatterns = [
     path('frenos/', views.frenos, name='frenos'),
     path('electricidad/', views.electricidad, name='electricidad'),
 ]
+

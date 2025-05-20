@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoParts</title>
-    <!-- Usar la etiqueta static de Django para cargar el archivo CSS -->
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar">
-        <a href="/" class="navbar-brand">AutoParts</a>
+        <a href="/" class="navbar-brand">
+            <img src="{% static 'autopart/img/fondo.png' %}" alt="AutoParts Logo" class="logo" style="height: 50px;">
+        </a>
         <div class="nav-links">
             <a href="/catalogo">Catálogo</a>
             <a href="/carrito">Carrito de compras</a>

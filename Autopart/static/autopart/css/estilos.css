@@ -734,3 +734,18 @@ body {
 main {
     flex: 1;
 }
+
+/* Estilo para el logo en el navbar */
+.navbar-brand img.logo {
+    width: 200px;      /* Ajusta el ancho a lo que necesites */
+    height: auto;      /* Mantiene la proporción de la imagen */
+    background: transparent; /* Quita cualquier fondo de la imagen */
+    display: block;    /* Para evitar espacios extra alrededor */
+}
+
+/* Opcional: si el logo está dentro de un enlace y quieres ajustar el padding */
+.navbar-brand {
+    padding: 10px 10px; /* Ajusta el espacio alrededor del logo */
+    background: transparent; /* Quitar cualquier fondo */
+}
+
