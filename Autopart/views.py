@@ -1,8 +1,13 @@
 from django.shortcuts import render
+from .models import Producto
 
 # Vista para la página de inicio
 def index(request):
-    return render(request, 'autopart/index.html')
+    productos = Producto.objects.all()
+    data= {
+        'productos':productos
+    }
+    return render(request, 'autopart/index.html',data)
 
 # Vista para la página del catálogo
 def catalogo(request):
