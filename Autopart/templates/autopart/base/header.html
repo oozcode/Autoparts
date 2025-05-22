@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoParts{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'autopart/css/componentes/formulario.css' %}">
+
+
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
+        <div class="nav-links">
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito de compras</a>
+            <a href="{% url 'login' %}">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    {% block content %}
+    <!-- contenido -->
+    {% endblock %}
+</body>
+</html>

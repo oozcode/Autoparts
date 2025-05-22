@@ -1,0 +1,13 @@
+{% extends 'autopart/base/header.html' %}
+{% block title %}Iniciar Sesión - AutoParts{% endblock %}
+{% load static %}
+{% block content %}
+    <h2>Iniciar sesión</h2>
+    <form method="POST" class="form-login">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-submit">Entrar</button>
+    </form>
+    <p class="register-link">¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
+{% endblock %}
+

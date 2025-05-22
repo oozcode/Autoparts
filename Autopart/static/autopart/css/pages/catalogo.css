@@ -1,0 +1,31 @@
+.catalog-filters {
+    margin: 2rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.filter-group select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+.catalog-section {
+    margin-bottom: 3rem;
+}
+
+.catalog-section h2 {
+    color: #333;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ffd700;
+    margin-bottom: 2rem;
+}

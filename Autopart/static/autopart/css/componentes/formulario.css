@@ -1,0 +1,197 @@
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.form-login {
+    max-width: 350px;
+    margin: 1.5rem auto;
+    padding: 2rem;
+    background-color: #1a1a1a; /* Fondo oscuro */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-login p {
+    margin-bottom: 1rem;
+}
+
+.form-login label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.form-login input[type="text"],
+.form-login input[type="password"],
+.form-login input[type="email"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background-color: #222;
+    color: #eee;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-login input[type="text"]:focus,
+.form-login input[type="password"]:focus,
+.form-login input[type="email"]:focus {
+    border-color: #6a3dc7; /* Un morado bonito */
+    outline: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 0.7rem;
+    background: #6a3dc7; /* Morado vibrante */
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #552a9e;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 1rem;
+    color: #ccc;
+}
+
+.register-link a {
+    color: #6a3dc7;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: #9145e4;
+    text-decoration: underline;
+}
+
+.form-login {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #1e1e2f; /* tono oscuro a juego */
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-login h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #a17de1; /* morado lindo */
+}
+
+.form-login label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+    color: #c9c9ff;
+}
+
+.form-login input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 1.3rem;
+    border-radius: 8px;
+    border: 1px solid #444466;
+    background-color: #2a2a44;
+    color: #eee;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-login input:focus {
+    border-color: #a17de1;
+    outline: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #6a52f8;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #815bff;
+}
+
+.form-text {
+    text-align: center;
+    margin-top: 1rem;
+    color: #bbbbee;
+    font-size: 0.9rem;
+}
+
+.form-text a {
+    color: #a17de1;
+    text-decoration: none;
+}
+
+.form-text a:hover {
+    text-decoration: underline;
+}
+.form-container {
+    max-width: 450px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .form-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+  }
+  
+  .form-container form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-container label {
+    margin-bottom: 5px;
+    color: #444;
+    font-weight: bold;
+  }
+  
+  .form-container input,
+  .form-container select {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }

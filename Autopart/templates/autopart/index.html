@@ -1,79 +1,58 @@
+{% extends 'autopart/base/header.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AutoParts - Inicio</title>
-    <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}" />
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{% url 'index' %}" class="navbar-brand">
-            <img src="{% static 'autopart\img\Icono.png' %}" alt="AutoParts Logo" class="logo" style="height: 50px;" />
-        </a>
-        <div class="nav-links">
-            <a href="{% url 'catalogo' %}">Catálogo</a>
-            <a href="{% url 'carrito' %}">Carrito (<span id="cart-count">0</span>)</a>
-            <a href="{% url 'registro' %}">Iniciar Sesión</a>
+{% block title %}AutoParts - Inicio{% endblock %}
+
+{% block content %}
+<main>
+    <section class="categories-section">
+        <h2>Categorías</h2>
+        <div class="categories-grid">
+            <!-- Categoría Frenos -->
+            <a href="{% url 'frenos' %}" class="category-card">
+                <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Frenos y Suspensión" />
+                <h3>Frenos y Suspensión</h3>
+                <ul class="category-items">
+                    <li>Pastillas de freno</li>
+                    <li>Discos de freno</li>
+                    <li>Amortiguadores</li>
+                    <li>Rótulas</li>
+                </ul>
+            </a>
+
+            <!-- Categoría Electricidad -->
+            <a href="{% url 'electrico' %}" class="category-card">
+                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Electricidad y Baterías" />
+                <h3>Electricidad y Baterías</h3>
+                <ul class="category-items">
+                    <li>Alternadores</li>
+                    <li>Baterías</li>
+                    <li>Luces y faros</li>
+                    <li>Sensores y fusibles</li>
+                </ul>
+            </a>
+
+            <!-- Aquí puedes agregar más categorías si quieres -->
         </div>
-    </nav>
+    </section>
 
-    <main>
-        <section class="categories-section">
-            <h2>Categorías</h2>
-            <div class="categories-grid">
-                <!-- Categoría Frenos -->
-                <a href="{% url 'frenos' %}" class="category-card">
-                    <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Frenos y Suspensión" />
-                    <h3>Frenos y Suspensión</h3>
-                    <ul class="category-items">
-                        <li>Pastillas de freno</li>
-                        <li>Discos de freno</li>
-                        <li>Amortiguadores</li>
-                        <li>Rótulas</li>
-                    </ul>
-                </a>
-
-                <!-- Categoría Electricidad -->
-                <a href="{% url 'electrico' %}" class="category-card">
-                    <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Electricidad y Baterías" />
-                    <h3>Electricidad y Baterías</h3>
-                    <ul class="category-items">
-                        <li>Alternadores</li>
-                        <li>Baterías</li>
-                        <li>Luces y faros</li>
-                        <li>Sensores y fusibles</li>
-                    </ul>
-                </a>
-
-                <!-- Puedes agregar más categorías aquí si creas las rutas correspondientes -->
+    <section class="best-sellers-section">
+        <h2>Los Más Vendidos</h2>
+        <div class="products-grid">
+            {% for p in productos %}
+            <div class="product-card" data-product-id="producto{{ p.id }}">
+                {% if p.img %}
+                <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
+                {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
+                {% endif %}
+                <h3>{{ p.nombre|capfirst }}</h3>
+                <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
+                <p class="price">${{ p.precio }}</p>
+                <button class="add-to-cart">Agregar al carrito</button>
             </div>
-        </section>
-
-        <!-- Sección de Productos Más Vendidos -->
-      <section class="best-sellers-section">
-    <h2>Los Más Vendidos</h2>
-    <div class="products-grid">
-        {% for p in productos %}
-        <div class="product-card" data-product-id="producto{{ p.id }}">
-            {% if p.img %}
-            <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
-            {% else %}
-            <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
-            {% endif %}
-            <h3>{{ p.nombre|capfirst }}</h3>
-            <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-            <p class="price">${{ p.precio }}</p>
-            <button class="add-to-cart">Agregar al carrito</button>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-</section>
-
-    </main>
-
-    <script src="{% static 'autopart/js/cart.js' %}"></script>
-</body>
-</html>
+    </section>
+</main>
+{% endblock %}

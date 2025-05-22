@@ -1,22 +1,8 @@
-{% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts - Catálogo</title>
-    <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
-        <div class="nav-links">
-            <a href="{% url 'catalogo' %}">Catálogo</a>
-            <a href="{% url 'carrito' %}">Carrito (<span id="cart-count">0</span>)</a>
-            <a href="{% url 'registro' %}">Iniciar Sesión</a>
-        </div>
-    </nav>
+{% extends '../autopart/base/header.html' %}
+{% load static %}
+{% block title %}Catálogo - AutoParts{% endblock %}
+{% block content %}
 
     <main>
         <div class="category-header">
@@ -177,5 +163,4 @@
     </main>
 
     <script src="{% static 'autopart/js/cart.js' %}"></script>
-</body>
-</html>
+{% endblock %}

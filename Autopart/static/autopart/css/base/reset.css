@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 2rem;
+}
+
+/* Estilos para el fondo */
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('/static/autopart/img/fondo.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+/* Volver main a su estado original */
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Ajustar las tarjetas y secciones para que destaquen sobre el fondo */
+.category-section, 
+.product-card, 
+.cart-items,
+.cart-summary,
+.category-card {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}

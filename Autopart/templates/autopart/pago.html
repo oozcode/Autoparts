@@ -1,22 +1,11 @@
+{% extends 'autopart/base/header.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts - Pago</title>
-    <!-- Usar {% static %} para cargar el archivo CSS correctamente -->
-    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="index.html" class="navbar-brand">AutoParts</a>
-        <div class="nav-links">
-            <a href="catalogo.html">Catálogo</a>
-            <a href="carrito.html">Carrito de compras</a>
-            <a href="registro.html">Iniciar Sesión</a>
-        </div>
-    </nav>
-</body>
-</html>
+{% block title %}AutoParts - Pago{% endblock %}
+
+{% block content %}
+<main>
+  <h1>Página de Pago</h1>
+</main>
+
+{% endblock %}
