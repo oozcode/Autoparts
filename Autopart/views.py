@@ -35,7 +35,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('/index')
+            return redirect('index')
     else:
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
@@ -53,12 +53,15 @@ def registro(request):
                 perfil.save()
 
             login(request, user)
-            return redirect('/index')
+            return redirect('index')
     else:
         form = RegistroForm()
     
     return render(request, 'registration/registro.html', {'form': form})
 
+def exit(request):
+    logout(request)
+    return redirect('index')
 
 # Vista para la página de pago
 def pago(request):
