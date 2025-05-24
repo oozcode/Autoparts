@@ -1,22 +1,7 @@
+{% extends '../autopart/base/header.html' %}
 {% load static %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts - Frenos y Suspensión</title>
-    <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
-        <div class="nav-links">
-            <a href="{% url 'catalogo' %}">Catálogo</a>
-            <a href="{% url 'carrito' %}">Carrito de compras</a>
-            <a href="{% url 'registro' %}">Iniciar Sesión</a>
-        </div>
-    </nav>
+{% block title %}Catálogo - AutoParts{% endblock %}
+{% block content %}
 
     <main>
         <div class="category-header">
@@ -34,7 +19,7 @@
         </div>
 
         <div class="products-grid">
-            <div class="product-card">
+            <div class="product-card" data-product-id="123">
                 <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Pastillas de freno">
                 <h3>Pastillas Brembo Sport</h3>
                 <p class="description">Pastillas de freno de alto rendimiento</p>
@@ -42,7 +27,7 @@
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
 
-            <div class="product-card">
+            <div class="product-card" data-product-id="123">
                 <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Discos de freno">
                 <h3>Discos Brembo Perforados</h3>
                 <p class="description">Par de discos ventilados y perforados</p>
@@ -50,7 +35,7 @@
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
 
-            <div class="product-card">
+            <div class="product-card" data-product-id="123">
                 <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Amortiguadores">
                 <h3>Amortiguadores Monroe</h3>
                 <p class="description">Par de amortiguadores delanteros gas</p>
@@ -58,7 +43,7 @@
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
 
-            <div class="product-card">
+            <div class="product-card" data-product-id="123">
                 <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Rótulas">
                 <h3>Rótulas 555</h3>
                 <p class="description">Par de rótulas de suspensión</p>
@@ -66,6 +51,21 @@
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
         </div>
+
+    <div id="cart-toast" class="cart-toast hidden">
+  <div class="toast-content">
+    <span id="toast-close" class="toast-close">&times;</span>
+    <img id="toast-img" src="" alt="Producto" />
+    <div class="toast-info">
+      <h4 id="toast-name"></h4>
+      <p id="toast-desc"></p>
+    </div>
+    <button onclick="window.location.href='/carrito/'" class="toast-btn">
+      Ver carrito (<span id="toast-count">0</span>)
+    </button>
+  </div>
+</div>
     </main>
-</body>
-</html>
+<script src="{% static 'autopart/js/cart.js' %}"></script>
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
+{% endblock %}

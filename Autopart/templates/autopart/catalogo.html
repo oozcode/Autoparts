@@ -12,7 +12,7 @@
         <!-- Sección Motores y Componentes -->
         <section class="category-section">
             <h2>Motores y Componentes</h2>
-            <div class="products-grid">
+            <div class="products-grid" >
                 <div class="product-card" data-product-id="motor1">
                     <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Filtro de aceite">
                     <h3>Filtro de Aceite Premium</h3>
@@ -162,5 +162,21 @@
         </section>
     </main>
 
+<div id="cart-toast" class="cart-toast hidden">
+  <div class="toast-content">
+    <span id="toast-close" class="toast-close">&times;</span>
+    <img id="toast-img" src="" alt="Producto" />
+    <div class="toast-info">
+      <h4 id="toast-name"></h4>
+      <p id="toast-desc"></p>
+    </div>
+    <button onclick="window.location.href='/carrito/'" class="toast-btn">
+      Ver carrito (<span id="toast-count">0</span>)
+    </button>
+  </div>
+</div>
+    </main>
+<script src="{% static 'autopart/js/cart.js' %}"></script>
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
     <script src="{% static 'autopart/js/cart.js' %}"></script>
 {% endblock %}
