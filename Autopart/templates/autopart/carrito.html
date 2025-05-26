@@ -12,7 +12,9 @@
 </head>
 <body>
     <nav class="navbar">
-        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
+        <a href="{% url 'index' %}" class="navbar-brand">
+            <img src="{% static 'autopart/img/Icono.png' %}" alt="AutoParts Logo" class="logo">
+        </a>
         <div class="nav-links">
             <a href="{% url 'catalogo' %}">Catálogo</a>
             <a href="{% url 'carrito' %}">Carrito de compras</a>
