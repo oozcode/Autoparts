@@ -1,73 +1,33 @@
+{% extends 'autopart/base/header.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts - Frenos y Suspensión</title>
-    <!-- Usar la etiqueta {% static %} para cargar el archivo CSS correctamente -->
-    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="../index.html" class="navbar-brand">AutoParts</a>
-        <div class="nav-links">
-            <a href="../catalogo.html">Catálogo</a>
-            <a href="../carrito.html">Carrito de compras</a>
-            <a href="../registro.html">Iniciar Sesión</a>
-        </div>
-    </nav>
+{% block title %}AutoParts - Motores y Componentes{% endblock %}
 
-    <main>
-        <div class="category-header">
-            <h1>Frenos y Suspensión</h1>
-            <p>Sistema de frenado y suspensión de la más alta calidad para tu seguridad</p>
-        </div>
+{% block content %}
+<main class="category-page">
+    <section class="category-header">
+        <h1>Motores y Componentes</h1>
+        <p>Encuentra todos los componentes necesarios para el mantenimiento y reparación de motores</p>
+    </section>
 
-        <div class="category-filters">
-            <select name="ordenar" id="ordenar">
-                <option value="">Ordenar por</option>
-                <option value="precio-bajo">Precio: Menor a Mayor</option>
-                <option value="precio-alto">Precio: Mayor a Menor</option>
-                <option value="nombre">Nombre</option>
-            </select>
-        </div>
-
+    <section class="products-section">
         <div class="products-grid">
+            <!-- Aquí irán los productos de la categoría motores -->
+            {% for producto in productos %}
             <div class="product-card">
-                <!-- Usar la etiqueta {% static %} para las imágenes -->
-                <img src="{% static 'img/categoria_frenos.jpg' %}" alt="Pastillas de freno">
-                <h3>Pastillas Brembo Sport</h3>
-                <p class="description">Pastillas de freno de alto rendimiento</p>
-                <p class="price">$799.99</p>
+                {% if producto.img %}
+                <img src="{{ producto.img.url }}" alt="{{ producto.nombre }}" />
+                {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
+                {% endif %}
+                <h3>{{ producto.nombre|capfirst }}</h3>
+                <p class="description">{{ producto.marca }} - {{ producto.descripcion }}</p>
+                <p class="price">${{ producto.precio }}</p>
+                <a href="{% url 'detalle_producto' producto.id %}" class="view-details">Ver detalles</a>
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
-
-            <div class="product-card">
-                <img src="{% static 'img/categoria_frenos.jpg' %}" alt="Discos de freno">
-                <h3>Discos Brembo Perforados</h3>
-                <p class="description">Par de discos ventilados y perforados</p>
-                <p class="price">$1,299.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{% static 'img/categoria_frenos.jpg' %}" alt="Amortiguadores">
-                <h3>Amortiguadores Monroe</h3>
-                <p class="description">Par de amortiguadores delanteros gas</p>
-                <p class="price">$899.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{% static 'img/categoria_frenos.jpg' %}" alt="Rótulas">
-                <h3>Rótulas 555</h3>
-                <p class="description">Par de rótulas de suspensión</p>
-                <p class="price">$399.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
+            {% endfor %}
         </div>
-    </main>
-</body>
-</html>
+    </section>
+</main>
+{% endblock %}

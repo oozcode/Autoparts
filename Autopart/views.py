@@ -75,6 +75,16 @@ def frenos(request):
 def electrico(request):
     return render(request, 'autopart/electrico.html')
 
+# Vista para la página de motores y componentes
+def motores(request):
+    productos = Producto.objects.filter(categoria='motores')
+    return render(request, 'autopart/motores.html', {'productos': productos})
+
+# Vista para la página de accesorios
+def accesorios(request):
+    productos = Producto.objects.filter(categoria='accesorios')
+    return render(request, 'autopart/accesorios.html', {'productos': productos})
+
 #Vista para la página de detalles del producto
 def detalle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)

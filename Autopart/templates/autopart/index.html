@@ -17,7 +17,7 @@
     <section class="categories-section">
         <h2>Categorías</h2>
         <div class="categories-grid">
-            <!-- Categoría Frenos -->
+
             <a href="{% url 'frenos' %}" class="category-card">
                 <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Frenos y Suspensión" />
                 <h3>Frenos y Suspensión</h3>
@@ -29,7 +29,6 @@
                 </ul>
             </a>
 
-            <!-- Categoría Electricidad -->
             <a href="{% url 'electrico' %}" class="category-card">
                 <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Electricidad y Baterías" />
                 <h3>Electricidad y Baterías</h3>
@@ -41,7 +40,27 @@
                 </ul>
             </a>
 
-            <!-- Aquí puedes agregar más categorías si quieres -->
+            <a href="{% url 'motores' %}" class="category-card">
+                <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Motores" />
+                <h3>Motores y Componentes</h3>
+                <ul class="category-items">
+                    <li>Filtros de aceite</li>
+                    <li>Filtros de aire</li>
+                    <li>Bujías</li>
+                    <li>Correas de distribución</li>
+                </ul>
+            </a>
+
+            <a href="{% url 'accesorios' %}" class="category-card">
+                <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Accesorios" />
+                <h3>Accesorios</h3>
+                <ul class="category-items">
+                    <li>Tapetes</li>
+                    <li>Fundas para asientos</li>
+                    <li>Aromatizantes</li>
+                    <li>Porta celulares</li>
+                </ul>
+            </a>
         </div>
     </section>
 

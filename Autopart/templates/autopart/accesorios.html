@@ -1,71 +1,33 @@
+{% extends 'autopart/base/header.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts - Accesorios y Seguridad</title>
-    <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{% url 'index' %}" class="navbar-brand">AutoParts</a>
-        <div class="nav-links">
-            <a href="{% url 'catalogo' %}">Catálogo</a>
-            <a href="{% url 'carrito' %}">Carrito de compras</a>
-            <a href="{% url 'registro' %}">Iniciar Sesión</a>
-        </div>
-    </nav>
+{% block title %}AutoParts - Accesorios{% endblock %}
 
-    <main>
-        <div class="category-header">
-            <h1>Accesorios y Seguridad</h1>
-            <p>Accesorios y elementos de seguridad para tu vehículo</p>
-        </div>
+{% block content %}
+<main class="category-page">
+    <section class="category-header">
+        <h1>Accesorios</h1>
+        <p>Descubre nuestra amplia gama de accesorios para personalizar y mejorar tu vehículo</p>
+    </section>
 
-        <div class="category-filters">
-            <select name="ordenar" id="ordenar">
-                <option value="">Ordenar por</option>
-                <option value="precio-bajo">Precio: Menor a Mayor</option>
-                <option value="precio-alto">Precio: Mayor a Menor</option>
-                <option value="nombre">Nombre</option>
-            </select>
-        </div>
-
+    <section class="products-section">
         <div class="products-grid">
+            <!-- Aquí irán los productos de la categoría accesorios -->
+            {% for producto in productos %}
             <div class="product-card">
-                <img src="{% static 'autopart/img/alarma.jpg' %}" alt="Alarma">
-                <h3>Alarma Viper</h3>
-                <p class="description">Sistema de alarma con control remoto</p>
-                <p class="price">$899.99</p>
+                {% if producto.img %}
+                <img src="{{ producto.img.url }}" alt="{{ producto.nombre }}" />
+                {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
+                {% endif %}
+                <h3>{{ producto.nombre|capfirst }}</h3>
+                <p class="description">{{ producto.marca }} - {{ producto.descripcion }}</p>
+                <p class="price">${{ producto.precio }}</p>
+                <a href="{% url 'detalle_producto' producto.id %}" class="view-details">Ver detalles</a>
                 <button class="add-to-cart">Agregar al carrito</button>
             </div>
-
-            <div class="product-card">
-                <img src="{% static 'autopart/img/cinturon.jpg' %}" alt="Cinturón">
-                <h3>Cinturón de Seguridad</h3>
-                <p class="description">Cinturón de seguridad universal 3 puntos</p>
-                <p class="price">$499.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{% static 'autopart/img/cubre-asientos.jpg' %}" alt="Cubre asientos">
-                <h3>Cubre Asientos Deportivos</h3>
-                <p class="description">Set completo de cubre asientos</p>
-                <p class="price">$799.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{% static 'autopart/img/kit-emergencia.jpg' %}" alt="Kit emergencia">
-                <h3>Kit de Emergencia</h3>
-                <p class="description">Kit completo de emergencia vial</p>
-                <p class="price">$599.99</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
+            {% endfor %}
         </div>
-    </main>
-</body>
-</html>
+    </section>
+</main>
+{% endblock %}
