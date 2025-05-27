@@ -1,13 +1,19 @@
 {% extends 'autopart/base/header.html' %}
-{% block title %}Iniciar Sesión - AutoParts{% endblock %}
 {% load static %}
-{% block content %}
-    <h2>Iniciar sesión</h2>
-    <form method="POST" class="form-login">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn-submit">Entrar</button>
-    </form>
-    <p class="register-link">¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
-{% endblock %}
 
+{% block title %}Iniciar Sesión - AutoParts{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'autopart/css/Componentes/formulario.css' %}">
+<div class="page-center">
+    <div class="form-container login-box">
+        <h2>Bienvenido de nuevo</h2>
+        <form method="POST" class="form-login">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+        <p class="register-link">¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
+    </div>
+<div>
+{% endblock %}

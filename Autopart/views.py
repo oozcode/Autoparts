@@ -9,7 +9,8 @@ from django.contrib.auth import logout, authenticate, login
 #from transbank.webpay.webpay_plus.transaction import Transaction,WebpayOptions
 #from transbank.common.integration_type import IntegrationType
 from django.urls import reverse
-from .forms import RegistroForm
+from .forms import RegistroForm, EmailAuthenticationForm
+from django.contrib import messages
 
 # Vista para la página de inicio
 def index(request):
@@ -31,13 +32,13 @@ def carrito(request):
 # Vista para la página de inicio de sesión
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = EmailAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             return redirect('index')
     else:
-        form = AuthenticationForm()
+        form = EmailAuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
 
 # Vista para la página de registro
@@ -53,7 +54,10 @@ def registro(request):
                 perfil.save()
 
             login(request, user)
+            messages.success(request, '¡Registro exitoso! Bienvenido a Autoparts 🥳🚗')
             return redirect('index')
+        else:
+            messages.error(request, 'Hubo un error en el formulario. Por favor, revisa los campos 😥')
     else:
         form = RegistroForm()
     
@@ -61,6 +65,7 @@ def registro(request):
 
 def exit(request):
     logout(request)
+    messages.success(request, 'Sesión cerrada correctamente')
     return redirect('index')
 
 # Vista para la página de pago
