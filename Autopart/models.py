@@ -31,17 +31,15 @@ class TipoCliente(models.Model):
 #Tabla de productos sin precio
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
+    marca = models.ForeignKey(Marca, on_delete=models.PROTECT)  # <-- agregar este campo
     nombre = models.CharField(max_length=50)
     descripcion = models.TextField(blank=True)
     img = models.ImageField(upload_to='productos', null=True, blank=True)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"{self.nombre} - {self.marca}"
-    def get_precio_para_tipo(self, tipo_cliente):
-        precio = self.precios.filter(tipo_cliente=tipo_cliente).first()
-        return precio.valor if precio else None
-
 #Precio mayorista y minorista
 class Precio(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='precios')

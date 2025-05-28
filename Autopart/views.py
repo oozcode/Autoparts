@@ -22,8 +22,8 @@ def index(request):
 
 # Vista para la página del catálogo
 def catalogo(request):
-    productos = Producto.objects.all()
-    return render(request, 'autopart/catalogo.html', {'productos': productos})
+    categorias = Categoria.objects.all().prefetch_related('producto_set')
+    return render(request, 'autopart/catalogo.html', {'categorias': categorias})
 
 # Vista para la página del carrito de compras
 def carrito(request):
