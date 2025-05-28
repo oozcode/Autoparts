@@ -2,12 +2,19 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
 
-#Categoría de productos
+from django.utils.text import slugify
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=60, unique=True, blank=True)
+
     def __str__(self):
         return self.nombre
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nombre)
+        super().save(*args, **kwargs)
 #Marca de productos
 class Marca(models.Model):
     nombre = models.CharField(max_length=100, unique=True)

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Producto,PerfilUsuario
+from .models import Producto,PerfilUsuario,Categoria
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.shortcuts import render, redirect ,  get_object_or_404
@@ -94,3 +94,16 @@ def accesorios(request):
 def detalle_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     return render(request, 'autopart/detalle_producto.html', {'producto': producto})
+
+def productos_por_categoria(request, categoria_slug):
+    # Obtiene la categoría o muestra error 404 si no existe
+    categoria = get_object_or_404(Categoria, slug=categoria_slug)
+    
+    # Filtra productos que pertenezcan a esta categoría
+    productos = Producto.objects.filter(categoria=categoria)
+    
+    # Renderiza la plantilla con la lista de productos y categoría
+    return render(request, 'productos_categoria.html', {
+        'categoria': categoria,
+        'productos': productos
+    })

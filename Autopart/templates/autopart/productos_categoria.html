@@ -1,0 +1,9 @@
+<h1>Productos en la categoría: {{ categoria.nombre }}</h1>
+
+<ul>
+  {% for producto in productos %}
+    <li>{{ producto.nombre }}{% if producto.marca %} - {{ producto.marca.nombre }}{% endif %}</li>
+  {% empty %}
+    <li>No hay productos en esta categoría.</li>
+  {% endfor %}
+</ul>
