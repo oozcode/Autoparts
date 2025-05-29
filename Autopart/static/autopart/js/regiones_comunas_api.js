@@ -33,7 +33,7 @@ regionSelect.addEventListener("change", () => {
     data.coverageAreas.forEach(area => {
       const option = document.createElement("option");
       option.value = area.countyCode;
-      option.textContent = area.countyName;
+      option.textContent = area.coverageName;
       comunaSelect.appendChild(option);
     });
   });

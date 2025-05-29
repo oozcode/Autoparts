@@ -92,8 +92,7 @@
             // Calcular totales
             const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
             const iva = subtotal * 0.19;
-            const shipping = 150;
-            const total = subtotal + iva + shipping;
+            const total = subtotal + iva;
 
             // Mostrar resumen
             cartSummary.style.display = 'block';
@@ -106,10 +105,6 @@
                 <div class="summary-item">
                     <span>IVA (19%)</span>
                     <span>$${iva.toFixed(2)}</span>
-                </div>
-                <div class="summary-item">
-                    <span>Envío</span>
-                    <span>$${shipping.toFixed(2)}</span>
                 </div>
                 <div class="summary-total">
                     <span>Total</span>
