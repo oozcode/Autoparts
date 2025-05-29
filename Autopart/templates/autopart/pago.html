@@ -70,12 +70,16 @@
 
           <div class="mb-3">
             <label for="region" class="form-label">Región</label>
-            <input type="text" class="form-control" id="region" value="METROPOLITANA DE SANTIAGO" required>
+            <select id="region" class="form-select" required>
+              <option value="">Seleccione una región</option>
+            </select>
           </div>
 
           <div class="mb-3">
             <label for="comuna" class="form-label">Comuna</label>
-            <input type="text" class="form-control" id="comuna" value="ALHUE" required>
+            <select id="comuna" class="form-select" required>
+              <option value="">Seleccione una comuna</option>
+            </select>
           </div>
 
           <div class="mb-3">
@@ -108,50 +112,39 @@
 
       <!-- Resumen del pedido -->
       <div class="col-md-5 order-summary">
-        <h4>Tu pedido</h4>
-        <div id="cartItems">
-          <!-- Aquí se insertan los productos con JavaScript -->
-        </div>
-      </div>
-    </div>
+  <h4>Tu pedido</h4>
+  <div id="cartItems" class="mb-3">
+    <!-- Productos se insertan aquí con JS -->
   </div>
 
-  <script>
-    // Aquí simulas los productos del carrito
-    const cart = [
-      {
-        nombre: "NOTEBOOK HP 240 G8 CELERON N4020 4GB 500GB W10H",
-        precio: 253690,
-        cantidad: 1
-      }
-    ];
+  <!-- Subtotal -->
+  <div class="d-flex justify-content-between mb-2">
+    <span>Subtotal</span>
+    <span id="subtotal"></span>
+  </div>
 
-    function displayCart() {
-      const cartContainer = document.getElementById("cartItems");
-      cartContainer.innerHTML = '';
+ <!-- Envío -->
+<div class="d-flex justify-content-between mb-2">
+  <span>Envío</span>
+  <span id="envio">$0</span>
+</div>
 
-      cart.forEach(item => {
-        const itemDiv = document.createElement("div");
-        itemDiv.classList.add("mb-3");
-        itemDiv.innerHTML = `
-          <div class="d-flex justify-content-between">
-            <div>${item.nombre}</div>
-            <div>$${item.precio.toLocaleString()}</div>
-          </div>
-        `;
-        cartContainer.appendChild(itemDiv);
-      });
+<!-- Agrega este botón oculto para calcular el envío -->
+<button id="calcularEnvio" style="display: none;"></button>
 
-      const total = cart.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-      const totalDiv = document.createElement("div");
-      totalDiv.classList.add("fw-bold", "mt-3");
-      totalDiv.innerHTML = `Total: $${total.toLocaleString()}`;
-      cartContainer.appendChild(totalDiv);
-    }
+  <!-- Total -->
+  <div class="d-flex justify-content-between mt-3">
+    <span class="fw-bold">Total</span>
+    <span class="fw-bold" id="totalFinal"></span>
+  </div>
+  <div class="text-muted" style="font-size: 0.9em;">
+    Incluye <span id="impuestos"></span> de impuestos
+  </div>
+</div>
 
-    displayCart();
   </script>
-  
+  <script src="{% static 'autopart\js\regiones_comunas_api.js' %}"></script>
+
 </body>
 
 </html>
