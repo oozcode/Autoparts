@@ -1,7 +1,8 @@
 class Catalog {
-    constructor() {
+    constructor(userId = 'anon') {
         this.products = [];
         this.currentCategory = null;
+        this.userId = userId;
         this.init();
     }
 
@@ -12,8 +13,6 @@ class Catalog {
     }
 
     loadProducts() {
-        // Aquí podrías cargar los productos desde una API o base de datos
-        // Por ahora usaremos datos de ejemplo
         this.products = [
             {
                 id: 'motor1',
@@ -23,7 +22,6 @@ class Catalog {
                 description: 'Filtro de aceite de alta calidad para motores de 4 cilindros',
                 image: 'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d'
             },
-            // Agregar más productos aquí
         ];
     }
 
@@ -74,9 +72,39 @@ class Catalog {
             </div>
         `).join('');
     }
-}
 
-// Inicializar el catálogo cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-    const catalog = new Catalog();
-}); 
+    // ========================
+    // CRUD DE VENDEDOR ✨✨✨
+    // ========================
+
+    addProduct(product) {
+        product.id = `p_${Date.now()}`; // ID único
+        this.products.push(product);
+        this.logChange('CREADO', product);
+        this.updateDisplay();
+    }
+
+    updateProduct(productId, updatedData) {
+        const index = this.products.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            this.products[index] = { ...this.products[index], ...updatedData };
+            this.logChange('MODIFICADO', this.products[index]);
+            this.updateDisplay();
+        }
+    }
+
+    deleteProduct(productId) {
+        const index = this.products.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            const deleted = this.products.splice(index, 1)[0];
+            this.logChange('ELIMINADO', deleted);
+            this.updateDisplay();
+        }
+    }
+
+    logChange(action, product) {
+        const now = new Date().toLocaleString();
+        console.log(`[${now}] Producto ${action} por usuario ${this.userId}:`, product);
+        // Aquí puedes enviar esto a una API o base de datos si deseas
+    }
+}

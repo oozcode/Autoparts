@@ -3,6 +3,29 @@
     padding: 0;
     box-sizing: border-box;
 }
+/* Asegura que el texto de los campos de formulario sea siempre oscuro */
+.form-control,
+.form-select,
+textarea {
+  color: #212529 !important;    /* color por defecto de Bootstrap */
+}
+/* Apunta sólo dentro de tus modales de producto */
+#crearModal .form-control,
+#crearModal .form-select,
+#crearModal textarea,
+#editarModal .form-control,
+#editarModal .form-select,
+#editarModal textarea {
+  color: #212529 !important;      /* texto oscuro */
+  background-color: #ffffff !important; /* fondo blanco */
+}
+
+/* Opcional: que los placeholders también sean visibles */
+#crearModal ::placeholder,
+#editarModal ::placeholder {
+  color: #6c757d !important;
+  opacity: 1 !important;
+}
 
 
 main {

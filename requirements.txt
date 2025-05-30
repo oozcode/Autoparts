@@ -1,1 +1,3 @@
 Pillow
+djangorestframework
+drf-yasg

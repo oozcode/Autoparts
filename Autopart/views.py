@@ -1,24 +1,36 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Producto, PerfilUsuario, Categoria
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import logout, authenticate, login
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import logout, login
 from django.contrib import messages
 from .forms import RegistroForm, EmailAuthenticationForm
+from django.views.decorators.http import require_POST     
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 
-# Vista para la página de inicio
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer
+
+
+# --- Permiso personalizado para vendedores ---
+class IsVendedor(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # Solo permite si el usuario está autenticado y es parte del grupo "vendedor"
+        return request.user and request.user.is_authenticated and request.user.groups.filter(name='vendedor').exists()
+
+
+# Tus vistas tradicionales aquí (sin cambios)...
 def index(request):
-    productos = Producto.objects.all()[:8]  # Mostrar solo los primeros 8 productos (ajustable)
+    productos = Producto.objects.all()[:8]
     categorias = Categoria.objects.all()
-    data = {
-        'productos': productos,
-        'categorias': categorias,
-    }
-    return render(request, 'autopart/index.html', data)
-
+    return render(request, 'autopart/index.html', {'productos': productos, 'categorias': categorias})
 # Vista para la página del catálogo
 def catalogo(request):
-    categorias = Categoria.objects.all().prefetch_related('producto_set')
+    categorias = Categoria.objects.prefetch_related('productos').all()
     return render(request, 'autopart/catalogo.html', {'categorias': categorias})
 
 # Vista para la página del carrito de compras
@@ -104,3 +116,138 @@ def productos_por_categoria(request, categoria_slug):
         'categoria': categoria,
         'productos': productos
     })
+
+@login_required
+@require_POST
+def crear_pedido(request):
+    try:
+        data = json.loads(request.body)
+        cart = data.get('cart', [])
+        tipo_pedido = data.get('tipo_pedido')
+
+        if not cart or not tipo_pedido:
+            return JsonResponse({'error': 'Carrito vacío o tipo de pedido no definido'}, status=400)
+
+        # Crear la orden
+        order = Order.objects.create(
+            user=request.user,
+            tipo_pedido=tipo_pedido,
+            rut=data['rut'],
+            nombre=data['nombre'],
+            apellidos=data['apellidos'],
+            region=data['region'],
+            comuna=data['comuna'],
+            calle=data['calle'],
+            numero=data['numero'],
+            complemento=data.get('complemento', ''),
+            email=data['email'],
+            telefono=data['telefono'],
+        )
+
+        tipo_cliente = request.user.perfilusuario.tipo_cliente
+
+        for item in cart:
+            producto = Producto.objects.get(pk=item['id'])
+            precio = producto.precios.get(tipo_cliente=tipo_cliente).valor
+            OrderItem.objects.create(
+                order=order,
+                producto=producto,
+                price=precio,
+                quantity=item['quantity']
+            )
+
+        return JsonResponse({'order_id': order.id})
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+# --- Vistas API para CRUD con DRF ---
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+    permission_classes = [permissions.IsAuthenticated, IsVendedor]
+
+    def perform_create(self, serializer):
+        serializer.save(creado_por=self.request.user, modificado_por=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(modificado_por=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        # Solo vendedores pueden eliminar
+        if not request.user.groups.filter(name='vendedor').exists():
+            raise PermissionDenied("No tienes permiso para eliminar productos")
+        return super().destroy(request, *args, **kwargs)
+
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class MarcaViewSet(viewsets.ModelViewSet):
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+# Opcional: para tus endpoints clásicos que aún quieras mantener y que también sean solo para vendedores
+@login_required
+@csrf_exempt
+def crear_producto(request):
+    if not request.user.groups.filter(name='vendedor').exists():
+        return JsonResponse({'error': 'No tienes permiso para crear productos'}, status=403)
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        producto = Producto.objects.create(
+            nombre=data['nombre'],
+            descripcion=data['descripcion'],
+            precio_minorista=data['precio_minorista'],
+            precio_mayorista=data['precio_mayorista'],
+            stock=data['stock'],
+            categoria_id=data.get('categoria'),  # si envías id categoría
+            marca_id=data.get('marca'),          # si envías id marca
+            creado_por=request.user,
+            modificado_por=request.user
+        )
+        return JsonResponse({'message': 'Producto creado', 'id': producto.id})
+
+@login_required
+@csrf_exempt
+def actualizar_producto(request, producto_id):
+    if not request.user.groups.filter(name='vendedor').exists():
+        return JsonResponse({'error': 'No tienes permiso para actualizar productos'}, status=403)
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        producto = Producto.objects.get(id=producto_id)
+        producto.nombre = data['nombre']
+        producto.descripcion = data['descripcion']
+        producto.precio_minorista = data['precio_minorista']
+        producto.precio_mayorista = data['precio_mayorista']
+        producto.stock = data['stock']
+        producto.categoria_id = data.get('categoria')
+        producto.marca_id = data.get('marca')
+        producto.modificado_por = request.user
+        producto.save()
+        return JsonResponse({'message': 'Producto actualizado'})
+
+@login_required
+@csrf_exempt
+def eliminar_producto(request, producto_id):
+    if not request.user.groups.filter(name='vendedor').exists():
+        return JsonResponse({'error': 'No tienes permiso para eliminar productos'}, status=403)
+
+    if request.method == 'POST':
+        producto = Producto.objects.get(id=producto_id)
+        producto.delete()
+        return JsonResponse({'message': 'Producto eliminado'})
+
+
+def es_vendedor(user):
+    return user.groups.filter(name="vendedor").exists()
+
+@login_required
+@user_passes_test(es_vendedor)
+def dashboard_vendedor(request):
+    return render(request, 'autopart/dashboard.html')

@@ -2,15 +2,6 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/formulario.css' %}">
 {% block content %}
-{% if messages %}
-  <div class="notificaciones">
-    {% for message in messages %}
-      <div class="mensaje {{ message.tags }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
 <div class="page-center">
   <div class="form-container">
       <h2>Registro</h2>

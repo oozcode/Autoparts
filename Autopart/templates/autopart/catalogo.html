@@ -11,7 +11,7 @@
         <section class="category-section">
             <h2>{{ categoria.nombre }}</h2>
             <div class="products-grid">
-                {% for producto in categoria.producto_set.all %}
+                {% for producto in categoria.productos.all %}
                     <div class="product-card" data-product-id="{{ producto.id }}">
                         <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
                         <h3>{{ producto.nombre }}</h3>

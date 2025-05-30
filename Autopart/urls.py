@@ -1,6 +1,25 @@
-from django.urls import path
-from . import views  # Importar las vistas de la aplicación
+from django.urls import path, include
+from . import views 
+from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet# Aquí debes importar ProductoViewSet correctamente
 from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+router = DefaultRouter()
+router.register(r'productos', ProductoViewSet)
+router.register(r'categorias', CategoriaViewSet)
+router.register(r'marcas', MarcaViewSet)
+schema_view = get_schema_view(
+   openapi.Info(
+      title="API Autoparts",
+      default_version='v1',
+      description="Documentación amigable del API para vendedores 🚗",
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -15,7 +34,11 @@ urlpatterns = [
     path('motores/', views.motores, name='motores'),
     path('accesorios/', views.accesorios, name='accesorios'),
     path('producto/<int:id>/', views.detalle_producto, name='detalle_producto'),
-    # Cambié el nombre de la vista para que coincida con la nueva ruta de productos por categoría
     path('categoria/<slug:categoria_slug>/', views.productos_por_categoria, name='productos_por_categoria'),
-
+    path('crear-pedido/', views.crear_pedido, name='crear_pedido'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/', include(router.urls)),
+    path('dashboard/', dashboard_vendedor, name='dashboard_vendedor'),
+    
 ]
