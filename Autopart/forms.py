@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import PerfilUsuario
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
 
 class RegistroForm(UserCreationForm):
     first_name = forms.CharField(
@@ -44,6 +45,7 @@ class RegistroForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         email = self.cleaned_data['email']
+        email = self.cleaned_data.get('email')
         user.email = email
         user.username = email  # ← Esto genera el username automáticamente con el correo 💡
         if commit:
@@ -64,12 +66,12 @@ class EmailAuthenticationForm(AuthenticationForm):
     def clean(self):
         email = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
+
         if email and password:
-            try:
-                user = User.objects.get(email=email)
-                if not user.check_password(password):
-                    raise forms.ValidationError("Contraseña incorrecta.")
-                self.user_cache = user
-            except User.DoesNotExist:
-                raise forms.ValidationError("Este correo no está registrado.")
+            self.user_cache = authenticate(self.request, username=email, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError("Correo o contraseña incorrectos.")
+            self.confirm_login_allowed(self.user_cache)
+
         return self.cleaned_data
+    
