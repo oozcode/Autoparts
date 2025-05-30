@@ -1,0 +1,153 @@
+/* Reset y base */
+body {
+    background-color: #f9fafb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Navbar */
+  .custom-navbar {
+    background-color: #1e293b; /* azul oscuro */
+    padding: 0.75rem 1rem;
+    color: white;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+  
+  .custom-navbar .navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: white;
+    text-decoration: none;
+  }
+  
+  .custom-navbar .logo {
+    height: 38px;
+    width: 38px;
+    object-fit: contain;
+  }
+  
+  .custom-navbar .brand-name {
+    user-select: none;
+  }
+  
+  .nav-links a.nav-link {
+    color: #cbd5e1;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .nav-links a.nav-link:hover,
+  .nav-links a.nav-link:focus,
+  .nav-links a.nav-link.link-hover:hover {
+    color: #60a5fa; /* azul claro */
+    text-decoration: underline;
+  }
+  
+  .user-dropdown .dropdown-menu {
+    min-width: 150px;
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgb(0 0 0 / 0.15);
+  }
+  
+  .user-dropdown .dropdown-item {
+    color: #334155;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+  }
+  
+  .user-dropdown .dropdown-item:hover,
+  .user-dropdown .dropdown-item:focus {
+    background-color: #60a5fa;
+    color: white;
+  }
+  
+  /* Formularios */
+  .form-section label {
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .form-section input.form-control,
+  .form-section select.form-select {
+    border-radius: 6px;
+    border: 1.5px solid #cbd5e1;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-section input.form-control:focus,
+  .form-section select.form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+    outline: none;
+  }
+  
+  /* Botón */
+  .btn-primary {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    font-weight: 700;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .btn-primary:disabled {
+    background-color: #93c5fd;
+    border-color: #93c5fd;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .btn-primary:not(:disabled):hover,
+  .btn-primary:not(:disabled):focus {
+    background-color: #2563eb;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.8);
+    outline: none;
+  }
+  
+  /* Resumen del pedido */
+  .order-summary {
+    background-color: #ffffff;
+  }
+  
+  .summary-line {
+    font-size: 1.05rem;
+    color: #334155;
+  }
+  
+  .summary-total {
+    font-size: 1.25rem;
+    color: #1e293b;
+  }
+  
+  /* Animaciones */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  
+  .delay-1 {
+    animation-delay: 0.3s;
+  }
+  
+  /* Espaciado extra para iconos */
+  .ms-2 {
+    margin-left: 0.5rem !important;
+  }
+  

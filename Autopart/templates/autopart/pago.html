@@ -2,71 +2,74 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Pago</title>
-  <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+  <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-pb3PH0+nsdQ5xipFqjB3Lk6t7aXfDqN7L+4I4Y8U7Jj3VL4AN+VTXhRXN4dO3rF64rGiH0LsM3ij+J5bEyIcjA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 </head>
 
-
 <body>
+  <nav class="navbar custom-navbar shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a href="{% url 'index' %}" class="navbar-brand d-flex align-items-center">
+        <img src="{% static 'autopart/img/Icono.png' %}" alt="AutoParts Logo" class="logo me-2" />
+        <span class="brand-name">AutoParts</span>
+      </a>
+      <div class="nav-links d-flex align-items-center gap-4">
+        <a href="{% url 'catalogo' %}" class="nav-link link-hover">Catálogo</a>
+        <a href="{% url 'carrito' %}" class="nav-link link-hover">Carrito de compras</a>
 
-  <nav class="navbar">
-    <a href="{% url 'index' %}" class="navbar-brand">
-        <img src="{% static 'autopart/img/Icono.png' %}" alt="AutoParts Logo" class="logo">
-    </a>
-    <div class="nav-links">
-        <a href="{% url 'catalogo' %}">Catálogo</a>
-        <a href="{% url 'carrito' %}">Carrito de compras</a>
-        {% if request.user.is_authenticated %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-circle fa-2x"></i> 
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="">Perfil</a>
-                        <a class="dropdown-item" href="">Cerrar Sesión</a>
-                    </div>
-                </li>
-        {% else %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-circle fa-2x"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="{% url 'login' %}">Ingresar</a>
-                        <a class="dropdown-item" href="{% url 'registro' %}">Registrarse</a>
-                    </div>
-                </li>
-        {% endif %}
-
+        <div class="dropdown user-dropdown">
+          <a
+            href="#"
+            class="nav-link d-flex align-items-center"
+            id="userDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fas fa-user-circle fa-2x"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            {% if request.user.is_authenticated %}
+            <li><a class="dropdown-item" href="#">Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+            {% else %}
+            <li><a class="dropdown-item" href="{% url 'login' %}">Ingresar</a></li>
+            <li><a class="dropdown-item" href="{% url 'registro' %}">Registrarse</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
     </div>
-</nav>
-    
-  <div class="container my-5">
-    <div class="row">
-      <!-- Formulario de facturación -->
-      <div class="col-md-7 form-section">
-        <h4>Detalles de facturación</h4>
-        <form>
-          
+  </nav>
 
-          <div class="row mb-3">
-            <div class="col">
-              <label for="rut" class="form-label">RUT</label>
-              <input type="text" class="form-control" id="rut" placeholder="12345678-9" required>
-            </div>
+  <main class="container my-5">
+    <div class="row g-4">
+      <!-- Formulario de facturación -->
+      <section class="col-md-7 form-section p-4 shadow rounded bg-white animate-fade-in">
+        <h4 class="mb-4">Detalles de facturación</h4>
+        <form id="billingForm" novalidate>
+          <div class="mb-3">
+            <label for="rut" class="form-label">RUT</label>
+            <input type="text" class="form-control" id="rut" placeholder="12345678-9" required />
           </div>
 
-          <div class="row mb-3">
-            <div class="col">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
               <label for="nombre" class="form-label">Nombre</label>
-              <input type="text" class="form-control" id="nombre" required>
+              <input type="text" class="form-control" id="nombre" required />
             </div>
-            <div class="col">
+            <div class="col-md-6">
               <label for="apellidos" class="form-label">Apellidos</label>
-              <input type="text" class="form-control" id="apellidos" required>
+              <input type="text" class="form-control" id="apellidos" required />
             </div>
           </div>
 
@@ -86,67 +89,105 @@
 
           <div class="mb-3">
             <label for="calle" class="form-label">Nombre de la Calle</label>
-            <input type="text" class="form-control" id="calle" required>
+            <input type="text" class="form-control" id="calle" required />
           </div>
 
-          <div class="mb-3">
-            <label for="numero" class="form-label">Número</label>
-            <input type="text" class="form-control" id="numero">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="numero" class="form-label">Número</label>
+              <input type="text" class="form-control" id="numero" />
+            </div>
+            <div class="col-md-6">
+              <label for="complemento" class="form-label">Complemento (opcional)</label>
+              <input type="text" class="form-control" id="complemento" />
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label for="complemento" class="form-label">Complemento (opcional)</label>
-            <input type="text" class="form-control" id="complemento">
-          </div>
-
-          <div class="row mb-3">
-            <div class="col">
+          <div class="row g-3">
+            <div class="col-md-6">
               <label for="email" class="form-label">Correo electrónico</label>
-              <input type="email" class="form-control" id="email" required>
+              <input type="email" class="form-control" id="email" required />
             </div>
-            <div class="col">
+            <div class="col-md-6">
               <label for="telefono" class="form-label">Teléfono</label>
-              <input type="tel" class="form-control" id="telefono" required>
+              <input type="tel" class="form-control" id="telefono" required />
             </div>
+          </div>
+
+          <div class="mt-4 d-flex justify-content-end">
+            <button type="submit" id="btnSiguiente" class="btn btn-primary" disabled>
+              Siguiente
+              <i class="fas fa-arrow-right ms-2"></i>
+            </button>
           </div>
         </form>
-      </div>
+      </section>
 
       <!-- Resumen del pedido -->
-      <div class="col-md-5 order-summary">
-  <h4>Tu pedido</h4>
-  <div id="cartItems" class="mb-3">
-    <!-- Productos se insertan aquí con JS -->
-  </div>
+      <section
+        class="col-md-5 order-summary p-4 shadow rounded bg-white animate-fade-in delay-1"
+      >
+        <h4 class="mb-4">Tu pedido</h4>
+        <div id="cartItems" class="mb-4">
+          <!-- Productos se insertan aquí con JS -->
+        </div>
 
-  <!-- Subtotal -->
-  <div class="d-flex justify-content-between mb-2">
-    <span>Subtotal</span>
-    <span id="subtotal"></span>
-  </div>
+        <div class="d-flex justify-content-between mb-2 summary-line">
+          <span>Subtotal</span>
+          <span id="subtotal"></span>
+        </div>
 
- <!-- Envío -->
-<div class="d-flex justify-content-between mb-2">
-  <span>Envío</span>
-  <span id="envio">$0</span>
-</div>
+        <div class="d-flex justify-content-between mb-2 summary-line">
+          <span>Envío</span>
+          <span id="envio">$0</span>
+        </div>
 
-<!-- Agrega este botón oculto para calcular el envío -->
-<button id="calcularEnvio" style="display: none;"></button>
+        <!-- Botón oculto para calcular envío -->
+        <button id="calcularEnvio" style="display: none;"></button>
 
-  <!-- Total -->
-  <div class="d-flex justify-content-between mt-3">
-    <span class="fw-bold">Total</span>
-    <span class="fw-bold" id="totalFinal"></span>
-  </div>
-  <div class="text-muted" style="font-size: 0.9em;">
-    Incluye <span id="impuestos"></span> de impuestos
-  </div>
-</div>
+        <div class="d-flex justify-content-between mt-3 summary-total">
+          <span class="fw-bold">Total</span>
+          <span class="fw-bold" id="totalFinal"></span>
+        </div>
+        <div class="text-muted small mt-1">
+          Incluye <span id="impuestos"></span> de impuestos
+        </div>
+      </section>
+    </div>
+  </main>
 
+  <script src="{% static 'autopart/js/regiones_comunas_api.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("billingForm");
+      const btnSiguiente = document.getElementById("btnSiguiente");
+
+      // Función que revisa si el form es válido
+      function checkFormValidity() {
+        btnSiguiente.disabled = !form.checkValidity();
+      }
+
+      // Verifica validez al inicio
+      checkFormValidity();
+
+      // Agregamos eventos a todos los inputs para validar en tiempo real
+      const inputs = form.querySelectorAll("input, select");
+      inputs.forEach((input) => {
+        input.addEventListener("input", checkFormValidity);
+        input.addEventListener("change", checkFormValidity);
+      });
+
+      // Previene el submit para demo, y muestra alerta
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (form.checkValidity()) {
+          alert("Formulario válido! Puedes continuar al siguiente paso.");
+          // Aquí puedes añadir la lógica para continuar
+        }
+      });
+    });
   </script>
-  <script src="{% static 'autopart\js\regiones_comunas_api.js' %}"></script>
-
 </body>
-
 </html>
