@@ -17,50 +17,12 @@
     <section class="categories-section">
         <h2>Categorías</h2>
         <div class="categories-grid">
-
-            <a href="{% url 'frenos' %}" class="category-card">
-                <img src="{% static 'autopart/img/categoria_frenos.jpg' %}" alt="Frenos y Suspensión" />
-                <h3>Frenos y Suspensión</h3>
-                <ul class="category-items">
-                    <li>Pastillas de freno</li>
-                    <li>Discos de freno</li>
-                    <li>Amortiguadores</li>
-                    <li>Rótulas</li>
-                </ul>
-            </a>
-
-            <a href="{% url 'electrico' %}" class="category-card">
-                <img src="{% static 'autopart/img/categoria_electrico.jpg' %}" alt="Electricidad y Baterías" />
-                <h3>Electricidad y Baterías</h3>
-                <ul class="category-items">
-                    <li>Alternadores</li>
-                    <li>Baterías</li>
-                    <li>Luces y faros</li>
-                    <li>Sensores y fusibles</li>
-                </ul>
-            </a>
-
-            <a href="{% url 'motores' %}" class="category-card">
-                <img src="{% static 'autopart/img/categoria_motores.jpg' %}" alt="Motores" />
-                <h3>Motores y Componentes</h3>
-                <ul class="category-items">
-                    <li>Filtros de aceite</li>
-                    <li>Filtros de aire</li>
-                    <li>Bujías</li>
-                    <li>Correas de distribución</li>
-                </ul>
-            </a>
-
-            <a href="{% url 'accesorios' %}" class="category-card">
-                <img src="{% static 'autopart/img/categoria_accesorio.jpg' %}" alt="Accesorios" />
-                <h3>Accesorios</h3>
-                <ul class="category-items">
-                    <li>Tapetes</li>
-                    <li>Fundas para asientos</li>
-                    <li>Aromatizantes</li>
-                    <li>Porta celulares</li>
-                </ul>
-            </a>
+            {% for cat in categorias %}
+                <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card">
+                    <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" />
+                    <h3>{{ cat.nombre }}</h3>
+                </a>
+            {% endfor %}
         </div>
     </section>
 
@@ -68,17 +30,17 @@
         <h2>Los Más Vendidos</h2>
         <div class="products-grid">
             {% for p in productos %}
-            <div class="product-card" data-product-id="producto{{ p.id }}">
-                {% if p.img %}
-                <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
-                {% else %}
-                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
-                {% endif %}
-                <h3>{{ p.nombre|capfirst }}</h3>
-                <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-                <p class="price">${{ p.precio }}</p>
-                <button class="add-to-cart">Agregar al carrito</button>
-            </div>
+                <div class="product-card" data-product-id="producto{{ p.id }}">
+                    {% if p.img %}
+                        <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
+                    {% else %}
+                        <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
+                    {% endif %}
+                    <h3>{{ p.nombre|capfirst }}</h3>
+                    <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
+                    <p class="price">${{ p.precio }}</p>
+                    <button class="add-to-cart">Agregar al carrito</button>
+                </div>
             {% endfor %}
         </div>
     </section>

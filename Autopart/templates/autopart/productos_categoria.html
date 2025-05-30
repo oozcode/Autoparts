@@ -1,9 +1,27 @@
-<h1>Productos en la categoría: {{ categoria.nombre }}</h1>
+{% extends 'autopart/base/header.html' %}
+{% load static %}
 
-<ul>
-  {% for producto in productos %}
-    <li>{{ producto.nombre }}{% if producto.marca %} - {{ producto.marca.nombre }}{% endif %}</li>
-  {% empty %}
-    <li>No hay productos en esta categoría.</li>
-  {% endfor %}
-</ul>
+{% block title %}AutoParts - Productos en {{ categoria.nombre }}{% endblock %}
+
+{% block content %}
+<main>
+  <h2>Productos en la categoría: {{ categoria.nombre }}</h2>
+  <div class="products-grid">
+    {% for p in productos %}
+        <div class="product-card" data-product-id="producto{{ p.id }}">
+            {% if p.img %}
+                <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
+            {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
+            {% endif %}
+            <h3>{{ p.nombre|capfirst }}</h3>
+            <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
+            <p class="price">${{ p.precio }}</p>
+            <button class="add-to-cart">Agregar al carrito</button>
+        </div>
+    {% empty %}
+        <p>No hay productos en esta categoría.</p>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

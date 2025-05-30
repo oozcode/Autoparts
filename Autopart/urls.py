@@ -1,5 +1,3 @@
-# Autoparts/urls.py
-
 from django.urls import path
 from . import views  # Importar las vistas de la aplicación
 from django.contrib.auth import views as auth_views
@@ -17,6 +15,7 @@ urlpatterns = [
     path('motores/', views.motores, name='motores'),
     path('accesorios/', views.accesorios, name='accesorios'),
     path('producto/<int:id>/', views.detalle_producto, name='detalle_producto'),
+    # Cambié el nombre de la vista para que coincida con la nueva ruta de productos por categoría
     path('categoria/<slug:categoria_slug>/', views.productos_por_categoria, name='productos_por_categoria'),
-]
 
+]
