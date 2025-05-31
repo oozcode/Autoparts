@@ -16,40 +16,37 @@
 </head>
 
 <body>
-  <nav class="navbar custom-navbar shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
-      <a href="{% url 'index' %}" class="navbar-brand d-flex align-items-center">
-        <img src="{% static 'autopart/img/Icono.png' %}" alt="AutoParts Logo" class="logo me-2" />
-        <span class="brand-name">AutoParts</span>
-      </a>
-      <div class="nav-links d-flex align-items-center gap-4">
-        <a href="{% url 'catalogo' %}" class="nav-link link-hover">Catálogo</a>
-        <a href="{% url 'carrito' %}" class="nav-link link-hover">Carrito de compras</a>
-
-        <div class="dropdown user-dropdown">
-          <a
-            href="#"
-            class="nav-link d-flex align-items-center"
-            id="userDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="fas fa-user-circle fa-2x"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+  <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">
+            <img src="{% static 'autopart/img/Icono.png' %}" alt="AutoParts Logo" class="logo">
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito de compras</a>
             {% if request.user.is_authenticated %}
-            <li><a class="dropdown-item" href="#">Perfil</a></li>
-            <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle fa-2x"></i> 
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="">Perfil</a>
+                            <a class="dropdown-item" href="">Cerrar Sesión</a>
+                        </div>
+                    </li>
             {% else %}
-            <li><a class="dropdown-item" href="{% url 'login' %}">Ingresar</a></li>
-            <li><a class="dropdown-item" href="{% url 'registro' %}">Registrarse</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle fa-2x"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="{% url 'login' %}">Ingresar</a>
+                            <a class="dropdown-item" href="{% url 'registro' %}">Registrarse</a>
+                        </div>
+                    </li>
             {% endif %}
-          </ul>
+
         </div>
-      </div>
-    </div>
-  </nav>
+    </nav>
 
   <main class="container my-5">
     <div class="row g-4">
@@ -145,13 +142,18 @@
           <span id="subtotal"></span>
         </div>
 
-        <div class="d-flex justify-content-between mb-2 summary-line">
-          <span>Envío</span>
-          <span id="envio">$0</span>
+      <!-- Envío -->
+      <div class="row mb-3" id="envioContainer">
+        <div class="col-4"><strong>Envío</strong></div>
+        <div class="col-8" id="shippingOptions">
+           
+          <!-- Opciones de envío se insertarán aquí -->
         </div>
+        <button id="calcularEnvio" style="display: none;">Calcular Envío</button>
 
-        <!-- Botón oculto para calcular envío -->
-        <button id="calcularEnvio" style="display: none;"></button>
+      </div>
+     
+
 
         <div class="d-flex justify-content-between mt-3 summary-total">
           <span class="fw-bold">Total</span>
