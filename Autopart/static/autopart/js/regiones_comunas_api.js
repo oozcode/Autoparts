@@ -52,11 +52,9 @@ comunaSelect.addEventListener("change", () => {
 // Modifica la función de cálculo para actualizar el campo de envío
 document.getElementById("calcularEnvio").addEventListener("click", () => {
   const comunaDestino = comunaSelect.value;
-  
-  
+
   if (!comunaDestino) {
     document.getElementById("envio").textContent = "$0";
-    actualizarResumen();
     return;
   }
 
@@ -64,7 +62,7 @@ document.getElementById("calcularEnvio").addEventListener("click", () => {
     originCountyCode: "PROV", 
     destinationCountyCode: comunaDestino,
     package: {
-      weight: "16",
+      weight: "10",
       height: "1",
       width: "1",
       length: "1"
@@ -85,19 +83,48 @@ document.getElementById("calcularEnvio").addEventListener("click", () => {
   })
   .then(response => response.json())
   .then(data => {
-    if (data.rates && data.rates.length > 0) {
-      const envio = parseInt(data.rates[0].serviceValue);
-      document.getElementById("envio").textContent = `$${envio}`;
-      actualizarResumen(); 
+    const container = document.getElementById("shippingOptions");
+    container.innerHTML = ""; // Limpiar opciones anteriores
+
+    if (
+      data.data &&
+      data.data.courierServiceOptions &&
+      data.data.courierServiceOptions.length > 0
+    ) {
+      const opciones = data.data.courierServiceOptions;
+
+      opciones.forEach((opcion, index) => {
+        const descripcion = opcion.serviceDescription;
+        const valor = parseInt(opcion.serviceValue);
+
+        const radioHTML = `
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="opcionEnvio" id="opcionEnvio${index}" value="${valor}">
+            <label class="form-check-label" for="opcionEnvio${index}">
+              ${descripcion} - $${valor}
+            </label>
+          </div>
+        `;
+        container.innerHTML += radioHTML;
+      });
+
+      // Agregar evento a cada radio button para actualizar el resumen de envío
+      document.getElementsByName("opcionEnvio").forEach(radio => {
+        radio.addEventListener("change", (e) => {
+          const valor = parseInt(e.target.value);
+          document.getElementById("envio").textContent = `$${valor}`;
+          // actualizarResumen(); // Descomenta si luego quieres usar esta lógica
+        });
+      });
     } else {
+      container.innerHTML = "<p>No hay opciones de envío disponibles.</p>";
       document.getElementById("envio").textContent = "$0";
-      actualizarResumen();
     }
   })
   .catch(err => {
+    console.error("Error al cargar opciones de envío:", err);
+    document.getElementById("shippingOptions").innerHTML = "<p>Error al cargar opciones de envío.</p>";
     document.getElementById("envio").textContent = "$0";
-    actualizarResumen();
-    console.error(err);
   });
 });
 
