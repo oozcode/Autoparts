@@ -1,13 +1,27 @@
 {% extends 'autopart/base/header.html' %}
 {% load static %}
-
 {% block title %}Iniciar Sesión - AutoParts{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'autopart/css/Componentes/formulario.css' %}">
+
+
 <div class="page-center">
     <div class="form-container login-box">
         <h2>Bienvenido de nuevo</h2>
+
+        {% if form.errors %}
+          <ul class="errorlist">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
         <form method="POST" class="form-login">
             {% csrf_token %}
             {{ form.as_p }}
@@ -15,5 +29,6 @@
         </form>
         <p class="register-link">¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
     </div>
-<div>
+</div>
+{% include 'autopart/base/footer.html' %}
 {% endblock %}

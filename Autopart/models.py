@@ -13,7 +13,6 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-    # Automágicamente crea el slug si no existe
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.nombre)
@@ -47,11 +46,33 @@ class Producto(models.Model):
     ultima_modificacion = models.DateTimeField(null=True, blank=True)
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
 
+    # Nuevos campos para integración logística con Chilexpress
+    peso = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        help_text="Peso en kilogramos"
+    )
+    largo = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        help_text="Largo en centímetros"
+    )
+    ancho = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        help_text="Ancho en centímetros"
+    )
+    alto = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        help_text="Alto en centímetros"
+    )
+
     def save(self, *args, **kwargs):
         self.ultima_modificacion = timezone.now()
         super().save(*args, **kwargs)
 
-# Precios específicos por tipo de cliente, para personalizar tarifas 💰
+# Precios específicos por tipo de cliente, para personalizar tarifas
 class Precio(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='precios')
     tipo_cliente = models.ForeignKey(TipoCliente, on_delete=models.CASCADE)
@@ -76,7 +97,6 @@ class PerfilUsuario(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-
     tipo_pedido = models.CharField(max_length=10, choices=[('delivery', 'Delivery'), ('retiro', 'Retiro en tienda')])
 
     # Datos de facturación y envío

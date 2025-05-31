@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views 
-from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet# Aquí debes importar ProductoViewSet correctamente
+from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet
 from django.contrib.auth import views as auth_views
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
@@ -40,5 +40,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/', include(router.urls)),
     path('dashboard/', dashboard_vendedor, name='dashboard_vendedor'),
+    path('asignar-tipo/<int:user_id>/', views.asignar_tipo_cliente, name='asignar_tipo_cliente'),
+    path('clientes/', views.lista_usuarios, name='lista_usuarios'),
     
 ]

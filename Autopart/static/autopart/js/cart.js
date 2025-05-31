@@ -1,125 +1,78 @@
+
 class Cart {
     constructor() {
         this.cart = JSON.parse(localStorage.getItem('cart')) || [];
-        this.initEventListeners();
-        this.updateCartDisplay();
+        this.bindAddToCartButtons();
+        this.updateCartCount();
     }
 
-    initEventListeners() {
+    bindAddToCartButtons() {
         document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', event => {
-                const product = JSON.parse(event.target.getAttribute('data-product'));
+            button.addEventListener('click', () => {
+                const product = {
+                    id: parseInt(button.dataset.id),
+                    name: button.dataset.name,
+                    price: parseInt(button.dataset.price),
+                    image: button.dataset.image,
+                    description: button.dataset.description
+                };
                 this.addToCart(product);
+                this.showToast(product);
             });
         });
-
-        const finalizeButton = document.getElementById('finalize-purchase');
-        if (finalizeButton) {
-            finalizeButton.addEventListener('click', () => this.finalizePurchase());
+    }
+    showSuccessToast() {
+    const toastElement = document.getElementById('addToast');
+    if (toastElement) {
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
         }
     }
-
     addToCart(product) {
-        const existingProduct = this.cart.find(item => item.id === product.id);
-        if (existingProduct) {
-            if (existingProduct.quantity < 10) {
-                existingProduct.quantity++;
+        const existing = this.cart.find(item => item.id === product.id);
+        if (existing) {
+            if (existing.quantity < 100) {
+                existing.quantity++;
             } else {
-                alert('Has alcanzado el máximo de 10 unidades para este producto.');
+                alert('Máximo 100 unidades permitidas.');
             }
         } else {
-            this.cart.push({ ...product, quantity: 1 });
+            product.quantity = 0;
+            this.cart.push(product);
         }
-
+        
         this.saveCart();
-        this.updateCartDisplay();
-    }
-
-    removeFromCart(productId) {
-        this.cart = this.cart.filter(item => item.id !== productId);
-        this.saveCart();
-        this.updateCartDisplay();
-    }
-
-    updateQuantity(productId, change) {
-        const item = this.cart.find(item => item.id === productId);
-        if (item) {
-            item.quantity += change;
-            if (item.quantity < 1) {
-                this.removeFromCart(productId);
-                return;
-            }
-            if (item.quantity > 10) {
-                item.quantity = 10;
-            }
-            this.saveCart();
-            this.updateCartDisplay();
-        }
+        this.updateCartCount();
+        this.showSuccessToast();
     }
 
     saveCart() {
         localStorage.setItem('cart', JSON.stringify(this.cart));
     }
 
-    updateCartDisplay() {
-        const cartItemsContainer = document.getElementById('cart-items');
-        if (!cartItemsContainer) return;
-
-        cartItemsContainer.innerHTML = '';
-        this.cart.forEach(product => {
-            const itemElement = document.createElement('div');
-            itemElement.className = 'cart-item';
-            itemElement.innerHTML = `
-                <p>${product.name}</p>
-                <p>${product.price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })}</p>
-                <p>Cantidad: ${product.quantity}</p>
-                <button class="decrease" data-id="${product.id}">-</button>
-                <button class="increase" data-id="${product.id}">+</button>
-                <button class="remove" data-id="${product.id}">Eliminar</button>
-            `;
-            cartItemsContainer.appendChild(itemElement);
-        });
-
-        document.querySelectorAll('.decrease').forEach(button =>
-            button.addEventListener('click', () => {
-                const productId = parseInt(button.getAttribute('data-id'));
-                this.updateQuantity(productId, -1);
-            })
-        );
-
-        document.querySelectorAll('.increase').forEach(button =>
-            button.addEventListener('click', () => {
-                const productId = parseInt(button.getAttribute('data-id'));
-                this.updateQuantity(productId, 1);
-            })
-        );
-
-        document.querySelectorAll('.remove').forEach(button =>
-            button.addEventListener('click', () => {
-                const productId = parseInt(button.getAttribute('data-id'));
-                this.removeFromCart(productId);
-            })
-        );
-
-        this.updateCartCount();
-    }
-
     updateCartCount() {
-        const cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartCountElement.textContent = totalItems;
-        }
+        const count = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const countEl = document.getElementById('cart-count');
+        const toastCount = document.getElementById('toast-count');
+        if (countEl) countEl.textContent = count;
+        if (toastCount) toastCount.textContent = count;
     }
 
-    finalizePurchase() {
-        alert('¡Gracias por tu compra! 😄');
-        this.cart = [];
-        this.saveCart();
-        this.updateCartDisplay();
+    showToast(product) {
+        const toast = document.getElementById('cart-toast');
+        if (!toast) return;
+
+        document.getElementById('toast-img').src = product.image;
+        document.getElementById('toast-name').textContent = product.name;
+        document.getElementById('toast-desc').textContent = product.description;
+
+        toast.classList.remove('hidden');
+        document.getElementById('toast-close').addEventListener('click', () => {
+            toast.classList.add('hidden');
+        });
     }
 }
 
-// Inicializar carrito
-const cart = new Cart();
-window.cart = cart; // por si necesitas acceder globalmente desde consola
+document.addEventListener('DOMContentLoaded', () => {
+    new Cart();
+});

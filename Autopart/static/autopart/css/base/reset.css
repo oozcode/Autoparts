@@ -3,28 +3,35 @@
     padding: 0;
     box-sizing: border-box;
 }
-/* Asegura que el texto de los campos de formulario sea siempre oscuro */
-.form-control,
-.form-select,
-textarea {
-  color: #212529 !important;    /* color por defecto de Bootstrap */
-}
-/* Apunta sólo dentro de tus modales de producto */
-#crearModal .form-control,
-#crearModal .form-select,
-#crearModal textarea,
-#editarModal .form-control,
-#editarModal .form-select,
-#editarModal textarea {
-  color: #212529 !important;      /* texto oscuro */
-  background-color: #ffffff !important; /* fondo blanco */
+  /* Cambia el color de todas las etiquetas y textos de input en los formularios */
+.modal-content label,
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+    color: #000; /* Cambia a blanco con #fff si el fondo es oscuro */
 }
 
-/* Opcional: que los placeholders también sean visibles */
-#crearModal ::placeholder,
-#editarModal ::placeholder {
-  color: #6c757d !important;
-  opacity: 1 !important;
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+    color: #6c757d; /* Color placeholder más visible */
+}
+
+.modal-header .modal-title {
+    color: #000;
+}
+
+.modal-footer button {
+    color: #fff;
+}
+
+.price-mayorista {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.price-minorista {
+  color: #6c757d;
+  font-size: 0.9rem;
 }
 
 

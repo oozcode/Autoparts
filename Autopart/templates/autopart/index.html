@@ -1,4 +1,5 @@
 {% extends 'autopart/base/header.html' %}
+{% load formatos %}
 {% load static %}
 
 {% block title %}AutoParts - Inicio{% endblock %}
@@ -38,11 +39,18 @@
                     {% endif %}
                     <h3>{{ p.nombre|capfirst }}</h3>
                     <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-                    <p class="price">${{ p.precio }}</p>
+                    {% if es_mayorista %}
+                        <p class="price-minorista">Minorista: {{ producto.precio_minorista|clp }}</p>
+                        <p class="price-mayorista">Mayorista: {{ producto.precio_mayorista|clp }}</p>
+                    {% else %}
+                        <p class="price">{{ producto.precio_minorista|clp }}</p>
+                    {% endif %}
+
                     <button class="add-to-cart">Agregar al carrito</button>
                 </div>
             {% endfor %}
         </div>
     </section>
 </main>
+{% include 'autopart/base/footer.html' %}
 {% endblock %}

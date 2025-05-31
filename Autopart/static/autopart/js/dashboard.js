@@ -3,7 +3,6 @@ class DashboardVendedor {
     this.apiUrl = '/api/productos/';
     this.productos = [];
     this.csrfToken = this.getCSRFToken();
-    // Inicializar instancias de modal
     this.modalCrear = new bootstrap.Modal(document.getElementById('crearModal'));
     this.modalEditar = new bootstrap.Modal(document.getElementById('editarModal'));
     this.init();
@@ -24,7 +23,6 @@ class DashboardVendedor {
   }
 
   cargarCategoriasYMarcas() {
-    // Cargar categorías
     fetch('/api/categorias/', {
       method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include'
     })
@@ -32,13 +30,14 @@ class DashboardVendedor {
       .then(data => {
         const selectCatCrear = document.querySelector('#formCrearProducto select[name="categoria"]');
         const selectCatEditar = document.querySelector('#formEditarProducto select[name="categoria"]');
+        const filtroCat = document.getElementById('filtroCategoria');
         const opts = data.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('');
         selectCatCrear.innerHTML = opts;
         selectCatEditar.innerHTML = opts;
+        filtroCat.innerHTML = '<option value="">Todas</option>' + opts;
       })
       .catch(err => console.warn('No se pudo cargar categorías:', err));
 
-    // Cargar marcas
     fetch('/api/marcas/', {
       method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include'
     })
@@ -46,9 +45,11 @@ class DashboardVendedor {
       .then(data => {
         const selectMarcaCrear = document.querySelector('#formCrearProducto select[name="marca"]');
         const selectMarcaEditar = document.querySelector('#formEditarProducto select[name="marca"]');
+        const filtroMarca = document.getElementById('filtroMarca');
         const opts = data.map(mar => `<option value="${mar.id}">${mar.nombre}</option>`).join('');
         selectMarcaCrear.innerHTML = opts;
         selectMarcaEditar.innerHTML = opts;
+        filtroMarca.innerHTML = '<option value="">Todas</option>' + opts;
       })
       .catch(err => console.warn('No se pudo cargar marcas:', err));
   }
@@ -68,9 +69,9 @@ class DashboardVendedor {
       .catch(err => console.error(err));
   }
 
-  renderProductos() {
+  renderProductos(lista = this.productos) {
     const tbody = document.getElementById('productosBody');
-    tbody.innerHTML = this.productos
+    tbody.innerHTML = lista
       .map(p => `
         <tr>
           <td>${p.id}</td>
@@ -104,12 +105,10 @@ class DashboardVendedor {
       this.editarProducto(id, new FormData(formEditar), formEditar);
     });
 
-    // Botón cancelar en modal editar
     document.querySelector('#editarModal .btn-secondary').addEventListener('click', () => {
       this.modalEditar.hide();
     });
 
-    // Delegación de eventos para botones de eliminar/editar dentro de la tabla
     document.getElementById('productosBody').addEventListener('click', e => {
       const target = e.target;
       const id = target.dataset.id;
@@ -119,6 +118,10 @@ class DashboardVendedor {
         this.abrirModalEditar(id);
       }
     });
+
+    document.getElementById('filtroNombre').addEventListener('input', () => this.filtrarProductos());
+    document.getElementById('filtroMarca').addEventListener('change', () => this.filtrarProductos());
+    document.getElementById('filtroCategoria').addEventListener('change', () => this.filtrarProductos());
   }
 
   crearProducto(formData, form) {
@@ -173,6 +176,10 @@ class DashboardVendedor {
     formEditar.querySelector('[name="stock"]').value = producto.stock || '';
     formEditar.querySelector('[name="marca"]').value = producto.marca || '';
     formEditar.querySelector('[name="categoria"]').value = producto.categoria || '';
+    formEditar.querySelector('[name="peso"]').value = producto.peso || '';
+    formEditar.querySelector('[name="largo"]').value = producto.largo || '';
+    formEditar.querySelector('[name="ancho"]').value = producto.ancho || '';
+    formEditar.querySelector('[name="alto"]').value = producto.alto || '';
 
     this.modalEditar.show();
   }
@@ -198,6 +205,22 @@ class DashboardVendedor {
         form.reset();
       })
       .catch(err => alert('Error al actualizar producto: ' + err.message));
+  }
+
+  filtrarProductos() {
+    const nombre = document.getElementById('filtroNombre').value.toLowerCase();
+    const marca = document.getElementById('filtroMarca').value;
+    const categoria = document.getElementById('filtroCategoria').value;
+
+    const productosFiltrados = this.productos.filter(p => {
+      return (
+        (!nombre || p.nombre.toLowerCase().includes(nombre)) &&
+        (!marca || String(p.marca) === marca) &&
+        (!categoria || String(p.categoria) === categoria)
+      );
+    });
+
+    this.renderProductos(productosFiltrados);
   }
 }
 

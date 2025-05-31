@@ -1,25 +1,29 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca
-
+from .models import Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login
 from django.contrib import messages
-from .forms import RegistroForm, EmailAuthenticationForm
+from .forms import RegistroForm, EmailAuthenticationForm, PerfilUsuarioAdminForm
 from django.views.decorators.http import require_POST     
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer
+from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
+from django.contrib.auth.models import User
+from django.db.models import Q
+
 
 
 # --- Permiso personalizado para vendedores ---
-class IsVendedor(permissions.BasePermission):
+class IsVendedorOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        # Solo permite si el usuario está autenticado y es parte del grupo "vendedor"
+        if request.method in SAFE_METHODS:
+            return True  # GET, HEAD, OPTIONS → permitidos para todos
         return request.user and request.user.is_authenticated and request.user.groups.filter(name='vendedor').exists()
 
 
@@ -167,7 +171,7 @@ def crear_pedido(request):
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
-    permission_classes = [permissions.IsAuthenticated, IsVendedor]
+    permission_classes = [permissions.IsAuthenticated, IsVendedorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(creado_por=self.request.user, modificado_por=self.request.user)
@@ -181,15 +185,15 @@ class ProductoViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("No tienes permiso para eliminar productos")
         return super().destroy(request, *args, **kwargs)
 
-class CategoriaViewSet(viewsets.ModelViewSet):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
 class MarcaViewSet(viewsets.ModelViewSet):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsVendedorOrReadOnly]  # ← usa permiso mixto
+
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    permission_classes = [IsVendedorOrReadOnly]
 # Opcional: para tus endpoints clásicos que aún quieras mantener y que también sean solo para vendedores
 @login_required
 @csrf_exempt
@@ -251,3 +255,57 @@ def es_vendedor(user):
 @user_passes_test(es_vendedor)
 def dashboard_vendedor(request):
     return render(request, 'autopart/dashboard.html')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def asignar_tipo_cliente(request, user_id):
+    # Obtener el usuario
+    user = get_object_or_404(User, id=user_id)
+    perfil, created = PerfilUsuario.objects.get_or_create(user=user)
+
+    # Obtener o crear el TipoCliente "Mayorista"
+    tipo_mayorista, _ = TipoCliente.objects.get_or_create(nombre__iexact='Mayorista', defaults={'nombre': 'Mayorista'})
+
+    if request.method == 'POST':
+        # Si llega POST, asignamos y redirigimos
+        perfil.tipo_cliente = tipo_mayorista
+        perfil.save()
+        return redirect('lista_usuarios')
+    else:
+        # Si es GET, mostramos el formulario de confirmación
+        return render(request, 'autopart/confirmar_asignacion.html', {
+            'perfil': perfil,
+            'tipo_mayorista': tipo_mayorista
+        })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def lista_usuarios(request):
+    query = request.GET.get('q')
+    
+    usuarios = User.objects.filter(is_staff=False, is_superuser=False)
+
+    if query:
+        usuarios = usuarios.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query)
+        )
+
+    usuarios = usuarios.select_related('perfilusuario')
+
+    return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query})
+
+def catalogo(request):
+    categorias = Categoria.objects.prefetch_related('productos').all()
+    
+    es_mayorista = False
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfilusuario', None)
+        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre.lower() == 'mayorista':
+            es_mayorista = True
+
+    return render(request, 'autopart/catalogo.html', {
+        'categorias': categorias,
+        'es_mayorista': es_mayorista
+    })

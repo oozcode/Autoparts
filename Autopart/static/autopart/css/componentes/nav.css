@@ -1,3 +1,4 @@
+/* --- NAVBAR PRINCIPAL --- */
 .navbar {
     background-color: #1a1a1a;
     padding: 0.7rem 2rem;
@@ -10,8 +11,14 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    height: 72px;
+    height: 90px;
 }
+
+
+body {
+    padding-top: 90px; 
+}
+
 
 .navbar-brand {
     display: flex;
@@ -27,10 +34,12 @@
     object-fit: contain;
 }
 
+
 .nav-links {
     display: flex;
     gap: 2.5rem;
     align-items: center;
+    flex-wrap: wrap; 
 }
 
 .nav-links a {
@@ -48,17 +57,17 @@
     background-color: #dc3545;
 }
 
-/* Dropdown styles */
+
 .dropdown-menu {
-  background-color: #000 !important;  /* Fondo negro */
-  color: #fff !important;             /* Texto blanco */
+    background-color: #000 !important;
+    color: #fff !important;
 }
 
 .dropdown-menu .dropdown-item {
-  color: #fff !important;             /* Forzamos texto blanco */
+    color: #fff !important;
 }
 
 .dropdown-menu .dropdown-item:hover {
-  background-color: #222 !important;  /* Un gris oscuro al hacer hover */
-  color: #fff !important;
+    background-color: #222 !important;
+    color: #fff !important;
 }

@@ -1,1 +1,50 @@
 {% load static %}
+<footer class="footer bg-dark text-light pt-5 pb-4 mt-5">
+  <div class="container">
+    <div class="row">
+
+      <!-- Logo y descripción -->
+      <div class="col-md-4 mb-4">
+        <h5 class="text-uppercase font-weight-bold">Autoparts</h5>
+        <p>
+          Tu tienda de confianza en repuestos y accesorios automotrices. Calidad, rapidez y atención personalizada 🚗.
+        </p>
+
+        <!-- Redes sociales -->
+        <div class="mt-3">
+          <a href="https://www.facebook.com" class="text-light mr-3" target="_blank"><i class="fab fa-facebook fa-lg"></i></a>
+          <a href="https://www.instagram.com" class="text-light mr-3" target="_blank"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://www.twitter.com" class="text-light mr-3" target="_blank"><i class="fab fa-x-twitter fa-lg"></i></a>
+          <a href="https://wa.me/56912345678" class="text-light" target="_blank"><i class="fab fa-whatsapp fa-lg"></i></a>
+        </div>
+      </div>
+
+      <!-- Enlaces rápidos -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase font-weight-bold">Enlaces</h6>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'index' %}" class="text-light">Inicio</a></li>
+          <li><a href="{% url 'catalogo' %}" class="text-light">Catálogo</a></li>
+          <li><a href="{% url 'carrito' %}" class="text-light">Carrito de Compras</a></li>
+          <li><a href="{% url 'login' %}" class="text-light">Mi cuenta</a></li>
+        </ul>
+      </div>
+
+      <!-- Contacto -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase font-weight-bold">Contacto</h6>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-envelope mr-2"></i> contacto@autoparts.cl</li>
+          <li><i class="fas fa-phone mr-2"></i> +56 9 1234 5678</li>
+          <li><i class="fas fa-map-marker-alt mr-2"></i> Santiago, Chile</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="bg-light">
+
+    <div class="text-center">
+      <p class="mb-0">&copy; {{ now|date:"Y" }} Autoparts. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>

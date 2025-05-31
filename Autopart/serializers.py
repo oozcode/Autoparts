@@ -1,7 +1,5 @@
-# serializers.py
-
 from rest_framework import serializers
-from .models import Producto, Categoria, Marca
+from .models import Producto, Categoria, Marca, PerfilUsuario
 
 class MarcaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,8 +10,6 @@ class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
         fields = ['id', 'nombre']
-
-
 
 class ProductoSerializer(serializers.ModelSerializer):
     # Campos para mostrar (read-only)
@@ -34,6 +30,10 @@ class ProductoSerializer(serializers.ModelSerializer):
             'precio_minorista',
             'precio_mayorista',
             'stock',
+            'peso',
+            'largo',
+            'ancho',
+            'alto',
             'categoria',         # Entrada como ID
             'categoria_info',    # Visualización como objeto anidado
             'marca',             # Entrada como ID
@@ -43,3 +43,12 @@ class ProductoSerializer(serializers.ModelSerializer):
             'ultima_modificacion',
         ]
         read_only_fields = ['creado_por', 'modificado_por', 'ultima_modificacion']
+
+class PerfilUsuarioSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_first_name = serializers.CharField(source='user.first_name')
+    user_last_name = serializers.CharField(source='user.last_name')
+
+    class Meta:
+        model = PerfilUsuario
+        fields = ['id', 'user_email', 'user_first_name', 'user_last_name', 'tipo_cliente', 'telefono']

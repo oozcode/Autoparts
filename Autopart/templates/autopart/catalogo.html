@@ -1,7 +1,9 @@
-{% extends '../autopart/base/header.html' %}
+{% extends 'autopart/base/header.html' %}
+{% load formatos %}
 {% load static %}
 {% block title %}Catálogo - AutoParts{% endblock %}
 {% block content %}
+
 <main>
     <div class="category-header">
         <h1>Catálogo Completo</h1>
@@ -12,12 +14,34 @@
             <h2>{{ categoria.nombre }}</h2>
             <div class="products-grid">
                 {% for producto in categoria.productos.all %}
-                    <div class="product-card" data-product-id="{{ producto.id }}">
-                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                    <div class="product-card"
+                         data-id="{{ producto.id }}"
+                         data-name="{{ producto.nombre|escapejs }}"
+                         data-description="{{ producto.descripcion|escapejs }}"
+                         data-image="{{ producto.img.url }}"
+                         data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}">
+
+                        <img src="{{ producto.img.url }}" alt="{{ producto.nombre }}">
                         <h3>{{ producto.nombre }}</h3>
                         <p class="description">{{ producto.descripcion }}</p>
-                        <p class="price">${{ producto.precio }}</p>
-                        <button class="add-to-cart">Agregar al carrito</button>
+
+                        {% if es_mayorista %}
+                            <p class="price-minorista">Minorista: {{ producto.precio_minorista|clp }}</p>
+                            <p class="price-mayorista">Mayorista: {{ producto.precio_mayorista|clp }}</p>
+                        {% else %}
+                            <p class="price">{{ producto.precio_minorista|clp }}</p>
+                        {% endif %}
+
+                        <button class="add-to-cart"
+                            data-id="{{ producto.id }}"
+                            data-name="{{ producto.nombre|escapejs }}"
+                            data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+                            data-image="{{ producto.img.url }}"
+                            data-description="{{ producto.descripcion|escapejs }}">
+                            Agregar al carrito
+                        </button>
+
+                        <a href="{% url 'detalle_producto' producto.id %}" class="view-details">Ver detalles</a>
                     </div>
                 {% empty %}
                     <p>No hay productos en esta categoría.</p>
@@ -27,6 +51,7 @@
     {% empty %}
         <p>No hay categorías disponibles.</p>
     {% endfor %}
+    <script src="{% static 'autopart/js/cart.js' %}"></script>
 </main>
 
 <div id="cart-toast" class="cart-toast hidden">
@@ -42,7 +67,53 @@
     </button>
   </div>
 </div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Producto agregado al carrito con éxito 🛒
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.product-card');
+      const product = {
+        id: parseInt(card.dataset.id),
+        name: card.dataset.name,
+        price: parseInt(card.dataset.price),
+        image: card.dataset.image,
+        description: card.dataset.description,
+        quantity: 0
+      };
 
-<script src="{% static 'autopart/js/cart.js' %}"></script>
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.id === product.id);
+      if (existing) {
+        existing.quantity = Math.min(existing.quantity + 1, 10);
+      } else {
+        cart.push(product);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      document.getElementById('toast-img').src = product.image;
+      document.getElementById('toast-name').textContent = product.name;
+      document.getElementById('toast-desc').textContent = product.description;
+      document.getElementById('toast-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-toast').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('toast-close')?.addEventListener('click', () => {
+    document.getElementById('cart-toast').classList.add('hidden');
+  });
+});
+</script>
+
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
+{% include 'autopart/base/footer.html' %}
 {% endblock %}

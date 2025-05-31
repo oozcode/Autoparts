@@ -1,0 +1,15 @@
+{% extends 'autopart/base/header.html' %}
+{% block content %}
+  <h2>Confirmar Asignación de Cliente Mayorista</h2>
+  <p>¿Seguro que quieres asignar el tipo <strong>Mayorista</strong> a:</p>
+  <ul>
+    <li>Usuario: {{ perfil.user.get_full_name }}</li>
+    <li>Email: {{ perfil.user.email }}</li>
+  </ul>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, asignar Mayorista</button>
+    <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% include 'autopart/base/footer.html' %}
+{% endblock %}
