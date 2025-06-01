@@ -17,17 +17,20 @@ function actualizarResumen() {
   const subtotalEl = document.getElementById("subtotal");
   const totalFinalEl = document.getElementById("totalFinal");
   const impuestosEl = document.getElementById("impuestos");
-
   const envioSeleccionado = document.querySelector("input[name='opcionEnvio']:checked");
-  resumen.envio = envioSeleccionado ? parseInt(envioSeleccionado.value) : 0;
 
+  resumen.envio = envioSeleccionado ? parseInt(envioSeleccionado.value) : 0;
   resumen.iva = resumen.subtotal * 0.19;
   resumen.total = resumen.subtotal + resumen.iva + resumen.envio;
 
   subtotalEl.textContent = resumen.subtotal.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   impuestosEl.textContent = resumen.iva.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   totalFinalEl.textContent = resumen.total.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
+
+  // ✅ Esta línea es la que estaba faltando
+  document.getElementById("envio").textContent = resumen.envio.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
 }
+
 
 function mostrarResumenPedido() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -40,6 +43,7 @@ function mostrarResumenPedido() {
     cartItemsContainer.innerHTML = "<p class='text-muted'>Tu carrito está vacío.</p>";
     return;
   }
+  
 
   cart.forEach(item => {
     const totalItem = item.price * item.quantity;
@@ -61,13 +65,14 @@ tipoPedido.addEventListener("change", () => {
     envioContainer.style.display = "block";
     calcularBtn.style.display = "inline-block";
   } else {
-    envioContainer.style.display = "none";
-    resumen.envio = 0;
-    actualizarResumen();
+    envioContainer.style.display = "block";
+    shippingOptions.innerHTML =`<p class="text-muted">Retiro disponible en: <br><strong>Providencia 666, Providencia</strong></p>` ;
+    
 
-    shippingOptions.innerHTML = `<p class="text-muted">Retiro disponible en: <br><strong>Avenida Los Pinos 123, Santiago</strong></p>`;
   }
+  actualizarResumen();
 });
+
 
 fetch("https://testservices.wschilexpress.com/georeference/api/v1.0/regions", {
   headers: { "Ocp-Apim-Subscription-Key": API_KEY }
@@ -163,8 +168,9 @@ calcularBtn.addEventListener("click", () => {
             </label>
           </div>`;
       });
-
+      
       document.querySelectorAll("input[name='opcionEnvio']").forEach(radio => {
+        
         radio.addEventListener("change", actualizarResumen);
       });
     } else {

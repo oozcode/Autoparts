@@ -42,6 +42,6 @@ urlpatterns = [
     path('asignar-tipo/<int:user_id>/', views.asignar_tipo_cliente, name='asignar_tipo_cliente'),
     path('clientes/', views.lista_usuarios, name='lista_usuarios'),
     path('producto/<int:producto_id>/', views.detalle_producto, name='detalle_producto'),
-
+    path('resumen_pedido/', views.resumen_pedido, name='resumen_pedido')
     
 ]

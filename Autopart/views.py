@@ -52,7 +52,8 @@ def login_view(request):
     else:
         form = EmailAuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
-
+def resumen_pedido(request):
+    return render(request, 'autopart/resumen_pedido.html')
 # Vista para la página de registro
 def registro(request):
     if request.method == 'POST':

@@ -1,0 +1,58 @@
+{% extends 'autopart/base/header.html' %}
+{% load static %}
+
+{% block title %}Resumen del Pedido - AutoParts{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+  <h2 class="mb-4 text-center">Resumen del Pedido</h2>
+
+  <div class="row g-4">
+    <!-- Detalles del cliente -->
+    <section class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">Datos del Cliente</div>
+        <div class="card-body" id="resumenCliente">
+          <!-- JS lo completará -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalles del pedido -->
+    <section class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">Resumen de Productos</div>
+        <div class="card-body" id="resumenProductos">
+          <!-- JS lo completará -->
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 border rounded bg-light">
+        <p>Subtotal: <strong id="resumenSubtotal">$0</strong></p>
+        <p>IVA (19%): <strong id="resumenIva">$0</strong></p>
+        <p>Envío: <strong id="resumenEnvio">$0</strong></p>
+        <h4>Total: <strong id="resumenTotal">$0</strong></h4>
+      </div>
+
+      <!-- Selección método de pago -->
+      <div class="mt-4">
+        <label for="metodoPago" class="form-label">Selecciona método de pago</label>
+        <select id="metodoPago" class="form-select" required>
+          <option value="">Seleccione</option>
+          <option value="webpay">WebPay</option>
+          <option value="transferencia">Transferencia Bancaria</option>
+        </select>
+      </div>
+
+      <div class="mt-4 d-flex justify-content-end">
+        <button class="btn btn-success" id="btnConfirmarPago">Confirmar y Pagar</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<link rel="stylesheet" href="{% static 'autopart/css/resumen.css' %}">
+<script src="{% static 'autopart/js/resumen_pedido.js' %}"></script>
+
+{% include 'autopart/base/footer.html' %}
+{% endblock %}
