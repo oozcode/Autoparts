@@ -1,6 +1,10 @@
 {% extends 'autopart/base/header.html' %}
 {% load formatos %}
 {% load static %}
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/card.css' %}">
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/hero.css' %}">
+<link rel="stylesheet" href="{% static 'autopart/css/pages/home.css' %}">
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
 
 {% block title %}AutoParts - Inicio{% endblock %}
 
@@ -8,49 +12,70 @@
 <main>
     <!-- Hero Section -->
     <section class="hero">
-        <div class="hero-content">
+        <div class="hero-content text-center">
             <h1>DISTRIBUIDORA DE REPUESTOS</h1>
             <p>Amplio catálogo de partes para autos</p>
             <a href="{% url 'catalogo' %}" class="cta-button">Ver Catálogo</a>
         </div>
     </section>
 
-    <section class="categories-section">
-        <h2>Categorías</h2>
-        <div class="categories-grid">
-            {% for cat in categorias %}
-                <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card">
-                    <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" />
-                    <h3>{{ cat.nombre }}</h3>
-                </a>
-            {% endfor %}
+    <!-- Categorías -->
+    <section class="categories-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">Categorías</h2>
+            <div class="categories-grid">
+                {% for cat in categorias %}
+                    <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card">
+                        <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" />
+                        <h3>{{ cat.nombre }}</h3>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
     </section>
 
-    <section class="best-sellers-section">
-        <h2>Los Más Vendidos</h2>
-        <div class="products-grid">
-            {% for p in productos %}
-                <div class="product-card" data-product-id="producto{{ p.id }}">
-                    {% if p.img %}
-                        <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
-                    {% else %}
-                        <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
-                    {% endif %}
-                    <h3>{{ p.nombre|capfirst }}</h3>
-                    <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-                    {% if es_mayorista %}
-                        <p class="price-minorista">Minorista: {{ producto.precio_minorista|clp }}</p>
-                        <p class="price-mayorista">Mayorista: {{ producto.precio_mayorista|clp }}</p>
-                    {% else %}
-                        <p class="price">{{ producto.precio_minorista|clp }}</p>
-                    {% endif %}
+    <!-- Más vendidos -->
+    <section class="best-sellers-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Los Más Vendidos</h2>
+            <div class="products-grid">
+                {% for p in productos %}
+                    <div class="product-card"
+                         data-id="{{ p.id }}"
+                         data-name="{{ p.nombre|escapejs }}"
+                         data-description="{{ p.descripcion|escapejs }}"
+                         {% if p.imagen %}
+                            data-image="{{ p.imagen.url }}"
+                         {% else %}
+                            data-image="{% static 'autopart/img/default.jpg' %}"
+                         {% endif %}
+                         data-price="{% if es_mayorista %}{{ p.precio_mayorista }}{% else %}{{ p.precio_minorista }}{% endif %}">
 
-                    <button class="add-to-cart">Agregar al carrito</button>
-                </div>
-            {% endfor %}
+                        {% if p.imagen %}
+                            <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                        {% else %}
+                            <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen">
+                        {% endif %}
+                        <h3>{{ p.nombre|capfirst }}</h3>
+                        <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
+
+                        {% if es_mayorista %}
+                            <p class="price-minorista">Minorista: {{ p.precio_minorista|clp }}</p>
+                            <p class="price-mayorista">Mayorista: {{ p.precio_mayorista|clp }}</p>
+                        {% else %}
+                            <p class="price">{{ p.precio_minorista|clp }}</p>
+                        {% endif %}
+
+                        <button class="add-to-cart">Agregar al carrito</button>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </section>
 </main>
+
+
+<!-- Scripts -->
+<script src="{% static 'autopart/js/cart.js' %}"></script>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

@@ -1,8 +1,8 @@
-
 class Cart {
     constructor() {
         this.cart = JSON.parse(localStorage.getItem('cart')) || [];
         this.bindAddToCartButtons();
+        this.bindToastClose();
         this.updateCartCount();
     }
 
@@ -10,24 +10,41 @@ class Cart {
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', () => {
                 const product = {
-                    id: parseInt(button.dataset.id),
-                    name: button.dataset.name,
-                    price: parseInt(button.dataset.price),
-                    image: button.dataset.image,
-                    description: button.dataset.description
-                };
+                id: parseInt(button.dataset.id),
+                name: button.dataset.name,
+                price: parseInt(button.dataset.price),
+                image: button.dataset.image,
+                description: button.dataset.description,
+                peso: parseFloat(button.dataset.peso),
+                largo: parseFloat(button.dataset.largo),
+                ancho: parseFloat(button.dataset.ancho),
+                alto: parseFloat(button.dataset.alto),
+                quantity: 1
+            };
                 this.addToCart(product);
                 this.showToast(product);
             });
         });
     }
-    showSuccessToast() {
-    const toastElement = document.getElementById('addToast');
-    if (toastElement) {
-        const toast = new bootstrap.Toast(toastElement);
-        toast.show();
+
+    bindToastClose() {
+        const toastCloseBtn = document.getElementById('toast-close');
+        const toast = document.getElementById('cart-toast');
+        if (toastCloseBtn && toast) {
+            toastCloseBtn.addEventListener('click', () => {
+                toast.classList.add('hidden');
+            });
         }
     }
+
+    showSuccessToast() {
+        const toastElement = document.getElementById('addToast');
+        if (toastElement) {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+    }
+
     addToCart(product) {
         const existing = this.cart.find(item => item.id === product.id);
         if (existing) {
@@ -37,10 +54,9 @@ class Cart {
                 alert('Máximo 100 unidades permitidas.');
             }
         } else {
-            product.quantity = 0;
             this.cart.push(product);
         }
-        
+
         this.saveCart();
         this.updateCartCount();
         this.showSuccessToast();
@@ -67,10 +83,8 @@ class Cart {
         document.getElementById('toast-desc').textContent = product.description;
 
         toast.classList.remove('hidden');
-        document.getElementById('toast-close').addEventListener('click', () => {
-            toast.classList.add('hidden');
-        });
     }
+    
 }
 
 document.addEventListener('DOMContentLoaded', () => {

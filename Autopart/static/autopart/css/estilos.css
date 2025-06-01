@@ -1,6 +1,7 @@
 @import url('./base/reset.css');
 @import url('./layout/header.css');
 @import url('./componentes/nav.css');
+@import url('./componentes/navcarro.css');
 @import url('./componentes/boton.css');
 @import url('./componentes/carrito.css');
 @import url('./componentes/card.css');

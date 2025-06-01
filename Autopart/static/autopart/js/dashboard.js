@@ -75,7 +75,9 @@ class DashboardVendedor {
       .map(p => `
         <tr>
           <td>${p.id}</td>
-          <td><img src="${p.imagen || ''}" alt="${p.nombre}" style="max-width: 80px;"></td>
+          <td>
+            <img src="${p.imagen ? p.imagen.url : '/static/autopart/img/m4.jpg'}" alt="${p.nombre}" style="max-width: 80px;">
+          </td>
           <td>${p.nombre}</td>
           <td>${p.precio_minorista}</td>
           <td>${p.precio_mayorista}</td>

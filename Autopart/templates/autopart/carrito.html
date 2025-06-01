@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/carrito.css' %}">
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartItemsContainer = document.getElementById('cart-items');
     const emptyCartMessage = document.getElementById('empty-cart-message');
     const subtotalSpan = document.getElementById('subtotal');
@@ -39,6 +39,12 @@
     function renderCart() {
       cartItemsContainer.innerHTML = '';
       let subtotal = 0;
+
+      // Corrige cantidades erróneas
+      cart = cart.map(item => {
+        if (!item.quantity || item.quantity < 1) item.quantity = 1;
+        return item;
+      });
 
       if (cart.length === 0) {
         emptyCartMessage.style.display = 'block';
@@ -51,7 +57,9 @@
       emptyCartMessage.style.display = 'none';
 
       cart.forEach(item => {
-        subtotal += item.price * item.quantity;
+        const price = parseFloat(item.price) || 0;
+        subtotal += price * item.quantity;
+
         const div = document.createElement('div');
         div.className = 'cart-item d-flex align-items-start gap-3 border-bottom pb-3 mb-3';
         div.innerHTML = `
@@ -59,7 +67,7 @@
           <div class="cart-details flex-grow-1">
             <h5 class="mb-1">${item.name}</h5>
             <p class="mb-1 text-muted">${item.description}</p>
-            <p class="fw-semibold">Precio: ${item.price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })}</p>
+            <p class="fw-semibold">Precio: ${price.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })}</p>
             <div class="quantity-controls btn-group mb-2" role="group">
               <button class="btn btn-outline-secondary btn-sm decrease" data-id="${item.id}">−</button>
               <span class="btn btn-light btn-sm disabled">${item.quantity}</span>
@@ -78,16 +86,8 @@
       ivaSpan.textContent = iva.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
       totalSpan.textContent = total.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
 
-      // Vincula eventos de botones
-      document.querySelectorAll('.increase').forEach(btn => {
-        btn.addEventListener('click', () => updateQuantity(btn.dataset.id, 1));
-      });
-      document.querySelectorAll('.decrease').forEach(btn => {
-        btn.addEventListener('click', () => updateQuantity(btn.dataset.id, -1));
-      });
-      document.querySelectorAll('.remove').forEach(btn => {
-        btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
-      });
+      bindButtonEvents();
+      saveCart();  // Guarda siempre después del render
     }
 
     function updateQuantity(id, delta) {
@@ -96,28 +96,42 @@
       item.quantity += delta;
       if (item.quantity < 1) {
         removeFromCart(id);
-      } else if (item.quantity > 10) {
-        item.quantity = 10;
+        return;
+      } else if (item.quantity > 100) {
+        item.quantity = 100;
       }
-      localStorage.setItem('cart', JSON.stringify(cart));
+      saveCart();
       renderCart();
     }
 
     function removeFromCart(id) {
-      const index = cart.findIndex(p => p.id == id);
-      if (index !== -1) {
-        cart.splice(index, 1);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        renderCart();
-      }
+      cart = cart.filter(p => p.id != id);
+      saveCart();
+      renderCart();
     }
 
-    renderCart();
+    function bindButtonEvents() {
+      document.querySelectorAll('.increase').forEach(btn =>
+        btn.addEventListener('click', () => updateQuantity(btn.dataset.id, 1))
+      );
+      document.querySelectorAll('.decrease').forEach(btn =>
+        btn.addEventListener('click', () => updateQuantity(btn.dataset.id, -1))
+      );
+      document.querySelectorAll('.remove').forEach(btn =>
+        btn.addEventListener('click', () => removeFromCart(btn.dataset.id))
+      );
+    }
+
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
 
     document.getElementById('finalize-purchase').addEventListener('click', () => {
-      window.location.href = '/pago/'; 
-      renderCart();
+      window.location.href = '/pago/';
     });
+    
+    renderCart();
   });
 </script>
+
 {% endblock %}

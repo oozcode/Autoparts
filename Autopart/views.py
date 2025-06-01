@@ -309,3 +309,7 @@ def catalogo(request):
         'categorias': categorias,
         'es_mayorista': es_mayorista
     })
+
+def detalle_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    return render(request, 'autopart/detalle_producto.html', {'producto': producto})

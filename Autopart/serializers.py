@@ -12,13 +12,13 @@ class CategoriaSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre']
 
 class ProductoSerializer(serializers.ModelSerializer):
-    # Campos para mostrar (read-only)
     categoria_info = CategoriaSerializer(source='categoria', read_only=True)
     marca_info = MarcaSerializer(source='marca', read_only=True)
 
-    # Campos para entrada de datos
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())
     marca = serializers.PrimaryKeyRelatedField(queryset=Marca.objects.all())
+
+    imagen = serializers.SerializerMethodField()
 
     class Meta:
         model = Producto
@@ -34,16 +34,20 @@ class ProductoSerializer(serializers.ModelSerializer):
             'largo',
             'ancho',
             'alto',
-            'categoria',         # Entrada como ID
-            'categoria_info',    # Visualización como objeto anidado
-            'marca',             # Entrada como ID
-            'marca_info',        # Visualización como objeto anidado
+            'categoria',
+            'categoria_info',
+            'marca',
+            'marca_info',
             'creado_por',
             'modificado_por',
             'ultima_modificacion',
         ]
         read_only_fields = ['creado_por', 'modificado_por', 'ultima_modificacion']
 
+    def get_imagen(self, obj):
+        if obj.imagen:
+            return {"url": obj.imagen.url}
+        return None
 class PerfilUsuarioSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_first_name = serializers.CharField(source='user.first_name')

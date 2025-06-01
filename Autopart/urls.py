@@ -33,7 +33,6 @@ urlpatterns = [
     path('electrico/', views.electrico, name='electrico'),
     path('motores/', views.motores, name='motores'),
     path('accesorios/', views.accesorios, name='accesorios'),
-    path('producto/<int:id>/', views.detalle_producto, name='detalle_producto'),
     path('categoria/<slug:categoria_slug>/', views.productos_por_categoria, name='productos_por_categoria'),
     path('crear-pedido/', views.crear_pedido, name='crear_pedido'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
@@ -42,5 +41,7 @@ urlpatterns = [
     path('dashboard/', dashboard_vendedor, name='dashboard_vendedor'),
     path('asignar-tipo/<int:user_id>/', views.asignar_tipo_cliente, name='asignar_tipo_cliente'),
     path('clientes/', views.lista_usuarios, name='lista_usuarios'),
+    path('producto/<int:producto_id>/', views.detalle_producto, name='detalle_producto'),
+
     
 ]

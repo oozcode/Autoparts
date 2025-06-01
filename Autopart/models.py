@@ -45,8 +45,6 @@ class Producto(models.Model):
     modificado_por = models.ForeignKey(User, related_name="productos_modificados", on_delete=models.SET_NULL, null=True)
     ultima_modificacion = models.DateTimeField(null=True, blank=True)
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
-
-    # Nuevos campos para integración logística con Chilexpress
     peso = models.DecimalField(
         max_digits=6, decimal_places=2,
         validators=[MinValueValidator(0.01)],
