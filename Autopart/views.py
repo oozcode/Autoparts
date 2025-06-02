@@ -68,23 +68,16 @@ def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                perfil = PerfilUsuario.objects.create(user=user)
+            user = form.save()
+            perfil = PerfilUsuario.objects.create(user=user)
+            telefono = form.cleaned_data.get('telefono')
+            if telefono:
+                perfil.telefono = telefono
+                perfil.save()
 
-                telefono = form.cleaned_data.get('telefono')
-                if telefono:
-                    perfil.telefono = telefono
-                    perfil.save()
-
-                login(request, user)
-                messages.success(request, '¡Registro exitoso! Bienvenido a Autoparts 🥳🚗')
-                return redirect('index')
-
-            except Exception as e:
-                # Log the error if desired
-                print(f"Error durante el registro: {e}")
-                messages.error(request, 'Ocurrió un error inesperado durante el registro. Inténtalo de nuevo más tarde 😓')
+            login(request, user)
+            messages.success(request, '¡Registro exitoso! Bienvenido a Autoparts 🥳🚗')
+            return redirect('index')
         else:
             messages.error(request, 'Hubo un error en el formulario. Por favor, revisa los campos 😥')
     else:

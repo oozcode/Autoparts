@@ -60,18 +60,10 @@ WSGI_APPLICATION = 'Autoparts.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'autopartsdb',  # nombre exacto de tu base creada en MySQL
-        'USER': 'root',          # usuario de MySQL, por defecto 'root' en XAMPP
-        'PASSWORD': '',          # usualmente vacío en XAMPP por defecto
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
