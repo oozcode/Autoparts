@@ -1,11 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends 'autopart/base/header.html' %}
+{% block title %}Pago exitoso - AutoParts{% endblock %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-center text-success">¡Pago realizado con éxito!</h2>
+
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">Datos de la Orden #{{ pedido.id }}</div>
+    <div class="card-body">
+      <p><strong>Cliente:</strong> {{ pedido.nombre }} {{ pedido.apellidos }}</p>
+      <p><strong>RUT:</strong> {{ pedido.rut }}</p>
+      <p><strong>Email:</strong> {{ pedido.email }}</p>
+      <p><strong>Teléfono:</strong> {{ pedido.telefono }}</p>
+      <p><strong>Tipo de Pedido:</strong> {{ pedido.tipo_pedido }}</p>
+      <p><strong>Dirección:</strong> {{ pedido.calle }} {{ pedido.numero }} {{ pedido.complemento }}, {{ pedido.comuna }}, {{ pedido.region }}</p>
+      <p><strong>Fecha:</strong> {{ pedido.created_at|date:"d/m/Y H:i" }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-secondary text-white">Productos</div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Imagen</th>
+            <th>Producto</th>
+            <th class="text-right">Cantidad</th>
+            <th class="text-right">Precio Unitario</th>
+            <th class="text-right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for producto in producto %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                {% if producto.producto.imagen %}
+                    <img src="{{ producto.producto.imagen.url }}" alt="{{ producto.producto.nombre }}" style="width:60px; height:auto;">
+                {% else %}
+                    <span>Sin imagen</span>
+                {% endif %}
+                </td>
+                <td>{{ producto.producto.nombre }}</td>
+                <td class="text-right">{{ producto.quantity }}</td>
+                <td class="text-right clp" >${{ producto.price|floatformat:0 }}</td>
+                <td class="text-right clp">${{ producto.price|mul:producto.quantity|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+      <hr>
+        <p><strong>Subtotal:</strong> <span class="clp">{{ pedido.subtotal|floatformat:0 }}</span></p>
+        <p><strong>IVA (19%):</strong> <span class="clp">{{ pedido.iva|floatformat:0 }}</span></p>
+        <p><strong>Envío:</strong> <span class="clp">{{ pedido.envio|floatformat:0 }}</span></p>
+        <h4><strong>Total:</strong> <span class="clp">{{ pedido.total|floatformat:0 }}</span></h4>
+    </div>
+  </div>
+</div>
+<script src="{% static 'autopart/js/resumen_pedido.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Selecciona todos los elementos con la clase 'clp'
+  document.querySelectorAll('.clp').forEach(function(el) {
+    let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
+    el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+  });
+});
+</script>
+{% include 'autopart/base/footer.html' %}
+{% endblock %}

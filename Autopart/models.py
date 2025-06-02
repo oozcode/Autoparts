@@ -113,6 +113,15 @@ class Order(models.Model):
     envio = models.PositiveIntegerField(default=0)
     total = models.PositiveIntegerField(default=0)
 
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('pagado', 'Pagado'),
+        ('rechazado', 'Rechazado'),
+        ('cancelado', 'Cancelado'),
+        ('recibido', 'Recibido'),
+        ('retirado', 'Retirado'),
+    ]
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
 # Items dentro de una orden con cantidad y precio
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

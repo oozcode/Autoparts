@@ -20,6 +20,19 @@
     }
 }
 
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: #333 !important; /* Fondo oscuro */
+  }
+  .navbar-nav .nav-link {
+    color: #fff !important;
+    padding-left: 2rem;
+  }
+  .dropdown-menu {
+    background: #333 !important;
+  }
+}
+
 @media (max-width: 768px) {
     .category-section {
         padding: 1rem;

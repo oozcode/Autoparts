@@ -45,7 +45,9 @@ urlpatterns = [
     path('resumen_pedido/', views.resumen_pedido, name='resumen_pedido'),
     path('pagar/<int:pedido_id>/', views.pagar_pedido, name='pagar_pedido'),
     path('crear_pedido/', views.crear_pedido, name='crear_pedido'),
-    path('pago_exitoso/', pago_exitoso, name='pago_exitoso'),
-
+    path('pago_exitoso/', views.pago_exitoso, name='pago_exitoso'),
+    path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+    path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
     
 ]

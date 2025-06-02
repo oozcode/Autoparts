@@ -19,7 +19,7 @@ from rest_framework.exceptions import PermissionDenied
 from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
-
+from django import template
 CommerCode = '597055555532'
 ApiKeySecret = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
 options = WebpayOptions(CommerCode,ApiKeySecret,IntegrationType.TEST)
@@ -324,6 +324,8 @@ def detalle_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     return render(request, 'autopart/detalle_producto.html', {'producto': producto})
 
+@login_required
+@require_POST
 def crear_pedido(request):
     try:
         data = json.loads(request.body)
@@ -406,10 +408,27 @@ def pago_exitoso(request):
     if result['status'] == 'AUTHORIZED':
   
         pedido_id = int(result['buy_order'])  
-        pedido = get_object_or_404(Order, id=pedido_id)  
+        pedido = get_object_or_404(Order, id=pedido_id)
+        productos = OrderItem.objects.filter(order=pedido)
         pedido.estado = 'pagado' 
         pedido.save()
 
-        return render(request, 'app/pago_exitoso.html', {'pedido': pedido})
+        return render(request, 'autopart/pago_exitoso.html', {'pedido': pedido, 'producto': productos})
     else:
-        return render(request, 'app/pago_fallido.html') 
+        return render(request, 'autopart/pago_fallido.html') 
+    
+@login_required
+def mis_pedidos(request):
+    pedidos = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'autopart/mis_pedidos.html', {'pedidos': pedidos})
+
+@login_required
+def detalle_pedido(request, pedido_id):
+    pedido = get_object_or_404(Order, id=pedido_id, user=request.user)
+    productos = OrderItem.objects.filter(order=pedido)
+    return render(request, 'autopart/detalle_pedido.html', {'pedido': pedido, 'productos': productos})
+
+@login_required
+def perfil_usuario(request):
+    perfil = getattr(request.user, 'perfilusuario', None)
+    return render(request, 'autopart/perfil_usuario.html', {'perfil': perfil})

@@ -11,6 +11,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'autopart/css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'autopart/css/componentes/hero.css' %}">
+    <link rel="stylesheet" href="{% static 'autopart/css/componentes/nav.css' %}">
+    <link rel="stylesheet" href="{% static 'autopart/css/base/responsive.css' %}">
 </head>
 <body>
     {% if messages %}
@@ -35,7 +37,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav ml-auto d-flex align-items-center gap-3">
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'catalogo' %}">Catálogo</a>
                     </li>
@@ -62,7 +64,7 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                             {% if request.user.is_authenticated %}
-                                <a class="dropdown-item" href="#">Perfil</a>
+                                <a class="dropdown-item" href="{% url 'perfil_usuario' %}">Perfil</a>
                                 <a class="dropdown-item" href="#"
                                     onclick="event.preventDefault(); localStorage.removeItem('cart'); document.getElementById('logout-form').submit();">
                                     Cerrar Sesión

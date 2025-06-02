@@ -1,0 +1,41 @@
+{% extends 'autopart/base/header.html' %}
+{% block title %}Mis Pedidos{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2>Mis Pedidos</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr>
+        <td>{{ pedido.id }}</td>
+        <td>{{ pedido.created_at|date:"d/m/Y H:i" }}</td>
+        <td class="clp">${{ pedido.total|floatformat:0 }}</td>
+        <td>{{ pedido.estado }}</td>
+        <td><a href="{% url 'detalle_pedido' pedido.id %}">Ver</a></td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5">No tienes pedidos realizados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll('.clp').forEach(function(el) {
+    let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
+    el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+  });
+});
+</script>
+{% endblock %}

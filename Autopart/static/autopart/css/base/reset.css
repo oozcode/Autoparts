@@ -57,6 +57,7 @@ body {
     background-attachment: fixed;
     background-position: center;
     min-height: 100vh;
+    padding-top: 90px; 
 }
 
 /* Volver main a su estado original */
