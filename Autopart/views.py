@@ -292,7 +292,8 @@ def asignar_tipo_cliente(request, user_id):
 @user_passes_test(lambda u: u.is_superuser)
 def lista_usuarios(request):
     query = request.GET.get('q')
-    
+    tipo = request.GET.get('tipo')  # 'mayorista', 'minorista' o None
+
     usuarios = User.objects.filter(is_staff=False, is_superuser=False)
 
     if query:
@@ -304,8 +305,13 @@ def lista_usuarios(request):
 
     usuarios = usuarios.select_related('perfilusuario')
 
-    return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query})
+    # Filtrado por tipo de cliente
+    if tipo == 'mayorista':
+        usuarios = usuarios.filter(perfilusuario__tipo_cliente__nombre__iexact='Mayorista')
+    elif tipo == 'minorista':
+        usuarios = usuarios.exclude(perfilusuario__tipo_cliente__nombre__iexact='Mayorista')
 
+    return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query, 'tipo': tipo})
 def catalogo(request):
     categorias = Categoria.objects.prefetch_related('productos').all()
     
@@ -410,8 +416,9 @@ def pago_exitoso(request):
         pedido_id = int(result['buy_order'])  
         pedido = get_object_or_404(Order, id=pedido_id)
         productos = OrderItem.objects.filter(order=pedido)
-        pedido.estado = 'pagado' 
-        pedido.save()
+        if pedido.estado == 'pendiente':
+            pedido.estado = 'pagado'
+            pedido.save()
 
         return render(request, 'autopart/pago_exitoso.html', {'pedido': pedido, 'producto': productos})
     else:

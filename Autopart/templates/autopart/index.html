@@ -13,22 +13,24 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content text-center">
-            <h1>DISTRIBUIDORA DE REPUESTOS</h1>
-            <p>Amplio catálogo de partes para autos</p>
-            <a href="{% url 'catalogo' %}" class="cta-button">Ver Catálogo</a>
+            <h1 class="display-4 font-weight-bold">DISTRIBUIDORA DE REPUESTOS</h1>
+            <p class="lead">Amplio catálogo de partes para autos</p>
+            <a href="{% url 'catalogo' %}" class="cta-button btn btn-primary btn-lg mt-3 shadow">Ver Catálogo</a>
         </div>
     </section>
 
     <!-- Categorías -->
     <section class="categories-section py-5 bg-light">
         <div class="container">
-            <h2 class="text-center mb-4">Categorías</h2>
-            <div class="categories-grid">
+            <h2 class="text-center mb-4 font-weight-bold">Categorías</h2>
+            <div class="row justify-content-center">
                 {% for cat in categorias %}
-                    <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card">
-                        <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" />
-                        <h3>{{ cat.nombre }}</h3>
-                    </a>
+                    <div class="col-6 col-sm-4 col-md-3 mb-4">
+                        <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card d-block text-center bg-white rounded shadow-sm p-3 h-100 category-card-hover">
+                            <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" class="img-fluid mb-2" style="height:90px;object-fit:contain;">
+                            <h3 class="h6 font-weight-bold text-dark">{{ cat.nombre }}</h3>
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
         </div>
@@ -37,45 +39,96 @@
     <!-- Más vendidos -->
     <section class="best-sellers-section py-5">
         <div class="container">
-            <h2 class="text-center mb-4">Los Más Vendidos</h2>
-            <div class="products-grid">
+            <h2 class="text-center mb-4 font-weight-bold">Los Más Vendidos</h2>
+            <div class="row">
                 {% for p in productos %}
-                    <div class="product-card"
-                         data-id="{{ p.id }}"
-                         data-name="{{ p.nombre|escapejs }}"
-                         data-description="{{ p.descripcion|escapejs }}"
-                         {% if p.imagen %}
-                            data-image="{{ p.imagen.url }}"
-                         {% else %}
-                            data-image="{% static 'autopart/img/default.jpg' %}"
-                         {% endif %}
-                         data-price="{% if es_mayorista %}{{ p.precio_mayorista }}{% else %}{{ p.precio_minorista }}{% endif %}">
-
-                        {% if p.imagen %}
-                            <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
-                        {% else %}
-                            <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen">
-                        {% endif %}
-                        <h3>{{ p.nombre|capfirst }}</h3>
-                        <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-
-                        {% if es_mayorista %}
-                            <p class="price-minorista">Minorista: {{ p.precio_minorista|clp }}</p>
-                            <p class="price-mayorista">Mayorista: {{ p.precio_mayorista|clp }}</p>
-                        {% else %}
-                            <p class="price">{{ p.precio_minorista|clp }}</p>
-                        {% endif %}
-
-                        <button class="add-to-cart">Agregar al carrito</button>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                        <div class="card h-100 shadow-sm product-card-hover d-flex flex-column">
+                            <div class="text-center p-3 bg-light" style="height:160px; display:flex; align-items:center; justify-content:center;">
+                                {% if p.imagen %}
+                                    <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="img-fluid" style="max-height:120px; max-width:100%;">
+                                {% else %}
+                                    <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" class="img-fluid" style="max-height:120px; max-width:100%;">
+                                {% endif %}
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title mb-2">{{ p.nombre|capfirst }}</h5>
+                                <p class="card-text text-muted small mb-2" style="min-height:36px;">{{ p.marca }} - {{ p.descripcion|truncatechars:50 }}</p>
+                                {% if es_mayorista %}
+                                    <div>
+                                        <span class="badge badge-secondary mb-1">Minorista: {{ p.precio_minorista|clp }}</span><br>
+                                        <span class="badge badge-success mb-2">Mayorista: {{ p.precio_mayorista|clp }}</span>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <span class="h5 text-success font-weight-bold mb-2 d-block">{{ p.precio_minorista|clp }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="mt-auto">
+                                    <button class="btn btn-primary btn-block add-to-cart mb-2"
+                                        data-id="{{ p.id }}"
+                                        data-name="{{ p.nombre|escapejs }}"
+                                        data-price="{% if es_mayorista %}{{ p.precio_mayorista }}{% else %}{{ p.precio_minorista }}{% endif %}"
+                                        {% if p.imagen %}
+                                            data-image="{{ p.imagen.url }}"
+                                        {% else %}
+                                            data-image="{% static 'autopart/img/default.jpg' %}"
+                                        {% endif %}
+                                        data-description="{{ p.descripcion|escapejs }}">
+                                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                                    </button>
+                                    <a href="{% url 'detalle_producto' p.id %}" class="btn btn-outline-secondary btn-block">Ver detalles</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                {% empty %}
+                    <div class="col-12"><p>No hay productos destacados.</p></div>
                 {% endfor %}
             </div>
         </div>
     </section>
 </main>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', () => {
+      const product = {
+        id: parseInt(button.dataset.id),
+        name: button.dataset.name,
+        price: parseInt(button.dataset.price),
+        image: button.dataset.image,
+        description: button.dataset.description,
+        quantity: 1
+      };
 
-<!-- Scripts -->
-<script src="{% static 'autopart/js/cart.js' %}"></script>
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.id === product.id);
+      if (existing) {
+        existing.quantity = Math.min(existing.quantity + 1, 10);
+      } else {
+        cart.push(product);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      // Puedes agregar aquí un toast o alerta visual si lo deseas
+      alert("Producto agregado al carrito 🛒");
+    });
+  });
+});
+</script>
+
+<style>
+.category-card-hover {
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.category-card-hover:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    z-index: 2;
+}
+</style>
+
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

@@ -1,55 +1,65 @@
 {% extends 'autopart/base/header.html' %}
 {% block content %}
-
+<main>
 <div style="height: 100px;"></div>
-    <div class="container mt-5 pt-4">
-    <h2 class="mb-4 text-center">👥 Lista de Clientes / Vendedores</h2>
+<div class="container mt-5 pt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      <div class="bg-white rounded shadow p-4">
+        <h2 class="mb-4 text-center">👥 Lista de Clientes / Vendedores</h2>
 
-
-    <form method="get" class="form-inline justify-content-center mb-4">
-        <input type="text" name="q" placeholder="Buscar por nombre o correo" value="{{ query }}" class="form-control mr-2 w-50">
+        <form method="get" class="form-inline justify-content-center mb-4">
+        <input type="text" name="q" placeholder="Buscar por nombre o correo" value="{{ query|default_if_none:'' }}" class="form-control mr-2 w-50">
+        <select name="tipo" class="form-control mr-2">
+            <option value="">Todos</option>
+            <option value="mayorista" {% if tipo == 'mayorista' %}selected{% endif %}>Mayorista</option>
+            <option value="minorista" {% if tipo == 'minorista' %}selected{% endif %}>Minorista</option>
+        </select>
         <button type="submit" class="btn btn-primary">Buscar</button>
-    </form>
+        </form>
 
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover text-center align-middle">
-        <thead class="thead-dark">
-            <tr>
-            <th>ID</th>
-            <th>Nombre Completo</th>
-            <th>Email</th>
-            <th>Tipo Cliente</th>
-            <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in usuarios %}
-            <tr>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover text-center align-middle">
+            <thead class="thead-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Email</th>
+                <th>Tipo Cliente</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in usuarios %}
+              <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.get_full_name }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                {% if user.perfilusuario.tipo_cliente %}
+                  {% if user.perfilusuario.tipo_cliente %}
                     <span class="badge badge-info">{{ user.perfilusuario.tipo_cliente.nombre }}</span>
-                {% else %}
+                  {% else %}
                     <span class="badge badge-secondary">Sin asignar</span>
-                {% endif %}
+                  {% endif %}
                 </td>
                 <td>
-                {% if user.perfilusuario.tipo_cliente and user.perfilusuario.tipo_cliente.nombre == 'Mayorista' %}
+                  {% if user.perfilusuario.tipo_cliente and user.perfilusuario.tipo_cliente.nombre == 'Mayorista' %}
                     <span class="text-success font-weight-bold">✔ Ya es Mayorista</span>
-                {% else %}
+                  {% else %}
                     <a href="{% url 'asignar_tipo_cliente' user.id %}" class="btn btn-sm btn-outline-primary">
-                    Asignar Mayorista
+                      Asignar Mayorista
                     </a>
-                {% endif %}
+                  {% endif %}
                 </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        </table>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    </div>
+  </div>
+</div>
+</main>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
