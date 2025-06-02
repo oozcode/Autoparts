@@ -1,6 +1,6 @@
+Django==4.2
 Pillow
 djangorestframework
 drf-yasg
 transbank-sdk
 mysqlclient
-django4.2

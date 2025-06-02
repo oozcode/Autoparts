@@ -1,9 +1,10 @@
 {% extends 'autopart/base/header.html' %}
 {% load formatos %}
 {% load static %}
-{% block title %}Catálogo - AutoParts{% endblock %}
-{% block content %}
 
+{% block title %}Catálogo - AutoParts{% endblock %}
+
+{% block content %}
 <main>
     <div class="category-header">
         <h1>Catálogo Completo</h1>
@@ -102,7 +103,6 @@
   </div>
 </div>
 
-<!-- SCRIPT PARA FUNCIONALIDAD DEL CARRITO -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.add-to-cart').forEach(button => {
