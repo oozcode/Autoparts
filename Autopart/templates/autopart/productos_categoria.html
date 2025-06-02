@@ -1,28 +1,143 @@
 {% extends 'autopart/base/header.html' %}
+{% load formatos %}
 {% load static %}
 
 {% block title %}AutoParts - Productos en {{ categoria.nombre }}{% endblock %}
 
 {% block content %}
 <main>
-  <h2>Productos en la categoría: {{ categoria.nombre }}</h2>
+  <div class="category-header">
+    <h1>Productos en la categoría: {{ categoria.nombre }}</h1>
+  </div>
+
   <div class="products-grid">
-    {% for p in productos %}
-        <div class="product-card" data-product-id="producto{{ p.id }}">
-            {% if p.img %}
-                <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
-            {% else %}
-                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
-            {% endif %}
-            <h3>{{ p.nombre|capfirst }}</h3>
-            <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-            <p class="price">${{ p.precio }}</p>
-            <button class="add-to-cart">Agregar al carrito</button>
-        </div>
+    {% for producto in productos %}
+      <div class="product-card"
+           data-id="{{ producto.id }}"
+           data-name="{{ producto.nombre|escapejs }}"
+           data-description="{{ producto.descripcion|escapejs }}"
+           {% if producto.imagen %}
+             data-image="{{ producto.imagen.url }}"
+           {% else %}
+             data-image="{% static 'autopart/img/default.jpg' %}"
+           {% endif %}
+           data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+           data-peso="{{ producto.peso|default_if_none:0 }}"
+           data-largo="{{ producto.largo|default_if_none:0 }}"
+           data-ancho="{{ producto.ancho|default_if_none:0 }}"
+           data-alto="{{ producto.alto|default_if_none:0 }}">
+
+        {% if producto.imagen %}
+          <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+        {% else %}
+          <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen">
+        {% endif %}
+
+        <h3>{{ producto.nombre }}</h3>
+        <p class="description">{{ producto.descripcion }}</p>
+
+        {% if es_mayorista %}
+            <p class="price-minorista">Minorista: {{ producto.precio_minorista|clp }}</p>
+            <p class="price-mayorista">Mayorista: {{ producto.precio_mayorista|clp }}</p>
+        {% else %}
+            <p class="price">{{ producto.precio_minorista|clp }}</p>
+        {% endif %}
+
+        <button class="add-to-cart"
+                data-id="{{ producto.id }}"
+                data-name="{{ producto.nombre|escapejs }}"
+                data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+                {% if producto.imagen %}
+                  data-image="{{ producto.imagen.url }}"
+                {% else %}
+                  data-image="{% static 'autopart/img/default.jpg' %}"
+                {% endif %}
+                data-description="{{ producto.descripcion|escapejs }}"
+                data-peso="{{ producto.peso|default_if_none:0 }}"
+                data-largo="{{ producto.largo|default_if_none:0 }}"
+                data-ancho="{{ producto.ancho|default_if_none:0 }}"
+                data-alto="{{ producto.alto|default_if_none:0 }}">
+          Agregar al carrito
+        </button>
+
+        <a href="{% url 'detalle_producto' producto.id %}" class="view-details">Ver detalles</a>
+      </div>
     {% empty %}
-        <p>No hay productos en esta categoría.</p>
+      <p>No hay productos en esta categoría.</p>
     {% endfor %}
   </div>
+
+  <script src="{% static 'autopart/js/cart.js' %}"></script>
 </main>
+
+<!-- TOAST -->
+<div id="cart-toast" class="cart-toast hidden">
+  <div class="toast-content">
+    <span id="toast-close" class="toast-close">&times;</span>
+    <img id="toast-img" src="" alt="Producto" />
+    <div class="toast-info">
+      <h4 id="toast-name"></h4>
+      <p id="toast-desc"></p>
+    </div>
+    <button onclick="window.location.href='/carrito/'" class="toast-btn">
+      Ver carrito (<span id="toast-count">0</span>)
+    </button>
+  </div>
+</div>
+
+<!-- TOAST DE CONFIRMACIÓN -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Producto agregado al carrito con éxito 🛒
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT PARA FUNCIONALIDAD DEL CARRITO -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', () => {
+      const product = {
+        id: parseInt(button.dataset.id),
+        name: button.dataset.name,
+        price: parseInt(button.dataset.price),
+        image: button.dataset.image,
+        description: button.dataset.description,
+        peso: parseFloat(button.dataset.peso || 0),
+        largo: parseFloat(button.dataset.largo || 0),
+        ancho: parseFloat(button.dataset.ancho || 0),
+        alto: parseFloat(button.dataset.alto || 0),
+        quantity: 1
+      };
+
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.id === product.id);
+      if (existing) {
+        existing.quantity = Math.min(existing.quantity + 1, 10);
+      } else {
+        cart.push(product);
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      document.getElementById('toast-img').src = product.image;
+      document.getElementById('toast-name').textContent = product.name;
+      document.getElementById('toast-desc').textContent = product.description;
+      document.getElementById('toast-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-toast').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('toast-close')?.addEventListener('click', () => {
+    document.getElementById('cart-toast').classList.add('hidden');
+  });
+});
+</script>
+
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

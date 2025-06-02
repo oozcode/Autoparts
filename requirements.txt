@@ -2,3 +2,5 @@ Pillow
 djangorestframework
 drf-yasg
 transbank-sdk
+mysqlclient
+django 4.2
