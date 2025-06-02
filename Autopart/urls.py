@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views 
-from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet
+from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
 from django.contrib.auth import views as auth_views
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
@@ -42,6 +42,10 @@ urlpatterns = [
     path('asignar-tipo/<int:user_id>/', views.asignar_tipo_cliente, name='asignar_tipo_cliente'),
     path('clientes/', views.lista_usuarios, name='lista_usuarios'),
     path('producto/<int:producto_id>/', views.detalle_producto, name='detalle_producto'),
-    path('resumen_pedido/', views.resumen_pedido, name='resumen_pedido')
+    path('resumen_pedido/', views.resumen_pedido, name='resumen_pedido'),
+    path('pagar/<int:pedido_id>/', views.pagar_pedido, name='pagar_pedido'),
+    path('crear_pedido/', views.crear_pedido, name='crear_pedido'),
+    path('pago_exitoso/', pago_exitoso, name='pago_exitoso'),
+
     
 ]

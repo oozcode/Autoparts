@@ -39,14 +39,62 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("resumenTotal").textContent = total.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
 
   document.getElementById("btnConfirmarPago").addEventListener("click", () => {
-    const metodo = document.getElementById("metodoPago").value;
-    if (!metodo) {
-      alert("Por favor selecciona un método de pago.");
-      return;
-    }
+  const metodo = document.getElementById("metodoPago").value;
+  if (!metodo) {
+    alert("Por favor selecciona un método de pago.");
+    return;
+  }
 
-    localStorage.setItem("pagoMetodo", metodo);
-    // Aquí rediriges o haces fetch a tu backend
-    window.location.href = "/transaccion/";
-  });
+  const cliente = JSON.parse(localStorage.getItem("cliente"));
+  const cart = JSON.parse(localStorage.getItem("cart"));
+  const resumen = JSON.parse(localStorage.getItem("resumen"));
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  fetch("/crear_pedido/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken")
+    },
+    body: JSON.stringify({
+        ...cliente,
+        cart,
+        resumen,
+        tipo_pedido: cliente.tipo_pedido
+        })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.order_id) {
+        localStorage.setItem("order_id", data.order_id);
+
+        if (metodo === "tarjeta") {
+          window.location.href = `/pagar/${data.order_id}/`;
+        } else {
+          alert("Método de pago no implementado todavía.");
+        }
+      } else {
+        alert("Error al crear el pedido.");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Ocurrió un error al procesar tu pedido.");
+    });
+});
+
 });

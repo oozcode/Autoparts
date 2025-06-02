@@ -108,6 +108,10 @@ class Order(models.Model):
     complemento = models.CharField(max_length=100, blank=True)
     email = models.EmailField()
     telefono = models.CharField(max_length=20)
+    subtotal = models.PositiveIntegerField(default=0)
+    iva = models.PositiveIntegerField(default=0)
+    envio = models.PositiveIntegerField(default=0)
+    total = models.PositiveIntegerField(default=0)
 
 # Items dentro de una orden con cantidad y precio
 class OrderItem(models.Model):

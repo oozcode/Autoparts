@@ -35,18 +35,14 @@
       </div>
 
       <!-- Selección método de pago -->
-      <div class="mt-4">
-        <label for="metodoPago" class="form-label">Selecciona método de pago</label>
-        <select id="metodoPago" class="form-select" required>
-          <option value="">Seleccione</option>
-          <option value="webpay">WebPay</option>
-          <option value="transferencia">Transferencia Bancaria</option>
+      <div class="mb-3">
+        <label for="metodoPago" class="form-label">Selecciona método de pago:</label>
+        <select id="metodoPago" class="form-select">
+            <option value="">Elige una opción</option>
+            <option value="tarjeta">Tarjeta de Crédito o Débito (Transbank)</option>
         </select>
       </div>
-
-      <div class="mt-4 d-flex justify-content-end">
-        <button class="btn btn-success" id="btnConfirmarPago">Confirmar y Pagar</button>
-      </div>
+        <button id="btnConfirmarPago" class="btn btn-success">Confirmar y Pagar</button>
     </section>
   </div>
 </main>

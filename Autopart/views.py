@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
+from django.urls import reverse
+from .models import Precio, Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login
@@ -8,6 +9,8 @@ from .forms import RegistroForm, EmailAuthenticationForm, PerfilUsuarioAdminForm
 from django.views.decorators.http import require_POST     
 from django.http import JsonResponse
 import json
+from transbank.webpay.webpay_plus.transaction import Transaction,WebpayOptions
+from transbank.common.integration_type import IntegrationType
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 from rest_framework import viewsets, permissions
@@ -16,6 +19,12 @@ from rest_framework.exceptions import PermissionDenied
 from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
+
+CommerCode = '597055555532'
+ApiKeySecret = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
+options = WebpayOptions(CommerCode,ApiKeySecret,IntegrationType.TEST)
+transaction = Transaction(options)
+
 
 
 
@@ -314,3 +323,93 @@ def catalogo(request):
 def detalle_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     return render(request, 'autopart/detalle_producto.html', {'producto': producto})
+
+def crear_pedido(request):
+    try:
+        data = json.loads(request.body)
+        cart = data.get('cart', [])
+        tipo_pedido = data.get('tipo_pedido')
+        resumen = data.get('resumen', {})
+
+        if not cart or not tipo_pedido:
+            return JsonResponse({'error': 'Carrito vacío o tipo de pedido no definido'}, status=400)
+
+        order = Order.objects.create(
+            user=request.user,
+            tipo_pedido=tipo_pedido,
+            rut=data['rut'],
+            nombre=data['nombre'],
+            apellidos=data['apellidos'],
+            region=data['region'],
+            comuna=data['comuna'],
+            calle=data['calle'],
+            numero=data['numero'],
+            complemento=data.get('complemento', ''),
+            email=data['email'],
+            telefono=data['telefono'],
+            subtotal=resumen.get('subtotal', 0),
+            iva=resumen.get('iva', 0),
+            envio=resumen.get('envio', 0),
+            total=resumen.get('total', 0),
+        )
+
+        tipo_cliente = getattr(request.user.perfilusuario, 'tipo_cliente', None)
+
+        for item in cart:
+            producto = Producto.objects.get(pk=item['id'])
+
+            try:
+                if tipo_cliente:
+                    precio = producto.precios.get(tipo_cliente=tipo_cliente).valor
+                else:
+                    precio = item.get("price", producto.precio_minorista)
+            except Precio.DoesNotExist:
+                precio = item.get("price", producto.precio_minorista)
+
+            OrderItem.objects.create(
+                order=order,
+                producto=producto,
+                quantity=item.get('quantity', 1),
+                price=precio
+            )
+
+        return JsonResponse({'order_id': order.id})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def pagar_pedido(request, pedido_id):
+    orden = get_object_or_404(Order, id=pedido_id, user=request.user)
+    transaction = Transaction(options)
+
+    try:
+        # Usa directamente el total ya guardado (suma de subtotal + iva + envío)
+        total = orden.total  # ← ya deberías tenerlo desde crear_pedido
+
+        response = transaction.create(
+            buy_order=str(orden.id),
+            session_id=request.session.session_key,
+            amount=int(total),
+            return_url=request.build_absolute_uri(reverse('pago_exitoso'))
+        )
+        return redirect(f"{response['url']}?token_ws={response['token']}")
+    except Exception as e:
+        messages.error(request, "Error al procesar el pago.")
+        return redirect('resumen_pedido')
+
+def pago_exitoso(request):
+    
+    token_ws = request.GET.get('token_ws')  
+    transaction = Transaction(options) 
+    result = transaction.commit(token_ws)  
+
+    if result['status'] == 'AUTHORIZED':
+  
+        pedido_id = int(result['buy_order'])  
+        pedido = get_object_or_404(Order, id=pedido_id)  
+        pedido.estado = 'pagado' 
+        pedido.save()
+
+        return render(request, 'app/pago_exitoso.html', {'pedido': pedido})
+    else:
+        return render(request, 'app/pago_fallido.html') 

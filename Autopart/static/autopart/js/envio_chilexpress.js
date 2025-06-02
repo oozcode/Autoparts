@@ -26,8 +26,6 @@ function actualizarResumen() {
   subtotalEl.textContent = resumen.subtotal.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   impuestosEl.textContent = resumen.iva.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   totalFinalEl.textContent = resumen.total.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
-
-  // ✅ Esta línea es la que estaba faltando
   document.getElementById("envio").textContent = resumen.envio.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
 }
 
