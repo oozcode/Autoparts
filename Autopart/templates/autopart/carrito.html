@@ -1,7 +1,9 @@
 {% extends 'autopart/base/header.html' %}
 {% load static %}
+
 {% block title %}Carrito de Compras - AutoParts{% endblock %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'autopart/css/componentes/carrito.css' %}">
 <main class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -9,24 +11,191 @@
 
             <div id="cart-items" class="cart-items mb-4">
                 <!-- Aquí se insertan los productos con JS -->
+                 
             </div>
-
+            <div id="empty-cart-message" class="text-center mt-5" style="display: none;">
+                <p>Tu carrito está vacío 🛒</p>
+                <a href="/catalogo/" class="btn btn-secondary">Ir al catálogo</a>
+            </div>
             <div class="cart-summary p-4 bg-light rounded shadow-sm">
                 <p>Subtotal: <span id="subtotal">$0</span></p>
                 <p>IVA (19%): <span id="iva">$0</span></p>
                 <h3>Total: <span id="total">$0</span></h3>
                 <button id="finalize-purchase" href="/pago/" class="btn btn-primary w-100 mt-3">Ir a pagar</button>
             </div>
-
-            <div id="empty-cart-message" class="text-center mt-5" style="display: none;">
-                <p>Tu carrito está vacío 🛒</p>
-                <a href="/catalogo/" class="btn btn-secondary">Ir al catálogo</a>
-            </div>
         </div>
     </div>
 </main>
 <!-- service-item -->
-<link rel="stylesheet" href="{% static 'autopart/css/componentes/carrito.css' %}">
+<style>
+  /* Contenedor principal de los ítems */
+.cart-items {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 1.5rem 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Item del carrito */
+.cart-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.15s, transform 0.15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  border-bottom: 1px solid #ececec;
+}
+.cart-item:last-child {
+  border-bottom: none;
+}
+.cart-item:hover {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.cart-item img {
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #eee;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-right: 1.2rem;
+}
+
+.cart-details h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.3rem;
+}
+
+.cart-details p {
+  margin-bottom: 0.3rem;
+}
+
+.cart-details .fw-semibold {
+  color: #198754;
+  font-weight: 600;
+}
+
+.quantity-controls {
+  margin-bottom: 0.5rem;
+}
+.quantity-controls .btn {
+  min-width: 32px;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.5rem;
+}
+.quantity-controls .btn-light {
+  background: #f6f6f6;
+  color: #222;
+  border: 1px solid #eee;
+}
+
+.btn-danger.btn-sm.remove {
+  background: #dc3545;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.3rem 0.9rem;
+  transition: background 0.15s;
+}
+.btn-danger.btn-sm.remove:hover {
+  background: #b52a37;
+}
+
+/* Resumen del carrito */
+.cart-summary {
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  margin-bottom: 1.5rem;
+  padding: 2rem 1.5rem;
+}
+
+.cart-summary p,
+.cart-summary h3 {
+  margin-bottom: 0.7rem;
+}
+
+.cart-summary h3 {
+  color: #198754;
+  font-weight: 700;
+}
+
+.btn-primary.w-100 {
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.7rem 0;
+  box-shadow: 0 2px 8px rgba(25,135,84,0.08);
+  transition: background 0.15s;
+}
+.btn-primary.w-100:hover {
+  background: #145c32;
+}
+
+/* Mensaje de carrito vacío */
+#empty-cart-message {
+  background: rgba(255,255,255,0.97);
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+#empty-cart-message p {
+  font-size: 1.15rem;
+  color: #444;
+  margin-bottom: 1.2rem;
+}
+
+#empty-cart-message .btn {
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(25,135,84,0.08);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    padding: 1rem 0.5rem;
+    gap: 0.7rem;
+  }
+  .cart-item img {
+    margin-bottom: 0.7rem;
+    margin-right: 0;
+    width: 60px;
+    height: 60px;
+  }
+  .cart-summary {
+    padding: 1rem 0.5rem;
+  }
+  #empty-cart-message {
+    padding: 1.2rem 0.5rem;
+    min-height: 120px;
+  }
+}
+</style>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -39,6 +208,7 @@
     function renderCart() {
       cartItemsContainer.innerHTML = '';
       let subtotal = 0;
+      const finalizeBtn = document.getElementById('finalize-purchase');
 
       // Corrige cantidades erróneas
       cart = cart.map(item => {
@@ -51,14 +221,19 @@
         subtotalSpan.textContent = '$0';
         ivaSpan.textContent = '$0';
         totalSpan.textContent = '$0';
+        finalizeBtn.style.display = 'none'; // Oculta el botón
         return;
       }
 
       emptyCartMessage.style.display = 'none';
+      finalizeBtn.style.display = 'block'; // Muestra el botón si hay productos
 
       cart.forEach(item => {
         const price = parseFloat(item.price) || 0;
         subtotal += price * item.quantity;
+
+        // Deshabilita el botón "+" si llegó al stock
+        const disableIncrease = item.stock !== undefined && item.quantity >= item.stock ? 'disabled' : '';
 
         const div = document.createElement('div');
         div.className = 'cart-item d-flex align-items-start gap-3 border-bottom pb-3 mb-3';
@@ -71,9 +246,10 @@
             <div class="quantity-controls btn-group mb-2" role="group">
               <button class="btn btn-outline-secondary btn-sm decrease" data-id="${item.id}">−</button>
               <span class="btn btn-light btn-sm disabled">${item.quantity}</span>
-              <button class="btn btn-outline-secondary btn-sm increase" data-id="${item.id}">+</button>
+              <button class="btn btn-outline-secondary btn-sm increase" data-id="${item.id}" ${disableIncrease}>+</button>
             </div>
             <button class="btn btn-danger btn-sm remove" data-id="${item.id}">Eliminar</button>
+            <div class="small text-muted mt-1">Stock: ${item.stock !== undefined ? item.stock : '∞'}</div>
           </div>
         `;
         cartItemsContainer.appendChild(div);
@@ -93,12 +269,15 @@
     function updateQuantity(id, delta) {
       const item = cart.find(p => p.id == id);
       if (!item) return;
+      // Validar stock al aumentar
+      if (delta > 0 && item.stock !== undefined && item.quantity >= item.stock) {
+        alert('No puedes agregar más de la cantidad disponible en stock.');
+        return;
+      }
       item.quantity += delta;
       if (item.quantity < 1) {
         removeFromCart(id);
         return;
-      } else if (item.quantity > 100) {
-        item.quantity = 100;
       }
       saveCart();
       renderCart();

@@ -12,6 +12,7 @@ class DashboardVendedor {
     this.cargarCategoriasYMarcas();
     this.cargarProductos();
     this.setupEventListeners();
+    this.cargarFiltroMarcaAuto();
   }
 
   getCSRFToken() {
@@ -21,8 +22,40 @@ class DashboardVendedor {
       ?.split('=')[1];
     return cookieValue || '';
   }
-
+  crearProducto(formData, form) {
+  Swal.fire({
+    title: '¿Agregar producto?',
+    text: '¿Estás seguro de que deseas agregar este producto?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, agregar',
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#3085d6',
+    confirmButtonColor: '#198754',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(this.apiUrl, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': this.csrfToken },
+        body: formData
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al crear producto');
+          return res.json();
+        })
+        .then(data => {
+          this.modalCrear.hide();
+          this.cargarProductos();
+          form.reset();
+          Swal.fire('¡Agregado!', 'El producto fue agregado.', 'success');
+        })
+        .catch(() => Swal.fire('Error', 'Error al crear producto. Revisa los datos.', 'error'));
+    }
+  });
+}
   cargarCategoriasYMarcas() {
+    // ...tu código existente para cargar categorías y marcas...
+    // (sin cambios)
     fetch('/api/categorias/', {
       method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include'
     })
@@ -52,6 +85,31 @@ class DashboardVendedor {
         filtroMarca.innerHTML = '<option value="">Todas</option>' + opts;
       })
       .catch(err => console.warn('No se pudo cargar marcas:', err));
+
+    fetch('/api/marcas-auto/', {
+      method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        const selectAutoCrear = document.querySelector('#formCrearProducto select[name="marcas_auto"]');
+        const selectAutoEditar = document.querySelector('#formEditarProducto select[name="marcas_auto"]');
+        const opts = data.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+        selectAutoCrear.innerHTML = opts;
+        selectAutoEditar.innerHTML = opts;
+      })
+      .catch(err => console.warn('No se pudo cargar marcas de auto:', err));
+  }
+
+  cargarFiltroMarcaAuto() {
+    fetch('/api/marcas-auto/')
+      .then(res => res.json())
+      .then(data => {
+        const filtroMarcaAuto = document.getElementById('filtroMarcaAuto');
+        if (filtroMarcaAuto) {
+          filtroMarcaAuto.innerHTML = '<option value="">Todas las marcas de auto</option>' +
+            data.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+        }
+      });
   }
 
   cargarProductos() {
@@ -70,35 +128,52 @@ class DashboardVendedor {
   }
 
   renderProductos(lista = this.productos) {
+    // ...tu código existente...
     const tbody = document.getElementById('productosBody');
     tbody.innerHTML = lista
-      .map(p => `
-        <tr>
-          <td>${p.id}</td>
-          <td>
-            <img src="${p.imagen ? p.imagen.url : '/static/autopart/img/m4.jpg'}" alt="${p.nombre}" style="max-width: 80px;">
-          </td>
-          <td>${p.nombre}</td>
-          <td>${p.precio_minorista}</td>
-          <td>${p.precio_mayorista}</td>
-          <td>${p.marca_info ? p.marca_info.nombre : ''}</td>
-          <td>${p.categoria_info ? p.categoria_info.nombre : ''}</td>
-          <td>${p.stock}</td>
-          <td>
-            <button class="btn btn-warning btn-sm btn-editar" data-id="${p.id}">✏️</button>
-            <button class="btn btn-danger btn-sm btn-eliminar" data-id="${p.id}">🗑️</button>
-          </td>
-        </tr>
-      `)
+      .map(p => {
+        const precioMinorista = (p.precio_minorista !== null && p.precio_minorista !== undefined && p.precio_minorista !== '')
+          ? Number(p.precio_minorista).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 })
+          : '$0';
+        const precioMayorista = (p.precio_mayorista !== null && p.precio_mayorista !== undefined && p.precio_mayorista !== '')
+          ? Number(p.precio_mayorista).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 })
+          : '$0';
+
+        const marcasAuto = p.marcas_auto_info && p.marcas_auto_info.length
+          ? p.marcas_auto_info.map(m => m.nombre).join(', ')
+          : '-';
+
+        return `
+          <tr>
+            <td>${p.id}</td>
+            <td>
+              <img src="${p.imagen ? p.imagen.url : '/static/autopart/img/m4.jpg'}" alt="${p.nombre}" style="max-width: 80px;">
+            </td>
+            <td>${p.nombre}</td>
+            <td>${precioMinorista}</td>
+            <td>${precioMayorista}</td>
+            <td>${p.marca_info ? p.marca_info.nombre : ''}</td>
+            <td>${p.categoria_info ? p.categoria_info.nombre : ''}</td>
+            <td>${marcasAuto}</td>
+            <td>${p.stock}</td>
+            <td>
+              <div class="dashboard-action-btns">
+                <button class="btn btn-edit btn-editar" data-id="${p.id}">Editar</button>
+                <button class="btn btn-delete btn-eliminar" data-id="${p.id}">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
       .join('');
   }
 
   setupEventListeners() {
-    const formCrear = document.getElementById('formCrearProducto');
-    formCrear.addEventListener('submit', e => {
-      e.preventDefault();
-      this.crearProducto(new FormData(formCrear), formCrear);
-    });
+  const formCrear = document.getElementById('formCrearProducto');
+  formCrear.addEventListener('submit', (e) => { // Usa función flecha aquí
+    e.preventDefault();
+    this.crearProducto(new FormData(formCrear), formCrear);
+  });
 
     const formEditar = document.getElementById('formEditarProducto');
     formEditar.addEventListener('submit', e => {
@@ -121,111 +196,216 @@ class DashboardVendedor {
       }
     });
 
+    // Filtros
+    document.getElementById('filtroPrecioMayoristaMin').addEventListener('input', () => this.filtrarProductos());
+    document.getElementById('filtroPrecioMayoristaMax').addEventListener('input', () => this.filtrarProductos());
+    document.getElementById('filtroPrecioMin').addEventListener('input', () => dashboard.filtrarProductos());
+    document.getElementById('filtroPrecioMax').addEventListener('input', () => dashboard.filtrarProductos());
     document.getElementById('filtroNombre').addEventListener('input', () => this.filtrarProductos());
     document.getElementById('filtroMarca').addEventListener('change', () => this.filtrarProductos());
     document.getElementById('filtroCategoria').addEventListener('change', () => this.filtrarProductos());
+    document.getElementById('filtroMarcaAuto').addEventListener('change', () => this.filtrarProductos());
+    document.getElementById('filtroStock').addEventListener('change', () => this.filtrarProductos());
+    document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
+      document.getElementById('filtroNombre').value = '';
+      document.getElementById('filtroMarca').value = '';
+      document.getElementById('filtroCategoria').value = '';
+      document.getElementById('filtroMarcaAuto').value = '';
+      document.getElementById('filtroStock').value = '';
+      this.filtrarProductos();
+    });
+    
   }
-
-  crearProducto(formData, form) {
-    fetch(this.apiUrl, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': this.csrfToken },
-      credentials: 'include',
-      body: formData
-    })
-      .then(res => {
-        if (!res.ok) return res.json().then(errJson => { throw new Error(Object.values(errJson).flat().join(', ')); });
-        return res.json();
+eliminarProducto(id) {
+  Swal.fire({
+    title: '¿Eliminar producto?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33', // Rojo para el botón de confirmar
+    cancelButtonColor: '#3085d6'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`${this.apiUrl}${id}/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': this.csrfToken }
       })
-      .then(productoNuevo => {
-        this.productos.push(productoNuevo);
-        this.renderProductos();
-        this.modalCrear.hide();
-        form.reset();
-      })
-      .catch(err => alert('Error al crear producto: ' + err.message));
-  }
-
-  eliminarProducto(id) {
-    if (!confirm('¿Seguro quieres eliminar este producto? 😢')) return;
-    fetch(`${this.apiUrl}${id}/`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'X-CSRFToken': this.csrfToken }
-    })
-      .then(res => {
-        if (res.status === 204) {
-          this.productos = this.productos.filter(p => p.id != id);
-          this.renderProductos();
-        } else {
-          return res.json().then(errJson => { throw new Error(Object.values(errJson).flat().join(', ')); });
-        }
-      })
-      .catch(err => alert('Error al eliminar: ' + err.message));
-  }
-
+        .then(res => {
+          if (!res.ok) throw new Error('Error al eliminar');
+          this.cargarProductos();
+          Swal.fire('¡Eliminado!', 'El producto fue eliminado.', 'success');
+        })
+        .catch(() => Swal.fire('Error', 'No se pudo eliminar el producto.', 'error'));
+    }
+  });
+}
   abrirModalEditar(id) {
-    const producto = this.productos.find(p => p.id == id);
-    if (!producto) return alert('Producto no encontrado');
+    const producto = this.productos.find(p => String(p.id) === String(id));
+    if (!producto) return;
 
     const formEditar = document.getElementById('formEditarProducto');
     formEditar.dataset.id = producto.id;
+    formEditar.nombre.value = producto.nombre || '';
+    formEditar.descripcion.value = producto.descripcion || '';
+    formEditar.precio_minorista.value = producto.precio_minorista || '';
+    formEditar.precio_mayorista.value = producto.precio_mayorista || '';
+    formEditar.stock.value = producto.stock || '';
+    formEditar.peso.value = producto.peso || '';
+    formEditar.largo.value = producto.largo || '';
+    formEditar.ancho.value = producto.ancho || '';
+    formEditar.alto.value = producto.alto || '';
+    formEditar.categoria.value = producto.categoria || '';
+    formEditar.marca.value = producto.marca || '';
 
-    formEditar.querySelector('[name="nombre"]').value = producto.nombre || '';
-    formEditar.querySelector('[name="descripcion"]').value = producto.descripcion || '';
-    formEditar.querySelector('[name="precio_minorista"]').value = producto.precio_minorista || '';
-    formEditar.querySelector('[name="precio_mayorista"]').value = producto.precio_mayorista || '';
-    formEditar.querySelector('[name="stock"]').value = producto.stock || '';
-    formEditar.querySelector('[name="marca"]').value = producto.marca || '';
-    formEditar.querySelector('[name="categoria"]').value = producto.categoria || '';
-    formEditar.querySelector('[name="peso"]').value = producto.peso || '';
-    formEditar.querySelector('[name="largo"]').value = producto.largo || '';
-    formEditar.querySelector('[name="ancho"]').value = producto.ancho || '';
-    formEditar.querySelector('[name="alto"]').value = producto.alto || '';
+    // Marcas de auto (multi-select)
+    const selectMarcasAuto = formEditar.marcas_auto;
+    Array.from(selectMarcasAuto.options).forEach(opt => {
+      opt.selected = producto.marcas_auto_info && producto.marcas_auto_info.some(m => String(m.id) === String(opt.value));
+    });
 
     this.modalEditar.show();
   }
-
   editarProducto(id, formData, form) {
-    fetch(`${this.apiUrl}${id}/`, {
-      method: 'PATCH',
-      headers: { 'X-CSRFToken': this.csrfToken },
-      credentials: 'include',
-      body: formData
-    })
-      .then(res => {
-        if (!res.ok) return res.json().then(errJson => { throw new Error(Object.values(errJson).flat().join(', ')); });
-        return res.json();
+  Swal.fire({
+    title: '¿Editar producto?',
+    text: '¿Estás seguro de que deseas guardar los cambios?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, guardar',
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#3085d6',
+    confirmButtonColor: '#198754'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`${this.apiUrl}${id}/`, {
+        method: 'PUT',
+        headers: { 'X-CSRFToken': this.csrfToken },
+        body: formData
       })
-      .then(actualizado => {
-        const index = this.productos.findIndex(p => p.id == id);
-        if (index !== -1) {
-          this.productos[index] = actualizado;
-          this.renderProductos();
-        }
-        this.modalEditar.hide();
-        form.reset();
-      })
-      .catch(err => alert('Error al actualizar producto: ' + err.message));
-  }
-
-  filtrarProductos() {
-    const nombre = document.getElementById('filtroNombre').value.toLowerCase();
-    const marca = document.getElementById('filtroMarca').value;
-    const categoria = document.getElementById('filtroCategoria').value;
-
-    const productosFiltrados = this.productos.filter(p => {
-      return (
-        (!nombre || p.nombre.toLowerCase().includes(nombre)) &&
-        (!marca || String(p.marca) === marca) &&
-        (!categoria || String(p.categoria) === categoria)
-      );
-    });
-
-    this.renderProductos(productosFiltrados);
-  }
+        .then(res => {
+          if (!res.ok) throw new Error('Error al editar producto');
+          return res.json();
+        })
+        .then(data => {
+          this.modalEditar.hide();
+          this.cargarProductos();
+          form.reset();
+          Swal.fire('¡Editado!', 'El producto fue actualizado.', 'success');
+        })
+        .catch(() => Swal.fire('Error', 'Error al editar producto. Revisa los datos.', 'error'));
+    }
+  });
 }
 
+
+  // ...crearProducto, eliminarProducto, abrirModalEditar, editarProducto igual...
+
+filtrarProductos() {
+  const nombre = document.getElementById('filtroNombre').value.toLowerCase();
+  const marca = document.getElementById('filtroMarca').value;
+  const categoria = document.getElementById('filtroCategoria').value;
+  const marcaAuto = document.getElementById('filtroMarcaAuto').value;
+  const stockFiltro = document.getElementById('filtroStock').value;
+  const precioMin = parseFloat(document.getElementById('filtroPrecioMin').value) || null;
+  const precioMax = parseFloat(document.getElementById('filtroPrecioMax').value) || null;
+  const precioMayoristaMin = parseFloat(document.getElementById('filtroPrecioMayoristaMin').value) || null;
+  const precioMayoristaMax = parseFloat(document.getElementById('filtroPrecioMayoristaMax').value) || null;
+
+  let lista = this.productos;
+
+  if (nombre) {
+    lista = lista.filter(p => p.nombre.toLowerCase().includes(nombre));
+  }
+  if (marca) {
+    lista = lista.filter(p => String(p.marca) === String(marca));
+  }
+  if (categoria) {
+    lista = lista.filter(p => String(p.categoria) === String(categoria));
+  }
+  if (marcaAuto) {
+    lista = lista.filter(p =>
+      p.marcas_auto_info && p.marcas_auto_info.some(m => String(m.id) === String(marcaAuto))
+    );
+  }
+  if (stockFiltro === 'con') {
+    lista = lista.filter(p => Number(p.stock) > 0);
+  } else if (stockFiltro === 'sin') {
+    lista = lista.filter(p => Number(p.stock) <= 0);
+  }
+  if (precioMin !== null) {
+    lista = lista.filter(p => Number(p.precio_minorista) >= precioMin);
+  }
+  if (precioMax !== null) {
+    lista = lista.filter(p => Number(p.precio_minorista) <= precioMax);
+  }
+  if (precioMayoristaMin !== null) {
+    lista = lista.filter(p => Number(p.precio_mayorista) >= precioMayoristaMin);
+  }
+  if (precioMayoristaMax !== null) {
+    lista = lista.filter(p => Number(p.precio_mayorista) <= precioMayoristaMax);
+  }
+
+  this.renderProductos(lista);
+}
+}
+let tipoEntidad = '';
+let selectActualizar = null;
+const modalNuevaEntidad = new bootstrap.Modal(document.getElementById('modalNuevaEntidad'));
+
+document.getElementById('btnNuevaMarca').onclick = function() {
+  tipoEntidad = 'marca';
+  selectActualizar = document.getElementById('filtroMarca');
+  document.getElementById('tituloModalNuevaEntidad').textContent = 'Agregar nueva marca';
+  document.getElementById('inputNuevaEntidad').value = '';
+  modalNuevaEntidad.show();
+};
+document.getElementById('btnNuevaCategoria').onclick = function() {
+  tipoEntidad = 'categoria';
+  selectActualizar = document.getElementById('filtroCategoria');
+  document.getElementById('tituloModalNuevaEntidad').textContent = 'Agregar nueva categoría';
+  document.getElementById('inputNuevaEntidad').value = '';
+  modalNuevaEntidad.show();
+};
+document.getElementById('btnNuevaMarcaAuto').onclick = function() {
+  tipoEntidad = 'marca_auto';
+  selectActualizar = document.getElementById('filtroMarcaAuto');
+  document.getElementById('tituloModalNuevaEntidad').textContent = 'Agregar nueva marca de auto';
+  document.getElementById('inputNuevaEntidad').value = '';
+  modalNuevaEntidad.show();
+};
+
+document.getElementById('formNuevaEntidad').onsubmit = function(e) {
+  e.preventDefault();
+  const nombre = document.getElementById('inputNuevaEntidad').value.trim();
+  if (!nombre) return;
+
+  let url = '';
+  if (tipoEntidad === 'marca') url = '/api/marcas/';
+  if (tipoEntidad === 'categoria') url = '/api/categorias/';
+  if (tipoEntidad === 'marca_auto') url = '/api/marcas-auto/';
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': window.dashboard.csrfToken
+    },
+    body: JSON.stringify({ nombre })
+  })
+  .then(res => res.json())
+  .then(data => {
+    modalNuevaEntidad.hide();
+    // Recargar el select correspondiente
+    if (tipoEntidad === 'marca') window.dashboard.cargarCategoriasYMarcas();
+    if (tipoEntidad === 'categoria') window.dashboard.cargarCategoriasYMarcas();
+    if (tipoEntidad === 'marca_auto') window.dashboard.cargarFiltroMarcaAuto();
+  })
+  .catch(() => alert('Error al agregar. Intenta nuevamente.'));
+  
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-  new DashboardVendedor();
+  window.dashboard = new DashboardVendedor();
 });

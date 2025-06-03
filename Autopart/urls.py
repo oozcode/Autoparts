@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views 
-from .views import ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
+from .views import MarcaAutoViewSet, ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
 from django.contrib.auth import views as auth_views
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
@@ -11,6 +11,7 @@ router = DefaultRouter()
 router.register(r'productos', ProductoViewSet)
 router.register(r'categorias', CategoriaViewSet)
 router.register(r'marcas', MarcaViewSet)
+router.register(r'marcas-auto', MarcaAutoViewSet)
 schema_view = get_schema_view(
    openapi.Info(
       title="API Autoparts",
@@ -29,10 +30,6 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
     path('logout/', auth_views.LogoutView.as_view(next_page='index'), name='logout'),
     path('pago/', views.pago, name='pago'),
-    path('frenos/', views.frenos, name='frenos'),
-    path('electrico/', views.electrico, name='electrico'),
-    path('motores/', views.motores, name='motores'),
-    path('accesorios/', views.accesorios, name='accesorios'),
     path('categoria/<slug:categoria_slug>/', views.productos_por_categoria, name='productos_por_categoria'),
     path('crear-pedido/', views.crear_pedido, name='crear_pedido'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

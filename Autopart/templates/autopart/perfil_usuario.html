@@ -9,7 +9,16 @@
       <p><strong>Email:</strong> {{ request.user.email }}</p>
       {% if perfil %}
         <p><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
-        <!-- Agrega aquí otros campos de perfil si tienes -->
+        <p>
+          <strong>Tipo de Cliente:</strong>
+          {% if perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista" %}
+            <span class="badge badge-success">Mayorista</span>
+          {% elif perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Minorista" %}
+            <span class="badge badge-secondary">Minorista</span>
+          {% else %}
+            <span class="badge badge-light">Sin asignar</span>
+          {% endif %}
+        </p>
       {% endif %}
     </div>
   </div>

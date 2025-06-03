@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -23,11 +24,15 @@ class RegistroForm(UserCreationForm):
         widget=forms.EmailInput(attrs={'class': 'form-input'})
     )
     telefono = forms.CharField(
-        max_length=15,
-        label="Teléfono",
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-input'})
-    )
+    max_length=15,
+    label="Teléfono",
+    required=False,
+    widget=forms.TextInput(attrs={
+        'class': 'form-input',
+        'pattern': r'\d{9}',
+        'title': 'Ingresa solo números'
+    })
+)
 
     class Meta:
         model = User
@@ -51,7 +56,13 @@ class RegistroForm(UserCreationForm):
         if commit:
             user.save()
         return user
-    
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if telefono:
+            # Solo números, mínimo 8 y máximo 15 dígitos
+            if not re.fullmatch(r'\d{8,15}', telefono):
+                raise forms.ValidationError("Ingresa un número de teléfono válido (solo números, 8 a 15 dígitos).")
+        return telefono
 User = get_user_model()
 
 class EmailAuthenticationForm(AuthenticationForm):

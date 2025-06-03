@@ -74,7 +74,8 @@
                                         {% else %}
                                             data-image="{% static 'autopart/img/default.jpg' %}"
                                         {% endif %}
-                                        data-description="{{ p.descripcion|escapejs }}">
+                                        data-description="{{ p.descripcion|escapejs }}"
+                                        data-stock="{{ p.stock }}">
                                         <i class="fas fa-cart-plus"></i> Agregar al carrito
                                     </button>
                                     <a href="{% url 'detalle_producto' p.id %}" class="btn btn-outline-secondary btn-block">Ver detalles</a>
@@ -92,43 +93,68 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // Formatear todos los precios a CLP
+  document.querySelectorAll('.clp').forEach(function(el) {
+    let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
+    el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+  });
+
+  // Agregar al carrito y mostrar toast, validando stock
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', () => {
+      const stock = parseInt(button.dataset.stock);
       const product = {
         id: parseInt(button.dataset.id),
         name: button.dataset.name,
         price: parseInt(button.dataset.price),
         image: button.dataset.image,
         description: button.dataset.description,
-        quantity: 1
+        quantity: 1,
+        stock: parseInt(button.dataset.stock), // <-- agrega esto
       };
 
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
       const existing = cart.find(p => p.id === product.id);
+
       if (existing) {
-        existing.quantity = Math.min(existing.quantity + 1, 10);
+        if (existing.quantity < stock) {
+          existing.quantity++;
+        } else {
+          alert('No puedes agregar más de la cantidad disponible en stock.');
+          return;
+        }
       } else {
-        cart.push(product);
+        if (stock > 0) {
+          cart.push(product);
+        } else {
+          alert('Producto sin stock disponible.');
+          return;
+        }
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));
-      // Puedes agregar aquí un toast o alerta visual si lo deseas
-      alert("Producto agregado al carrito 🛒");
+
+      // Mostrar toast visual
+      var toastEl = document.getElementById('addToast');
+      if (toastEl) {
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
     });
   });
 });
 </script>
-
-<style>
-.category-card-hover {
-    transition: transform 0.15s, box-shadow 0.15s;
-}
-.category-card-hover:hover {
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    z-index: 2;
-}
-</style>
+<!-- Toast visual para agregar al carrito -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Producto agregado al carrito con éxito 🛒
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
 
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

@@ -10,17 +10,18 @@ class Cart {
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', () => {
                 const product = {
-                id: parseInt(button.dataset.id),
-                name: button.dataset.name,
-                price: parseInt(button.dataset.price),
-                image: button.dataset.image,
-                description: button.dataset.description,
-                peso: parseFloat(button.dataset.peso),
-                largo: parseFloat(button.dataset.largo),
-                ancho: parseFloat(button.dataset.ancho),
-                alto: parseFloat(button.dataset.alto),
-                quantity: 1
-            };
+                    id: parseInt(button.dataset.id),
+                    name: button.dataset.name,
+                    price: parseInt(button.dataset.price),
+                    image: button.dataset.image,
+                    description: button.dataset.description,
+                    peso: parseFloat(button.dataset.peso),
+                    largo: parseFloat(button.dataset.largo),
+                    ancho: parseFloat(button.dataset.ancho),
+                    alto: parseFloat(button.dataset.alto),
+                    stock: parseInt(button.dataset.stock), // <-- agrega esto
+                    quantity: 1
+                };
                 this.addToCart(product);
                 this.showToast(product);
             });
@@ -46,21 +47,28 @@ class Cart {
     }
 
     addToCart(product) {
-        const existing = this.cart.find(item => item.id === product.id);
-        if (existing) {
-            if (existing.quantity < 100) {
-                existing.quantity++;
-            } else {
-                alert('Máximo 100 unidades permitidas.');
-            }
-        } else {
-            this.cart.push(product);
-        }
+    const existing = this.cart.find(item => item.id === product.id);
+    const stock = product.stock !== undefined ? product.stock : 10000; // fallback si no hay stock
 
-        this.saveCart();
-        this.updateCartCount();
-        this.showSuccessToast();
+    if (existing) {
+        if (existing.quantity < stock) {
+            existing.quantity++;
+        } else {
+            alert('No puedes agregar más de la cantidad disponible en stock.');
+        }
+    } else {
+        if (stock > 0) {
+            this.cart.push(product);
+        } else {
+            alert('Producto sin stock disponible.');
+            return;
+        }
     }
+
+    this.saveCart();
+    this.updateCartCount();
+    this.showSuccessToast();
+}
 
     saveCart() {
         localStorage.setItem('cart', JSON.stringify(this.cart));

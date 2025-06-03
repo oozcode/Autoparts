@@ -52,7 +52,8 @@
                       data-peso="{{ producto.peso }}"
                       data-largo="{{ producto.largo }}"
                       data-ancho="{{ producto.ancho }}"
-                      data-alto="{{ producto.alto }}">
+                      data-alto="{{ producto.alto }}"
+                      data-stock="{{ producto.stock }}">
                       <i class="fas fa-cart-plus"></i> Agregar al carrito
                     </button>
                     <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-outline-secondary btn-block">Ver detalles</a>
@@ -70,7 +71,6 @@
     {% endfor %}
   </div>
 
-  <script src="{% static 'autopart/js/cart.js' %}"></script>
 </main>
 
 <!-- TOAST -->
@@ -88,6 +88,8 @@
   </div>
 </div>
 
+<!-- ...tu contenido... -->
+
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
   <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
@@ -101,44 +103,62 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // Formatear todos los precios a CLP
+  document.querySelectorAll('.clp').forEach(function(el) {
+    let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
+    el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+  });
+
+  // Agregar al carrito y mostrar toast, validando stock
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', () => {
+      const stock = parseInt(button.dataset.stock);
       const product = {
         id: parseInt(button.dataset.id),
         name: button.dataset.name,
         price: parseInt(button.dataset.price),
         image: button.dataset.image,
         description: button.dataset.description,
-        peso: parseFloat(button.dataset.peso || 0),
-        largo: parseFloat(button.dataset.largo || 0),
-        ancho: parseFloat(button.dataset.ancho || 0),
-        alto: parseFloat(button.dataset.alto || 0),
+        peso: parseFloat(button.dataset.peso),
+        largo: parseFloat(button.dataset.largo),
+        ancho: parseFloat(button.dataset.ancho),
+        alto: parseFloat(button.dataset.alto),
+        stock: parseInt(button.dataset.stock), // <-- agrega esto
         quantity: 1
       };
 
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
       const existing = cart.find(p => p.id === product.id);
+
       if (existing) {
-        existing.quantity = Math.min(existing.quantity + 1, 10);
+        if (existing.quantity < stock) {
+          existing.quantity++;
+        } else {
+          alert('No puedes agregar más de la cantidad disponible en stock.');
+          return;
+        }
       } else {
-        cart.push(product);
+        if (stock > 0) {
+          cart.push(product);
+        } else {
+          alert('Producto sin stock disponible.');
+          return;
+        }
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));
-      document.getElementById('toast-img').src = product.image;
-      document.getElementById('toast-name').textContent = product.name;
-      document.getElementById('toast-desc').textContent = product.description;
-      document.getElementById('toast-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-      document.getElementById('cart-toast').classList.remove('hidden');
-    });
-  });
 
-  document.getElementById('toast-close')?.addEventListener('click', () => {
-    document.getElementById('cart-toast').classList.add('hidden');
+      // Mostrar toast visual
+      var toastEl = document.getElementById('addToast');
+      if (toastEl) {
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+    });
   });
 });
 </script>
 
-
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
+

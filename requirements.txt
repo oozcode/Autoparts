@@ -2,3 +2,4 @@ Pillow
 djangorestframework
 drf-yasg
 transbank-sdk
+django-widget-tweaks

@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import Producto, Categoria, Marca, PerfilUsuario
+from .models import Producto, Categoria, Marca, PerfilUsuario, MarcaAuto  # <-- agrega MarcaAuto
+
+class MarcaAutoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarcaAuto
+        fields = ['id', 'nombre']
 
 class MarcaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,7 +19,8 @@ class CategoriaSerializer(serializers.ModelSerializer):
 class ProductoSerializer(serializers.ModelSerializer):
     categoria_info = CategoriaSerializer(source='categoria', read_only=True)
     marca_info = MarcaSerializer(source='marca', read_only=True)
-
+    marcas_auto_info = MarcaAutoSerializer(source='marcas_auto', many=True, read_only=True)
+    marcas_auto = serializers.PrimaryKeyRelatedField(queryset=MarcaAuto.objects.all(), many=True, required=False)
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())
     marca = serializers.PrimaryKeyRelatedField(queryset=Marca.objects.all())
 
@@ -38,12 +44,18 @@ class ProductoSerializer(serializers.ModelSerializer):
             'categoria_info',
             'marca',
             'marca_info',
+            'marcas_auto',         # <-- para escritura
+            'marcas_auto_info',    # <-- para lectura
             'creado_por',
             'modificado_por',
             'ultima_modificacion',
         ]
         read_only_fields = ['creado_por', 'modificado_por', 'ultima_modificacion']
 
+    def get_imagen(self, obj):
+        if obj.imagen:
+            return {"url": obj.imagen.url}
+        return None
     def get_imagen(self, obj):
         if obj.imagen:
             return {"url": obj.imagen.url}

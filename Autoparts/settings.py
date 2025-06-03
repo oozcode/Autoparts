@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'Autopart',
     'rest_framework',
     'drf_yasg',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

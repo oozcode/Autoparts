@@ -5,30 +5,74 @@
 <main>
 <div class="container mt-5">
   <h2 class="text-center mb-4">Panel de Control del Vendedor 🧑‍🔧</h2>
-
-  <div class="row mb-3">
-    <div class="col-md-4">
-      <input type="text" id="filtroNombre" class="form-control" placeholder="Buscar por nombre">
-    </div>
-    <div class="col-md-4">
-      <select id="filtroMarca" class="form-control">
-        <option value="">Todas las marcas</option>
-      </select>
-    </div>
-    <div class="col-md-4">
-      <select id="filtroCategoria" class="form-control">
-        <option value="">Todas las categorías</option>
-      </select>
-    </div>
+<div class="row mb-3 align-items-end">
+  <div class="col-md-2">
+    <label for="filtroNombre" class="form-label">Nombre</label>
+    <input type="text" id="filtroNombre" class="form-control" placeholder="Buscar por nombre">
   </div>
-
+  <div class="col-md-2">
+  <label for="filtroMarca" class="form-label">Marca</label>
+  <div class="input-group">
+    <select id="filtroMarca" class="form-control">
+      <option value="">Marcas</option>
+    </select>
+    <button class="btn btn-outline-primary" type="button" id="btnNuevaMarca" title="Agregar nueva marca">+</button>
+  </div>
+</div>
+<div class="col-md-2">
+  <label for="filtroCategoria" class="form-label">Categoría</label>
+  <div class="input-group">
+    <select id="filtroCategoria" class="form-control">
+      <option value="">Categorías</option>
+    </select>
+    <button class="btn btn-outline-primary" type="button" id="btnNuevaCategoria" title="Agregar nueva categoría">+</button>
+  </div>
+</div>
+<div class="col-md-3">
+  <label for="filtroMarcaAuto" class="form-label">Marca de Auto</label>
+  <div class="input-group">
+    <select id="filtroMarcaAuto" class="form-control">
+      <option value="">Marcas de auto</option>
+    </select>
+    <button class="btn btn-outline-primary" type="button" id="btnNuevaMarcaAuto" title="Agregar nueva marca de auto">+</button>
+  </div>
+</div>
+  <div class="col-md-2">
+    <label for="filtroStock" class="form-label">Stock</label>
+    <select id="filtroStock" class="form-control">
+      <option value="">Stock</option>
+      <option value="con">Con stock</option>
+      <option value="sin">Sin stock</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+  <label for="filtroPrecioMin" class="form-label">Precio Mínimo</label>
+  <input type="number" id="filtroPrecioMin" class="form-control" placeholder="Mínimo">
+    </div>
+    <div class="col-md-2">
+      <label for="filtroPrecioMax" class="form-label">Precio Máximo</label>
+      <input type="number" id="filtroPrecioMax" class="form-control" placeholder="Máximo">
+    </div>
+    <div class="col-md-2">
+      <label for="filtroPrecioMayoristaMin" class="form-label">Precio Mayorista Mínimo</label>
+      <input type="number" id="filtroPrecioMayoristaMin" class="form-control" placeholder="Mínimo">
+    </div>
+    <div class="col-md-2">
+      <label for="filtroPrecioMayoristaMax" class="form-label">Precio Mayorista Máximo</label>
+      <input type="number" id="filtroPrecioMayoristaMax" class="form-control" placeholder="Máximo">
+    </div>
+  <div class="col-md-1 d-grid">
+    <label class="form-label" style="visibility:hidden;">Limpiar</label>
+    <button class="btn btn-outline-secondary" id="btnLimpiarFiltros" title="Limpiar filtros">Limpiar</button>
+  </div>
+</div>
   <div class="text-end mb-3">
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearModal">➕ Crear Producto</button>
   </div>
 
   <div class="table-responsive">
-    <table class="table table-striped align-middle text-center" id="tablaProductos">
-      <thead class="table-dark">
+    <table class="table table-dashboard align-middle" id="tablaProductos">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Imagen</th>
@@ -37,6 +81,7 @@
           <th>Precio Mayorista</th>
           <th>Marca</th>
           <th>Categoría</th>
+          <th>Marcas de Auto</th>
           <th>Stock</th>
           <th>Acciones</th>
         </tr>
@@ -57,57 +102,76 @@
           <h5 class="modal-title" id="crearModalLabel">Crear nuevo producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
+        <!-- Mejor estructura para el formulario del modal -->
         <div class="modal-body">
+          <!-- Información básica -->
+          <h6 class="mt-2 mb-1 text-primary">Información básica</h6>
           <div class="row g-3">
-            <!-- Info básica -->
             <div class="col-md-6">
               <label class="form-label">Nombre</label>
-              <input type="text" class="form-control" name="nombre" required>
+              <input type="text" class="form-control" name="nombre" required placeholder="Ej: Filtro de aire">
             </div>
             <div class="col-md-6">
               <label class="form-label">Imagen</label>
               <input type="file" class="form-control" name="imagen" accept="image/*">
             </div>
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label">Descripción</label>
-              <textarea class="form-control" name="descripcion" rows="3" required></textarea>
+              <textarea class="form-control" name="descripcion" rows="2" required placeholder="Describe el producto..."></textarea>
             </div>
-            <div class="col-md-6">
+          </div>
+
+          <!-- Precios y Stock -->
+          <h6 class="mt-4 mb-1 text-primary">Precios y Stock</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
               <label class="form-label">Precio Minorista</label>
-              <input type="number" class="form-control" name="precio_minorista" required>
+              <input type="number" class="form-control" name="precio_minorista" required placeholder="Ej: 19990">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label">Precio Mayorista</label>
-              <input type="number" class="form-control" name="precio_mayorista" required>
+              <input type="number" class="form-control" name="precio_mayorista" required placeholder="Ej: 15990">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label class="form-label">Stock</label>
-              <input type="number" class="form-control" name="stock" required>
+              <input type="number" class="form-control" name="stock" required placeholder="Ej: 10">
             </div>
+          </div>
 
-            <!-- Dimensiones y peso -->
-            <div class="col-md-6">
+          <!-- Dimensiones y Peso -->
+          <h6 class="mt-4 mb-1 text-primary">Dimensiones y Peso</h6>
+          <div class="row g-3">
+            <div class="col-md-3">
               <label class="form-label">Peso (kg)</label>
-              <input type="number" class="form-control" name="peso" step="0.01">
+              <input type="number" class="form-control" name="peso" step="0.01" placeholder="Ej: 1.2">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
               <label class="form-label">Largo (cm)</label>
-              <input type="number" class="form-control" name="largo" step="0.01">
+              <input type="number" class="form-control" name="largo" step="0.01" placeholder="Ej: 30">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
               <label class="form-label">Ancho (cm)</label>
-              <input type="number" class="form-control" name="ancho" step="0.01">
+              <input type="number" class="form-control" name="ancho" step="0.01" placeholder="Ej: 15">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
               <label class="form-label">Alto (cm)</label>
-              <input type="number" class="form-control" name="alto" step="0.01">
+              <input type="number" class="form-control" name="alto" step="0.01" placeholder="Ej: 10">
             </div>
+          </div>
 
+          <!-- Compatibilidad -->
+          <h6 class="mt-4 mb-1 text-primary">Compatibilidad</h6>
+          <div class="row g-3">
             <div class="col-md-6">
+              <label class="form-label">Marcas de Auto</label>
+              <select name="marcas_auto" class="form-select" multiple required style="min-height: 90px"></select>
+              <small class="text-muted">Mantén presionada Ctrl (o Cmd) para seleccionar varias.</small>
+            </div>
+            <div class="col-md-3">
               <label class="form-label">Categoría</label>
               <select name="categoria" class="form-select" required></select>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
               <label class="form-label">Marca</label>
               <select name="marca" class="form-select" required></select>
             </div>
@@ -131,62 +195,80 @@
           <h5 class="modal-title">Editar producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
-          <input type="hidden" name="id">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Nombre</label>
-              <input type="text" class="form-control" name="nombre" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Imagen</label>
-              <input type="file" class="form-control" name="imagen" accept="image/*">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Descripción</label>
-              <textarea class="form-control" name="descripcion" rows="3" required></textarea>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Precio Minorista</label>
-              <input type="number" class="form-control" name="precio_minorista" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Precio Mayorista</label>
-              <input type="number" class="form-control" name="precio_mayorista" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Stock</label>
-              <input type="number" class="form-control" name="stock" required>
+          <div class="modal-body">
+            <!-- Información básica -->
+            <h6 class="mt-2 mb-1 text-primary">Información básica</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Filtro de aire">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Imagen</label>
+                <input type="file" class="form-control" name="imagen" accept="image/*">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" name="descripcion" rows="2" required placeholder="Describe el producto..."></textarea>
+              </div>
             </div>
 
-            <!-- Dimensiones y peso (editar) -->
-            <div class="col-md-6">
-              <label class="form-label">Peso (kg)</label>
-              <input type="number" class="form-control" name="peso" step="0.01">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Largo (cm)</label>
-              <input type="number" class="form-control" name="largo" step="0.01">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Ancho (cm)</label>
-              <input type="number" class="form-control" name="ancho" step="0.01">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Alto (cm)</label>
-              <input type="number" class="form-control" name="alto" step="0.01">
+            <!-- Precios y Stock -->
+            <h6 class="mt-4 mb-1 text-primary">Precios y Stock</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Precio Minorista</label>
+                <input type="number" class="form-control" name="precio_minorista" required placeholder="Ej: 19990">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Precio Mayorista</label>
+                <input type="number" class="form-control" name="precio_mayorista" required placeholder="Ej: 15990">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Stock</label>
+                <input type="number" class="form-control" name="stock" required placeholder="Ej: 10">
+              </div>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Categoría</label>
-              <select name="categoria" class="form-select" required></select>
+            <!-- Dimensiones y Peso -->
+            <h6 class="mt-4 mb-1 text-primary">Dimensiones y Peso</h6>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Peso (kg)</label>
+                <input type="number" class="form-control" name="peso" step="0.01" placeholder="Ej: 1.2">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Largo (cm)</label>
+                <input type="number" class="form-control" name="largo" step="0.01" placeholder="Ej: 30">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Ancho (cm)</label>
+                <input type="number" class="form-control" name="ancho" step="0.01" placeholder="Ej: 15">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Alto (cm)</label>
+                <input type="number" class="form-control" name="alto" step="0.01" placeholder="Ej: 10">
+              </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Marca</label>
-              <select name="marca" class="form-select" required></select>
+
+            <!-- Compatibilidad -->
+            <h6 class="mt-4 mb-1 text-primary">Compatibilidad</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Marcas de Auto</label>
+                <select name="marcas_auto" class="form-select" multiple required style="min-height: 90px"></select>
+                <small class="text-muted">Mantén presionada Ctrl (o Cmd) para seleccionar varias.</small>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Categoría</label>
+                <select name="categoria" class="form-select" required></select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Marca</label>
+                <select name="marca" class="form-select" required></select>
+              </div>
             </div>
           </div>
-        </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Guardar cambios</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -195,7 +277,95 @@
     </div>
   </div>
 </div>
+<!-- Modal para agregar nueva entidad -->
+<div class="modal fade" id="modalNuevaEntidad" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formNuevaEntidad">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tituloModalNuevaEntidad">Agregar nuevo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control" id="inputNuevaEntidad" required placeholder="Nombre">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Agregar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 </main>
+<style>
+/* Tabla moderna y agradable */
+.table-dashboard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.table-dashboard th, .table-dashboard td {
+  vertical-align: middle !important;
+  text-align: center;
+}
+.table-dashboard th {
+  background: #212529;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  border: none;
+}
+.table-dashboard tr {
+  transition: background 0.12s;
+}
+.table-dashboard tbody tr:hover {
+  background: #f1f3f5;
+}
+.table-dashboard td {
+  border-top: 1px solid #e9ecef;
+  font-size: 0.98rem;
+}
+.table-dashboard img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 7px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+.dashboard-action-btns .btn {
+  margin: 0 2px;
+  font-size: 0.98rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+}
+.dashboard-action-btns .btn-edit {
+  background: #198754;
+  color: #fff;
+}
+.dashboard-action-btns .btn-edit:hover {
+  background: #146c43;
+}
+.dashboard-action-btns .btn-delete {
+  background: #dc3545;
+  color: #fff;
+}
+.dashboard-action-btns .btn-delete:hover {
+  background: #b52a37;
+}
+@media (max-width: 768px) {
+  .table-dashboard th, .table-dashboard td {
+    font-size: 0.93rem;
+    padding: 0.4rem;
+  }
+  .table-dashboard img {
+    width: 40px;
+    height: 40px;
+  }
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'autopart/js/dashboard.js' %}"></script>
 {% include 'autopart/base/footer.html' %}

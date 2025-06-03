@@ -25,6 +25,12 @@ class Marca(models.Model):
     def __str__(self):
         return self.nombre
 
+class MarcaAuto(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
+    
 # Tipos de clientes (minorista, mayorista, etc.) para diferenciar precios
 class TipoCliente(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -39,6 +45,7 @@ class Producto(models.Model):
     precio_minorista = models.DecimalField(max_digits=10, decimal_places=2)
     precio_mayorista = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
+    marcas_auto = models.ManyToManyField(MarcaAuto, blank=True, related_name='productos')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos')
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE, related_name='productos')
     creado_por = models.ForeignKey(User, related_name="productos_creados", on_delete=models.SET_NULL, null=True)

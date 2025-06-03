@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import Precio, Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
+from .models import MarcaAuto, Precio, Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login
@@ -16,7 +16,7 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthentic
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from .serializers import ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
+from .serializers import MarcaAutoSerializer, ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django import template
@@ -36,11 +36,20 @@ class IsVendedorOrReadOnly(BasePermission):
         return request.user and request.user.is_authenticated and request.user.groups.filter(name='vendedor').exists()
 
 
-# Tus vistas tradicionales aquí (sin cambios)...
 def index(request):
-    productos = Producto.objects.all()[:8]
     categorias = Categoria.objects.all()
-    return render(request, 'autopart/index.html', {'productos': productos, 'categorias': categorias})
+    productos = Producto.objects.order_by('-id')[:8]
+    es_mayorista = False
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfilusuario', None)
+        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista":
+            es_mayorista = True
+    return render(request, 'autopart/index.html', {
+        'categorias': categorias,
+        'productos': productos,
+        'es_mayorista': es_mayorista,
+    })
+
 # Vista para la página del catálogo
 def catalogo(request):
     categorias = Categoria.objects.prefetch_related('productos').all()
@@ -94,43 +103,19 @@ def exit(request):
 def pago(request):
     return render(request, 'autopart/pago.html')
 
-# Vista para la página de frenos y suspensión
-def frenos(request):
-    return render(request, 'autopart/frenos.html')
-
-# Vista para la página de electricidad y baterías
-def electrico(request):
-    return render(request, 'autopart/electrico.html')
-
-# Vista para la página de motores y componentes
-def motores(request):
-    productos = Producto.objects.filter(categoria__nombre='Motores y Componentes')
-    return render(request, 'autopart/motores.html', {'productos': productos})
-
-# Vista para la página de accesorios
-def accesorios(request):
-    productos = Producto.objects.filter(categoria__nombre='Accesorios')
-    return render(request, 'autopart/accesorios.html', {'productos': productos})
-
-# Vista para la página de detalles del producto
-def detalle_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    return render(request, 'autopart/detalle_producto.html', {'producto': producto})
-
-# Vista para mostrar productos filtrados por categoría
 def productos_por_categoria(request, categoria_slug):
-    # Obtiene la categoría usando el slug o muestra error 404 si no existe
     categoria = get_object_or_404(Categoria, slug=categoria_slug)
-
-    # Filtra productos que pertenezcan a esta categoría
     productos = Producto.objects.filter(categoria=categoria)
-
-    # Renderiza la plantilla con la lista de productos y categoría
+    es_mayorista = False
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfilusuario', None)
+        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista":
+            es_mayorista = True
     return render(request, 'autopart/productos_categoria.html', {
         'categoria': categoria,
-        'productos': productos
+        'productos': productos,
+        'es_mayorista': es_mayorista,
     })
-
 @login_required
 @require_POST
 def crear_pedido(request):
@@ -203,6 +188,11 @@ class MarcaViewSet(viewsets.ModelViewSet):
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+    permission_classes = [IsVendedorOrReadOnly]
+
+class MarcaAutoViewSet(viewsets.ModelViewSet):
+    queryset = MarcaAuto.objects.all()
+    serializer_class = MarcaAutoSerializer
     permission_classes = [IsVendedorOrReadOnly]
 # Opcional: para tus endpoints clásicos que aún quieras mantener y que también sean solo para vendedores
 @login_required
@@ -406,13 +396,11 @@ def pagar_pedido(request, pedido_id):
         return redirect('resumen_pedido')
 
 def pago_exitoso(request):
-    
     token_ws = request.GET.get('token_ws')  
     transaction = Transaction(options) 
     result = transaction.commit(token_ws)  
 
     if result['status'] == 'AUTHORIZED':
-  
         pedido_id = int(result['buy_order'])  
         pedido = get_object_or_404(Order, id=pedido_id)
         productos = OrderItem.objects.filter(order=pedido)
@@ -420,10 +408,15 @@ def pago_exitoso(request):
             pedido.estado = 'pagado'
             pedido.save()
 
+            for item in productos:
+                producto = item.producto
+                if producto.stock is not None:
+                    producto.stock = max(producto.stock - item.quantity, 0)
+                    producto.save()
+
         return render(request, 'autopart/pago_exitoso.html', {'pedido': pedido, 'producto': productos})
     else:
         return render(request, 'autopart/pago_fallido.html') 
-    
 @login_required
 def mis_pedidos(request):
     pedidos = Order.objects.filter(user=request.user).order_by('-created_at')

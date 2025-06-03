@@ -1,28 +1,135 @@
 {% extends 'autopart/base/header.html' %}
 {% load static %}
-
 {% block title %}AutoParts - Productos en {{ categoria.nombre }}{% endblock %}
 
 {% block content %}
 <main>
-  <h2>Productos en la categoría: {{ categoria.nombre }}</h2>
-  <div class="products-grid">
-    {% for p in productos %}
-        <div class="product-card" data-product-id="producto{{ p.id }}">
-            {% if p.img %}
-                <img src="{{ p.img.url }}" alt="{{ p.nombre }}" />
-            {% else %}
-                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" />
-            {% endif %}
-            <h3>{{ p.nombre|capfirst }}</h3>
-            <p class="description">{{ p.marca }} - {{ p.descripcion }}</p>
-            <p class="price">${{ p.precio }}</p>
-            <button class="add-to-cart">Agregar al carrito</button>
+  <div class="container my-5">
+    <h2 class="mb-4 text-primary text-center">Productos en la categoría: {{ categoria.nombre }}</h2>
+    <div class="row">
+      {% for p in productos %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+          <div class="card h-100 shadow-sm product-card-hover d-flex flex-column">
+            <div class="text-center p-3 bg-light" style="height:160px; display:flex; align-items:center; justify-content:center;">
+              {% if p.imagen %}
+                <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="img-fluid" style="max-height:120px; max-width:100%;">
+              {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" class="img-fluid" style="max-height:120px; max-width:100%;">
+              {% endif %}
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-2">{{ p.nombre|capfirst }}</h5>
+              <p class="card-text text-muted small mb-2" style="min-height:36px;">{{ p.marca }} - {{ p.descripcion|truncatechars:50 }}</p>
+              <div>
+                {% if es_mayorista %}
+                  <span class="badge badge-secondary mb-1">Minorista: <span class="clp">{{ p.precio_minorista|floatformat:0 }}</span></span><br>
+                  <span class="badge badge-success mb-2">Mayorista: <span class="clp">{{ p.precio_mayorista|floatformat:0 }}</span></span>
+                {% else %}
+                  <span class="h5 text-success font-weight-bold mb-2 d-block clp">{{ p.precio_minorista|floatformat:0 }}</span>
+                {% endif %}
+              </div>
+              <div class="mt-auto">
+                <button class="btn btn-primary btn-block add-to-cart mb-2"
+                  data-id="{{ p.id }}"
+                  data-name="{{ p.nombre|escapejs }}"
+                  data-price="{% if es_mayorista %}{{ p.precio_mayorista }}{% else %}{{ p.precio_minorista }}{% endif %}"
+                  {% if p.imagen %}
+                    data-image="{{ p.imagen.url }}"
+                  {% else %}
+                    data-image="{% static 'autopart/img/default.jpg' %}"
+                  {% endif %}
+                  data-description="{{ p.descripcion|escapejs }}"
+                  data-stock="{{ p.stock }}">
+                  <i class="fas fa-cart-plus"></i> Agregar al carrito
+                </button>
+                <a href="{% url 'detalle_producto' p.id %}" class="btn btn-outline-secondary btn-block">Ver detalles</a>
+              </div>
+            </div>
+          </div>
         </div>
-    {% empty %}
-        <p>No hay productos en esta categoría.</p>
-    {% endfor %}
+      {% empty %}
+        <div class="col-12"><p>No hay productos en esta categoría.</p></div>
+      {% endfor %}
+    </div>
   </div>
 </main>
+
+<!-- Toast visual para agregar al carrito -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Producto agregado al carrito con éxito 🛒
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Formatear todos los precios a CLP
+  document.querySelectorAll('.clp').forEach(function(el) {
+    let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
+    el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+  });
+
+  // Agregar al carrito y mostrar toast, validando stock
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', () => {
+      const stock = parseInt(button.dataset.stock);
+      const product = {
+        id: parseInt(button.dataset.id),
+        name: button.dataset.name,
+        price: parseInt(button.dataset.price),
+        image: button.dataset.image,
+        description: button.dataset.description,
+        quantity: 1,
+        stock: parseInt(button.dataset.stock), // <-- agrega esto
+      };
+
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.id === product.id);
+
+      if (existing) {
+        if (existing.quantity < stock) {
+          existing.quantity++;
+        } else {
+          alert('No puedes agregar más de la cantidad disponible en stock.');
+          return;
+        }
+      } else {
+        if (stock > 0) {
+          cart.push(product);
+        } else {
+          alert('Producto sin stock disponible.');
+          return;
+        }
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      // Mostrar toast visual
+      var toastEl = document.getElementById('addToast');
+      if (toastEl) {
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+    });
+  });
+});
+</script>
+
+<style>
+.product-card-hover {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.product-card-hover:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  z-index: 2;
+}
+</style>
+
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
