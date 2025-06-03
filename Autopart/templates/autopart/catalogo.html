@@ -7,15 +7,43 @@
 
 <main>
   <div class="container my-5">
-    <div class="category-header text-center mb-5">
+    <div class="category-header text-center mb-4">
       <h1 class="display-4 font-weight-bold">Catálogo Completo</h1>
     </div>
 
+    <!-- FILTROS -->
+    <form method="get" class="mb-5">
+      <div class="row g-2">
+        <div class="col-md-4">
+          <label for="marca" class="form-label">Marca de producto</label>
+          <select class="form-select" name="marca" id="marca">
+            <option value="">Todas</option>
+            {% for marca in marcas %}
+              <option value="{{ marca.id }}" {% if marca_actual == marca.id|stringformat:"s" %}selected{% endif %}>{{ marca.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="marca_auto" class="form-label">Marca de auto</label>
+          <select class="form-select" name="marca_auto" id="marca_auto">
+            <option value="">Todas</option>
+            {% for ma in marcas_auto %}
+              <option value="{{ ma.id }}" {% if marca_auto_actual == ma.id|stringformat:"s" %}selected{% endif %}>{{ ma.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4 align-self-end">
+          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- LISTADO DE PRODUCTOS -->
     {% for categoria in categorias %}
       <section class="category-section mb-5">
         <h2 class="mb-4 text-primary">{{ categoria.nombre }}</h2>
         <div class="row">
-          {% for producto in categoria.productos.all %}
+          {% for producto in categoria.productos_filtrados %}
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
               <div class="card h-100 shadow-sm product-card-hover">
                 <div class="text-center p-3 bg-light" style="height:180px; display:flex; align-items:center; justify-content:center;">
@@ -70,7 +98,6 @@
       <p>No hay categorías disponibles.</p>
     {% endfor %}
   </div>
-
 </main>
 
 <!-- TOAST -->
@@ -88,8 +115,6 @@
   </div>
 </div>
 
-<!-- ...tu contenido... -->
-
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
   <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
@@ -103,13 +128,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Formatear todos los precios a CLP
   document.querySelectorAll('.clp').forEach(function(el) {
     let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
     el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
   });
 
-  // Agregar al carrito y mostrar toast, validando stock
   document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', () => {
       const stock = parseInt(button.dataset.stock);
@@ -123,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         largo: parseFloat(button.dataset.largo),
         ancho: parseFloat(button.dataset.ancho),
         alto: parseFloat(button.dataset.alto),
-        stock: parseInt(button.dataset.stock), // <-- agrega esto
+        stock: parseInt(button.dataset.stock),
         quantity: 1
       };
 
@@ -148,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       localStorage.setItem('cart', JSON.stringify(cart));
 
-      // Mostrar toast visual
       var toastEl = document.getElementById('addToast');
       if (toastEl) {
         var toast = new bootstrap.Toast(toastEl);
@@ -161,4 +183,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
-

@@ -20,6 +20,7 @@ from .serializers import MarcaAutoSerializer, ProductoSerializer,CategoriaSerial
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django import template
+from django.db.models import Prefetch
 CommerCode = '597055555532'
 ApiKeySecret = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
 options = WebpayOptions(CommerCode,ApiKeySecret,IntegrationType.TEST)
@@ -50,10 +51,6 @@ def index(request):
         'es_mayorista': es_mayorista,
     })
 
-# Vista para la página del catálogo
-def catalogo(request):
-    categorias = Categoria.objects.prefetch_related('productos').all()
-    return render(request, 'autopart/catalogo.html', {'categorias': categorias})
 
 # Vista para la página del carrito de compras
 def carrito(request):
@@ -302,9 +299,27 @@ def lista_usuarios(request):
         usuarios = usuarios.exclude(perfilusuario__tipo_cliente__nombre__iexact='Mayorista')
 
     return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query, 'tipo': tipo})
+
+# Vista para la página del catálogo
 def catalogo(request):
-    categorias = Categoria.objects.prefetch_related('productos').all()
-    
+    marca_id = request.GET.get('marca')
+    marca_auto_id = request.GET.get('marca_auto')
+
+    # Filtro base
+    productos_queryset = Producto.objects.select_related('marca').prefetch_related('marcas_auto')
+
+    if marca_id:
+        productos_queryset = productos_queryset.filter(marca_id=marca_id)
+
+    if marca_auto_id:
+        productos_queryset = productos_queryset.filter(marcas_auto__id=marca_auto_id)
+
+    # Prefetch los productos filtrados en cada categoría
+    categorias = Categoria.objects.prefetch_related(
+        Prefetch('productos', queryset=productos_queryset, to_attr='productos_filtrados')
+    )
+
+    # Verificar si el usuario es mayorista
     es_mayorista = False
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'perfilusuario', None)
@@ -313,7 +328,11 @@ def catalogo(request):
 
     return render(request, 'autopart/catalogo.html', {
         'categorias': categorias,
-        'es_mayorista': es_mayorista
+        'es_mayorista': es_mayorista,
+        'marcas': Marca.objects.all(),
+        'marcas_auto': MarcaAuto.objects.all(),
+        'marca_actual': marca_id,
+        'marca_auto_actual': marca_auto_id,
     })
 
 def detalle_producto(request, producto_id):
