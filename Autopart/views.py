@@ -49,6 +49,7 @@ def index(request):
     categorias = Categoria.objects.all()
     productos = Producto.objects.order_by('-id')[:8]
     ofertas = Producto.objects.filter(oferta_activa=True)  # ← Agrega esta línea
+    marcas_auto = MarcaAuto.objects.all()
     es_mayorista = False
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'perfilusuario', None)
@@ -59,6 +60,7 @@ def index(request):
         'productos': productos,
         'ofertas': ofertas,  # ← Pásalo al template
         'es_mayorista': es_mayorista,
+        'marcas_auto': marcas_auto,
     })
 
 # Vista para la página del carrito de compras

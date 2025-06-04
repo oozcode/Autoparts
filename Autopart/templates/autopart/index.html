@@ -66,7 +66,11 @@
                 {% for cat in categorias %}
                     <div class="col-6 col-sm-4 col-md-3 mb-4">
                         <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="category-card d-block text-center bg-white rounded shadow-sm p-3 h-100 category-card-hover">
-                            <img src="{% static 'autopart/img/categoria_'|add:cat.slug|add:'.jpg' %}" alt="{{ cat.nombre }}" class="img-fluid mb-2" style="height:90px;object-fit:contain;">
+                            {% if cat.imagen %}
+                                <img src="{{ cat.imagen.url }}" alt="{{ cat.nombre }}" class="img-fluid mb-2" style="height:90px;object-fit:contain;">
+                            {% else %}
+                                <img src="{% static 'autopart/img/default_categoria.jpg' %}" alt="Sin imagen" class="img-fluid mb-2" style="height:90px;object-fit:contain;">
+                            {% endif %}
                             <h3 class="h6 font-weight-bold text-dark">{{ cat.nombre }}</h3>
                         </a>
                     </div>
@@ -74,7 +78,34 @@
             </div>
         </div>
     </section>
-
+    <section class="marcas-auto-slider py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center mb-4 font-weight-bold">Marcas de Autos</h2>
+    <div id="carouselMarcasAuto" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000" data-bs-pause="false">
+      <div class="carousel-inner">
+        {% for marca in marcas_auto %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="d-flex justify-content-center align-items-center" style="height:120px;">
+              {% if marca.imagen %}
+                <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" class="d-block" style="max-height:100px; max-width:180px; object-fit:contain;">
+              {% else %}
+                <span class="h4">{{ marca.nombre }}</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselMarcasAuto" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselMarcasAuto" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+    </div>
+  </div>
+</section>
     <!-- Más vendidos -->
     <section class="best-sellers-section py-5">
         <div class="container">
@@ -202,6 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
