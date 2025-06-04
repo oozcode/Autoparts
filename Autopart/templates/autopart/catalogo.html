@@ -4,100 +4,133 @@
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/card.css' %}">
 {% block title %}Catálogo - AutoParts{% endblock %}
 {% block content %}
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <main>
-  <div class="container my-5">
-    <div class="category-header text-center mb-4">
-      <h1 class="display-4 font-weight-bold">Catálogo Completo</h1>
+<div class="container my-5">
+  <div class="row">
+    <!-- Sidebar de filtros -->
+<aside class="col-md-3 mb-4">
+  <form method="get" class="bg-white rounded-4 shadow-sm p-4 border border-2 border-primary-subtle">
+    <h5 class="mb-4 fw-bold text-primary"><i class="fas fa-filter me-2"></i>Filtrar productos</h5>
+    
+    <div class="mb-4 pb-2 border-bottom">
+      <label for="categoria" class="form-label fw-semibold"><i class="fas fa-list-ul me-1 text-secondary"></i> Categoría</label>
+      <select class="form-select rounded-pill" name="categoria" id="categoria">
+        <option value="">Todas</option>
+        {% for cat in categorias %}
+          <option value="{{ cat.id }}" {% if categoria_actual == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
+        {% endfor %}
+      </select>
     </div>
-
-    <!-- FILTROS -->
-    <form method="get" class="mb-5">
-      <div class="row g-2">
-        <div class="col-md-4">
-          <label for="marca" class="form-label">Marca de producto</label>
-          <select class="form-select" name="marca" id="marca">
-            <option value="">Todas</option>
-            {% for marca in marcas %}
-              <option value="{{ marca.id }}" {% if marca_actual == marca.id|stringformat:"s" %}selected{% endif %}>{{ marca.nombre }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="marca_auto" class="form-label">Marca de auto</label>
-          <select class="form-select" name="marca_auto" id="marca_auto">
-            <option value="">Todas</option>
-            {% for ma in marcas_auto %}
-              <option value="{{ ma.id }}" {% if marca_auto_actual == ma.id|stringformat:"s" %}selected{% endif %}>{{ ma.nombre }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4 align-self-end">
-          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-        </div>
+    
+    <div class="mb-4 pb-2 border-bottom">
+      <label for="marca" class="form-label fw-semibold"><i class="fas fa-industry me-1 text-secondary"></i> Marca</label>
+      <select class="form-select rounded-pill" name="marca" id="marca">
+        <option value="">Todas</option>
+        {% for marca in marcas %}
+          <option value="{{ marca.id }}" {% if marca_actual == marca.id|stringformat:"s" %}selected{% endif %}>{{ marca.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="mb-4 pb-2 border-bottom">
+      <label for="marca_auto" class="form-label fw-semibold"><i class="fas fa-car-side me-1 text-secondary"></i> Marca de auto</label>
+      <select class="form-select rounded-pill" name="marca_auto" id="marca_auto">
+        <option value="">Todas</option>
+        {% for ma in marcas_auto %}
+          <option value="{{ ma.id }}" {% if marca_auto_actual == ma.id|stringformat:"s" %}selected{% endif %}>{{ ma.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="mb-4 pb-2 border-bottom">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="solo_ofertas" id="solo_ofertas" value="1" {% if request.GET.solo_ofertas %}checked{% endif %}>
+        <label class="form-check-label fw-semibold" for="solo_ofertas">
+          <i class="fas fa-percent me-1 text-danger"></i> Solo en oferta
+        </label>
       </div>
-    </form>
+    </div>
+    
+    <div class="mb-4">
+  <label for="slider-precio" class="form-label fw-semibold">
+    <i class="fas fa-dollar-sign me-1 text-success"></i> Rango de precio
+  </label>
+  <div id="slider-precio" class="mb-2"></div>
+  <div class="d-flex justify-content-between small">
+    <span id="precio-min-label" class="badge bg-light text-dark border border-1 px-2 py-1" style="font-size:0.85em;"></span>
+    <span id="precio-max-label" class="badge bg-light text-dark border border-1 px-2 py-1" style="font-size:0.85em;"></span>
+  </div>
+  <input type="hidden" name="precio_min" id="precio_min" value="{{ request.GET.precio_min|default:0 }}">
+  <input type="hidden" name="precio_max" id="precio_max" value="{{ request.GET.precio_max|default:1000000 }}">
+</div>
+    
+    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+      <i class="fas fa-search me-2"></i>Filtrar
+    </button>
+  </form>
+</aside>
 
-    <!-- LISTADO DE PRODUCTOS -->
-    {% for categoria in categorias %}
-      <section class="category-section mb-5">
-        <h2 class="mb-4 text-primary">{{ categoria.nombre }}</h2>
-        <div class="row">
-          {% for producto in categoria.productos_filtrados %}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-              <div class="card h-100 shadow-sm product-card-hover">
-                <div class="text-center p-3 bg-light" style="height:180px; display:flex; align-items:center; justify-content:center;">
-                  {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid" style="max-height:150px; max-width:100%;">
-                  {% else %}
-                    <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" class="img-fluid" style="max-height:150px; max-width:100%;">
-                  {% endif %}
-                </div>
-                <div class="card-body d-flex flex-column">
-                  <h5 class="card-title mb-2">{{ producto.nombre }}</h5>
-                  <p class="card-text text-muted small mb-2" style="min-height:40px;">{{ producto.descripcion|truncatechars:60 }}</p>
-                  {% if es_mayorista %}
-                    <div>
-                      <span class="badge badge-secondary mb-1">Minorista: {{ producto.precio_minorista|clp }}</span><br>
-                      <span class="badge badge-success mb-2">Mayorista: {{ producto.precio_mayorista|clp }}</span>
-                    </div>
-                  {% else %}
-                    <div>
-                      <span class="h5 text-success font-weight-bold mb-2 d-block">{{ producto.precio_minorista|clp }}</span>
-                    </div>
-                  {% endif %}
-                  <div class="mt-auto">
-                    <button class="btn btn-primary btn-block add-to-cart mb-2"
-                      data-id="{{ producto.id }}"
-                      data-name="{{ producto.nombre|escapejs }}"
-                      data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
-                      {% if producto.imagen %}
-                        data-image="{{ producto.imagen.url }}"
-                      {% else %}
-                        data-image="{% static 'autopart/img/default.jpg' %}"
-                      {% endif %}
-                      data-description="{{ producto.descripcion|escapejs }}"
-                      data-peso="{{ producto.peso }}"
-                      data-largo="{{ producto.largo }}"
-                      data-ancho="{{ producto.ancho }}"
-                      data-alto="{{ producto.alto }}"
-                      data-stock="{{ producto.stock }}">
-                      <i class="fas fa-cart-plus"></i> Agregar al carrito
-                    </button>
-                    <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-outline-secondary btn-block">Ver detalles</a>
-                  </div>
+    <!-- Grilla de productos -->
+    <section class="col-md-9">
+        <div class="container">
+      <div class="row">
+        {% for producto in productos %}
+          <div class="col-12 col-sm-6 col-md-4 mb-4 d-flex">
+            <div class="card h-100 shadow-sm border-0 w-100">
+              <div class="text-center p-3 bg-light" style="height:160px; display:flex; align-items:center; justify-content:center;">
+                {% if producto.imagen %}
+                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid" style="max-height:120px; max-width:100%;">
+                {% else %}
+                  <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" class="img-fluid" style="max-height:120px; max-width:100%;">
+                {% endif %}
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title mb-2">{{ producto.nombre }}</h5>
+                <p class="card-text text-muted small mb-2">{{ producto.descripcion|truncatechars:60 }}</p>
+                {% if producto.oferta_activa and producto.descuento_oferta %}
+                  <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
+                  <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|clp }}</span><br>
+                  <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_minorista|clp }}</span>
+                {% else %}
+                  <span class="h5 text-success font-weight-bold">{{ producto.precio_minorista|clp }}</span>
+                {% endif %}
+                <div class="mt-auto">
+                  <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-outline-secondary w-100 mb-2 fw-bold">Ver detalles</a>
+                  <button
+                    class="btn btn-primary w-100 fw-bold add-to-cart"
+                    data-id="{{ producto.id }}"
+                    data-name="{{ producto.nombre|escapejs }}"
+                    data-price="{% if producto.oferta_activa and producto.descuento_oferta %}{{ producto.precio_oferta_minorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+                    {% if producto.imagen %}
+                      data-image="{{ producto.imagen.url }}"
+                    {% else %}
+                      data-image="{% static 'autopart/img/default.jpg' %}"
+                    {% endif %}
+                    data-description="{{ producto.descripcion|escapejs }}"
+                    data-peso="{{ producto.peso }}"
+                    data-largo="{{ producto.largo }}"
+                    data-ancho="{{ producto.ancho }}"
+                    data-alto="{{ producto.alto }}"
+                    data-stock="{{ producto.stock }}"
+                    type="button"
+                  >
+                    <i class="fas fa-cart-plus me-1"></i> Agregar al carrito
+                  </button>
                 </div>
               </div>
             </div>
-          {% empty %}
-            <div class="col-12"><p>No hay productos en esta categoría.</p></div>
-          {% endfor %}
-        </div>
-      </section>
-    {% empty %}
-      <p>No hay categorías disponibles.</p>
-    {% endfor %}
+          </div>
+        {% empty %}
+          <div class="col-12"><p class="text-center">No hay productos que coincidan con los filtros.</p></div>
+        {% endfor %}
+      </div>
+      </div>
+    </section>
   </div>
+</div>
 </main>
 
 <!-- TOAST -->
@@ -126,8 +159,10 @@
   </div>
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // === Script original: Formato CLP y carrito ===
   document.querySelectorAll('.clp').forEach(function(el) {
     let num = Number(el.textContent.replace(/[^0-9.-]+/g,""));
     el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
@@ -178,8 +213,75 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // === Script para el slider de precio ===
+  var slider = document.getElementById('slider-precio');
+  if (slider) {
+    // Obtén los valores actuales desde los inputs ocultos
+    var min = parseInt(document.getElementById('precio_min').value) || 0;
+    var max = parseInt(document.getElementById('precio_max').value) || 1000000;
+    var sliderMin = 0; // Cambia según tu rango real
+    var sliderMax = 1000000; // Cambia según tu rango real
+
+    noUiSlider.create(slider, {
+      start: [min, max],
+      connect: true,
+      step: 1000,
+      range: {
+        'min': sliderMin,
+        'max': sliderMax
+      },
+      format: {
+        to: function (value) { return Math.round(value); },
+        from: function (value) { return Number(value); }
+      }
+    });
+
+    var inputMin = document.getElementById('precio_min');
+    var inputMax = document.getElementById('precio_max');
+    var labelMin = document.getElementById('precio-min-label');
+    var labelMax = document.getElementById('precio-max-label');
+
+    slider.noUiSlider.on('update', function(values, handle) {
+      inputMin.value = values[0];
+      inputMax.value = values[1];
+      labelMin.textContent = '$' + Number(values[0]).toLocaleString();
+      labelMax.textContent = '$' + Number(values[1]).toLocaleString();
+    });
+  }
 });
 </script>
+<style>
+#precio-min-label, #precio-max-label {
+  font-size: 0.85em;
+  padding: 2px 8px;
+  border-radius: 8px;
+  min-width: 60px;
+  text-align: center;
+}
+#slider-precio {
+  height: 8px;
+  margin-bottom: 0.5rem;
+}
+#slider-precio .noUi-handle {
+  width: 18px;
+  height: 18px;
+  top: -6px; /* centra el handle en la barra */
+  border-radius: 6px;
+  box-shadow: none;
+  border: 0.1px solid #2e2e2e;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+#slider-precio .noUi-handle:before,
+#slider-precio .noUi-handle:after {
+  height: 10px;
+  width: 2px;
+  left: 7px;
+  top: 4px;
+}
+</style>
 
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

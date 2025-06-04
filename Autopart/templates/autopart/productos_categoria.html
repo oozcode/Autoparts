@@ -39,6 +39,10 @@
                     data-image="{% static 'autopart/img/default.jpg' %}"
                   {% endif %}
                   data-description="{{ p.descripcion|escapejs }}"
+                  data-peso="{{ p.peso }}"
+                  data-largo="{{ p.largo }}"
+                  data-ancho="{{ p.ancho }}"
+                  data-alto="{{ p.alto }}"
                   data-stock="{{ p.stock }}">
                   <i class="fas fa-cart-plus"></i> Agregar al carrito
                 </button>
@@ -84,8 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         price: parseInt(button.dataset.price),
         image: button.dataset.image,
         description: button.dataset.description,
-        quantity: 1,
-        stock: parseInt(button.dataset.stock), // <-- agrega esto
+        peso: parseFloat(button.dataset.peso),
+        largo: parseFloat(button.dataset.largo),
+        ancho: parseFloat(button.dataset.ancho),
+        alto: parseFloat(button.dataset.alto),
+        stock: parseInt(button.dataset.stock),
+        quantity: 1
       };
 
       const cart = JSON.parse(localStorage.getItem('cart')) || [];

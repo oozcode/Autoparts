@@ -1,7 +1,9 @@
 {% extends 'autopart/base/header.html' %}
 {% load static %}
+{% load humanize %}
 {% block title %}{{ producto.nombre }} - AutoParts{% endblock %}
 {% block content %}
+
 
 <main class="container my-5">
   <div class="row justify-content-center">
@@ -9,15 +11,24 @@
       <div class="card shadow-lg border-0">
         <div class="row g-0">
           <div class="col-md-5 text-center bg-light d-flex align-items-center justify-content-center p-4">
-            <img src="{{ producto.img.url|default:'/static/autopart/img/default.jpg' }}" alt="{{ producto.nombre }}" class="img-fluid rounded" style="max-height: 300px;">
+            <img src="{{ producto.imagen.url|default:'/static/autopart/img/default.jpg' }}" alt="{{ producto.nombre }}" class="img-fluid rounded" style="max-height: 300px;">
           </div>
           <div class="col-md-7">
             <div class="card-body">
               <h2 class="card-title mb-3">{{ producto.nombre }}</h2>
               <p class="card-text text-muted mb-4">{{ producto.descripcion }}</p>
-              <h4 class="text-success fw-bold mb-4">
-                Precio: <span id="precioProducto">{{ producto.precio_minorista|floatformat:0 }}</span> CLP
-              </h4>
+              {% if producto.oferta_activa and producto.descuento_oferta %}
+                <h4 class="text-success fw-bold mb-4">
+                  <span class="badge bg-danger me-2">{{ producto.descuento_oferta }}% OFF</span>
+                  <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|floatformat:0|intcomma }} CLP</span><br>
+                  Ahora: <span id="precioProducto">{{ producto.precio_oferta_minorista|floatformat:0 }}</span> CLP
+                </h4>
+              {% else %}
+                <h4 class="text-success fw-bold mb-4">
+                  Precio: <span id="precioProducto">{{ producto.precio_minorista|floatformat:0 }}</span> CLP
+                </h4>
+              {% endif %}
+
               <div class="mb-3">
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" id="cantidad" value="1" min="1" max="100" class="form-control w-50" />
@@ -25,8 +36,8 @@
               <button class="btn btn-primary btn-lg w-100" id="agregarCarrito"
                       data-id="{{ producto.id }}"
                       data-name="{{ producto.nombre }}"
-                      data-price="{{ producto.precio_minorista }}"
-                      data-image="{{ producto.img.url }}"
+                      data-price="{% if producto.oferta_activa and producto.descuento_oferta %}{{ producto.precio_oferta_minorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+                      data-image="{{ producto.imagen.url }}"
                       data-description="{{ producto.descripcion }}">
                 <i class="fas fa-cart-plus me-2"></i> Agregar al carrito
               </button>
@@ -39,11 +50,116 @@
           </div>
         </div>
       </div>
-      <!-- Opcional: Puedes agregar aquí detalles adicionales como stock, marca, etc. -->
+      <div class="card mt-4 mb-3 shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Características del producto</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li><strong>Peso:</strong> {{ producto.peso }} kg</li>
+              <li><strong>Largo:</strong> {{ producto.largo }} cm</li>
+              <li><strong>Ancho:</strong> {{ producto.ancho }} cm</li>
+              <li><strong>Alto:</strong> {{ producto.alto }} cm</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li><strong>Marca:</strong> {{ producto.marca }}</li>
+              <li><strong>Categoría:</strong> {{ producto.categoria }}</li>
+              <li><strong>Marca de auto:</strong>
+                {% for marca in producto.marcas_auto.all %}
+                  {{ marca.nombre }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                  <span class="text-muted">Sin marca asociada</span>
+                {% endfor %}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 </main>
+<hr class="my-5">
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-primary text-white fw-bold">
+    Comentarios de clientes
+  </div>
+  <div class="card-body">
+    {% if user.is_authenticated %}
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-2">
+          <label class="form-label">Calificación</label>
+          <div id="star-rating" class="mb-2">
+            {% for i in "12345"|make_list %}
+              <i class="fa-star fa-regular star-input" data-value="{{ i }}"></i>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="calificacion" id="id_calificacion" value="5">
+        </div>
+        <div class="mb-2">
+          <label for="id_texto" class="form-label">Comentario</label>
+          {{ comentario_form.texto }}
+        </div>
+        <button type="submit" class="btn btn-success">Enviar comentario</button>
+      </form>
+    {% else %}
+      <p>Debes <a href="{% url 'login' %}">iniciar sesión</a> para dejar un comentario.</p>
+    {% endif %}
 
+    {% for comentario in comentarios %}
+      <div class="border-bottom pb-2 mb-2">
+        <strong>{{ comentario.usuario.username }}</strong>
+        <span class="text-warning" style="font-size:1.2em;">
+          {% for i in "12345"|make_list %}
+            {% if forloop.counter <= comentario.calificacion %}
+              <i class="fas fa-star"></i>
+            {% else %}
+              <i class="far fa-star"></i>
+            {% endif %}
+          {% endfor %}
+        </span>
+        <small class="text-muted">{{ comentario.fecha|date:"d M Y H:i" }}</small>
+        <p class="mb-0">{{ comentario.texto }}</p>
+      </div>
+    {% empty %}
+      <p class="text-muted">No hay comentarios aún.</p>
+    {% endfor %}
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const stars = document.querySelectorAll('#star-rating .star-input');
+  const input = document.getElementById('id_calificacion');
+  let current = parseInt(input.value);
+
+  function setStars(val) {
+    stars.forEach((star, idx) => {
+      if (idx < val) {
+        star.classList.remove('fa-regular');
+        star.classList.add('fa-solid', 'text-warning');
+      } else {
+        star.classList.remove('fa-solid', 'text-warning');
+        star.classList.add('fa-regular');
+      }
+    });
+  }
+
+  setStars(current);
+
+  stars.forEach((star, idx) => {
+    star.addEventListener('mouseenter', () => setStars(idx + 1));
+    star.addEventListener('mouseleave', () => setStars(current));
+    star.addEventListener('click', () => {
+      current = idx + 1;
+      input.value = current;
+      setStars(current);
+    });
+  });
+});
+</script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     // Formato CLP para el precio

@@ -11,14 +11,53 @@
 {% block content %}
 <main>
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content text-center">
-            <h1 class="display-4 font-weight-bold">DISTRIBUIDORA DE REPUESTOS</h1>
-            <p class="lead">Amplio catálogo de partes para autos</p>
-            <a href="{% url 'catalogo' %}" class="cta-button btn btn-primary btn-lg mt-3 shadow">Ver Catálogo</a>
+    <section class="hero" style="min-height:250px; padding:2rem 0;">
+  <div class="hero-content text-center">
+    <h1 class="display-4 font-weight-bold" style="font-size:2.2rem;">DISTRIBUIDORA DE REPUESTOS</h1>
+    <p class="lead" style="font-size:1.1rem;">Amplio catálogo de partes para autos</p>
+    <a href="{% url 'catalogo' %}" class="cta-button btn btn-primary btn-lg mt-3 shadow">Ver Catálogo</a>
+  </div>
+</section>
+<section class="ofertas-section py-5" style="background: #fff;">
+  <div class="container">
+    <div class="row justify-content-center">
+      {% for oferta in ofertas %}
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex">
+          <div class="card h-100 shadow-sm border-0" style="width:100%; border-radius:18px;">
+            <div class="text-center p-3 bg-light" style="height:160px; display:flex; align-items:center; justify-content:center; border-top-left-radius:18px; border-top-right-radius:18px;">
+              {% if oferta.imagen %}
+                <img src="{{ oferta.imagen.url }}" alt="{{ oferta.nombre }}" class="img-fluid" style="max-height:120px; max-width:100%;">
+              {% else %}
+                <img src="{% static 'autopart/img/default.jpg' %}" alt="Sin imagen" class="img-fluid" style="max-height:120px; max-width:100%;">
+              {% endif %}
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-2 text-dark">{{ oferta.nombre|capfirst }}</h5>
+              <p class="card-text text-muted small mb-2">{{ oferta.descripcion|truncatechars:50 }}</p>
+              <div>
+                <span class="badge bg-danger mb-1" style="font-size:1rem;">{{ oferta.descuento_oferta }}% OFF</span><br>
+                <span class="text-muted text-decoration-line-through" style="font-size:0.95rem;">
+                  Antes: {{ oferta.precio_minorista|clp }}
+                </span><br>
+                <span class="h5 text-success font-weight-bold mb-2 d-block">
+                  Ahora: {{ oferta.precio_oferta_minorista|clp }}
+                </span>
+              </div>
+              <a href="{% url 'detalle_producto' oferta.id %}" class="btn btn-warning w-100 mt-auto fw-bold" style="border-radius:8px;">Ver Oferta</a>
+            </div>
+          </div>
         </div>
-    </section>
-
+      {% empty %}
+        <div class="col-12"><p class="text-center">No hay ofertas disponibles en este momento.</p></div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="#" class="btn btn-outline-danger fw-bold px-5 py-2" style="font-size:1.1rem;">
+        Ver todas las ofertas
+      </a>
+    </div>
+  </div>
+</section>
     <!-- Categorías -->
     <section class="categories-section py-5 bg-light">
         <div class="container">
@@ -75,6 +114,10 @@
                                             data-image="{% static 'autopart/img/default.jpg' %}"
                                         {% endif %}
                                         data-description="{{ p.descripcion|escapejs }}"
+                                        data-peso="{{ p.peso }}"
+                                        data-largo="{{ p.largo }}"
+                                        data-ancho="{{ p.ancho }}"
+                                        data-alto="{{ p.alto }}"
                                         data-stock="{{ p.stock }}">
                                         <i class="fas fa-cart-plus"></i> Agregar al carrito
                                     </button>
@@ -109,8 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
         price: parseInt(button.dataset.price),
         image: button.dataset.image,
         description: button.dataset.description,
-        quantity: 1,
-        stock: parseInt(button.dataset.stock), // <-- agrega esto
+        peso: parseFloat(button.dataset.peso),
+        largo: parseFloat(button.dataset.largo),
+        ancho: parseFloat(button.dataset.ancho),
+        alto: parseFloat(button.dataset.alto),
+        stock: parseInt(button.dataset.stock),
+        quantity: 1
       };
 
       const cart = JSON.parse(localStorage.getItem('cart')) || [];

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import MarcaAuto, Precio, Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
+from .models import Comentario, MarcaAuto, Precio, Producto, PerfilUsuario, Categoria, Order, OrderItem,Marca,TipoCliente
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout, login
@@ -19,7 +19,7 @@ from rest_framework.exceptions import PermissionDenied
 from .serializers import MarcaAutoSerializer, ProductoSerializer,CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django import template
+from django import forms, template
 from django.db.models import Prefetch
 CommerCode = '597055555532'
 ApiKeySecret = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
@@ -27,7 +27,10 @@ options = WebpayOptions(CommerCode,ApiKeySecret,IntegrationType.TEST)
 transaction = Transaction(options)
 
 
-
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = '__all__'
 
 # --- Permiso personalizado para vendedores ---
 class IsVendedorOrReadOnly(BasePermission):
@@ -35,11 +38,17 @@ class IsVendedorOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True  # GET, HEAD, OPTIONS → permitidos para todos
         return request.user and request.user.is_authenticated and request.user.groups.filter(name='vendedor').exists()
-
+def catalogo_ofertas(request):
+    productos = Producto.objects.filter(oferta_activa=True)
+    return render(request, 'autopart/catalogo.html', {
+        'productos': productos,
+        'solo_ofertas': True,  # Variable para el template
+    })
 
 def index(request):
     categorias = Categoria.objects.all()
     productos = Producto.objects.order_by('-id')[:8]
+    ofertas = Producto.objects.filter(oferta_activa=True)  # ← Agrega esta línea
     es_mayorista = False
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'perfilusuario', None)
@@ -48,9 +57,9 @@ def index(request):
     return render(request, 'autopart/index.html', {
         'categorias': categorias,
         'productos': productos,
+        'ofertas': ofertas,  # ← Pásalo al template
         'es_mayorista': es_mayorista,
     })
-
 
 # Vista para la página del carrito de compras
 def carrito(request):
@@ -245,15 +254,19 @@ def eliminar_producto(request, producto_id):
         return JsonResponse({'message': 'Producto eliminado'})
 
 
-def es_vendedor(user):
-    return user.groups.filter(name="vendedor").exists()
+def es_vendedor_o_staff(user):
+    return user.groups.filter(name='vendedor').exists() or user.is_staff
 
 @login_required
-@user_passes_test(es_vendedor)
+@user_passes_test(es_vendedor_o_staff)
 def dashboard_vendedor(request):
     return render(request, 'autopart/dashboard.html')
 
 
+@staff_member_required
+def api_marcas(request):
+    marcas = list(Marca.objects.values('id', 'nombre'))
+    return JsonResponse({'marcas': marcas})
 @user_passes_test(lambda u: u.is_superuser)
 def asignar_tipo_cliente(request, user_id):
     # Obtener el usuario
@@ -300,45 +313,73 @@ def lista_usuarios(request):
 
     return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query, 'tipo': tipo})
 
-# Vista para la página del catálogo
 def catalogo(request):
-    marca_id = request.GET.get('marca')
-    marca_auto_id = request.GET.get('marca_auto')
+    productos = Producto.objects.all()
+    categorias = Categoria.objects.all()
+    marcas = Marca.objects.all()
+    marcas_auto = MarcaAuto.objects.all()
 
-    # Filtro base
-    productos_queryset = Producto.objects.select_related('marca').prefetch_related('marcas_auto')
+    categoria_actual = request.GET.get('categoria')
+    marca_actual = request.GET.get('marca')
+    marca_auto_actual = request.GET.get('marca_auto')
+    solo_ofertas = request.GET.get('solo_ofertas')
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
 
-    if marca_id:
-        productos_queryset = productos_queryset.filter(marca_id=marca_id)
-
-    if marca_auto_id:
-        productos_queryset = productos_queryset.filter(marcas_auto__id=marca_auto_id)
-
-    # Prefetch los productos filtrados en cada categoría
-    categorias = Categoria.objects.prefetch_related(
-        Prefetch('productos', queryset=productos_queryset, to_attr='productos_filtrados')
-    )
-
-    # Verificar si el usuario es mayorista
-    es_mayorista = False
-    if request.user.is_authenticated:
-        perfil = getattr(request.user, 'perfilusuario', None)
-        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre.lower() == 'mayorista':
-            es_mayorista = True
-
+    if categoria_actual:
+        productos = productos.filter(categoria_id=categoria_actual)
+    if marca_actual:
+        productos = productos.filter(marca_id=marca_actual)
+    if marca_auto_actual:
+        productos = productos.filter(marcas_auto__id=marca_auto_actual)
+    if solo_ofertas:
+        productos = productos.filter(oferta_activa=True)
+    if precio_min:
+        if solo_ofertas:
+            productos = productos.filter(precio_oferta_minorista__gte=precio_min)
+        else:
+            productos = productos.filter(precio_minorista__gte=precio_min)
+    if precio_max:
+        if solo_ofertas:
+            productos = productos.filter(precio_oferta_minorista__lte=precio_max)
+        else:
+            productos = productos.filter(precio_minorista__lte=precio_max)
     return render(request, 'autopart/catalogo.html', {
+        'productos': productos.distinct(),
         'categorias': categorias,
-        'es_mayorista': es_mayorista,
-        'marcas': Marca.objects.all(),
-        'marcas_auto': MarcaAuto.objects.all(),
-        'marca_actual': marca_id,
-        'marca_auto_actual': marca_auto_id,
+        'marcas': marcas,
+        'marcas_auto': marcas_auto,
+        'categoria_actual': categoria_actual,
+        'marca_actual': marca_actual,
+        'marca_auto_actual': marca_auto_actual,
     })
 
 def detalle_producto(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id)
-    return render(request, 'autopart/detalle_producto.html', {'producto': producto})
-
+    producto = Producto.objects.get(pk=producto_id)
+    comentarios = producto.comentarios.select_related('usuario').order_by('-fecha')
+    if request.method == 'POST' and request.user.is_authenticated:
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            comentario = form.save(commit=False)
+            comentario.producto = producto
+            comentario.usuario = request.user
+            comentario.save()
+            return redirect('detalle_producto', producto_id=producto.id)
+    else:
+        form = ComentarioForm()
+    return render(request, 'autopart/detalle_producto.html', {
+        'producto': producto,
+        'comentarios': comentarios,
+        'comentario_form': form,
+    })
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['texto', 'calificacion']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Escribe tu comentario...'}),
+            'calificacion': forms.NumberInput(attrs={'min': 1, 'max': 5, 'class': 'form-control'}),
+        }
 @login_required
 @require_POST
 def crear_pedido(request):

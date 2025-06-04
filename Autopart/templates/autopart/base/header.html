@@ -44,24 +44,30 @@
                         <a class="nav-link" href="{% url 'catalogo' %}">Catálogo</a>
                     </li>
                     {% if request.user.is_authenticated %}
-                        {% for group in request.user.groups.all %}
-                            {% if group.name == "vendedor" %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'dashboard_vendedor' %}">Dashboard</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
+                      {% if request.user.is_staff %}
+                          <li class="nav-item">
+                              <a class="nav-link" href="{% url 'dashboard_vendedor' %}">Dashboard</a>
+                          </li>
+                      {% else %}
+                          {% for group in request.user.groups.all %}
+                              {% if group.name == "vendedor" %}
+                                  <li class="nav-item">
+                                      <a class="nav-link" href="{% url 'dashboard_vendedor' %}">Dashboard</a>
+                                  </li>
+                              {% endif %}
+                          {% endfor %}
+                      {% endif %}
+                  {% endif %}
                     {% if request.user.is_authenticated and request.user.is_staff %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'lista_usuarios' %}">Clientes</a>
                         </li>
                     {% endif %}
                     <a class="nav-link position-relative" href="{% url 'carrito' %}">
-    <i class="fas fa-shopping-cart"></i>
-    <span id="mini-cart-count" class="badge badge-pill badge-primary position-absolute" style="top:2px;right:0;font-size:0.8rem;">0</span>
-    Carrito
-</a>
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="mini-cart-count" class="badge badge-pill badge-primary position-absolute" style="top:2px;right:0;font-size:0.8rem;">0</span>
+                        Carrito
+                    </a>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-user-circle fa-2x"></i>

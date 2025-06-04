@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views 
-from .views import MarcaAutoViewSet, ProductoViewSet,dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
+from .views import MarcaAutoViewSet, ProductoViewSet, dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
 from django.contrib.auth import views as auth_views
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
@@ -46,5 +46,4 @@ urlpatterns = [
     path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
     path('perfil/', views.perfil_usuario, name='perfil_usuario'),
     path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
-    
 ]

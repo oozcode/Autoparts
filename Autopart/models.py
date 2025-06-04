@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -9,6 +10,7 @@ from django.utils import timezone
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=60, unique=True, blank=True)
+    imagen = models.ImageField(upload_to='categorias/', blank=True, null=True)  # Nuevo campo
 
     def __str__(self):
         return self.nombre
@@ -18,15 +20,16 @@ class Categoria(models.Model):
             self.slug = slugify(self.nombre)
         super().save(*args, **kwargs)
 
-# Marca del producto (ejemplo: Bosch, Michelin, etc.)
 class Marca(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    imagen = models.ImageField(upload_to='marcas/', blank=True, null=True)  # Nuevo campo
 
     def __str__(self):
         return self.nombre
-
+    
 class MarcaAuto(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    imagen = models.ImageField(upload_to='marcas_auto/', blank=True, null=True)  # Nuevo campo
 
     def __str__(self):
         return self.nombre
@@ -52,6 +55,17 @@ class Producto(models.Model):
     modificado_por = models.ForeignKey(User, related_name="productos_modificados", on_delete=models.SET_NULL, null=True)
     ultima_modificacion = models.DateTimeField(null=True, blank=True)
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
+    oferta_activa = models.BooleanField(default=False, verbose_name="¿Está en oferta?")
+    descuento_oferta = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Porcentaje de descuento (ej: 15 para 15%)"
+    )
+    precio_oferta_minorista = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    precio_oferta_mayorista = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     peso = models.DecimalField(
         max_digits=6, decimal_places=2,
         validators=[MinValueValidator(0.01)],
@@ -74,8 +88,25 @@ class Producto(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        if self.oferta_activa and self.descuento_oferta:
+            descuento = Decimal(self.descuento_oferta) / Decimal('100')
+            self.precio_oferta_minorista = self.precio_minorista * (Decimal('1') - descuento)
+            self.precio_oferta_mayorista = self.precio_mayorista * (Decimal('1') - descuento)
+        else:
+            self.precio_oferta_minorista = None
+            self.precio_oferta_mayorista = None
         self.ultima_modificacion = timezone.now()
         super().save(*args, **kwargs)
+
+class Comentario(models.Model):
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    texto = models.TextField()
+    calificacion = models.PositiveSmallIntegerField(default=5)  # 1 a 5 estrellas
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.producto.nombre} ({self.calificacion}⭐)"
 
 # Precios específicos por tipo de cliente, para personalizar tarifas
 class Precio(models.Model):

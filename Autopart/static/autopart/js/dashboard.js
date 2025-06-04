@@ -406,6 +406,7 @@ document.getElementById('formNuevaEntidad').onsubmit = function(e) {
   
 };
 
+
 document.addEventListener('DOMContentLoaded', () => {
   window.dashboard = new DashboardVendedor();
 });
