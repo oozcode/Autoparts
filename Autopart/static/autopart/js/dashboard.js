@@ -409,4 +409,117 @@ document.getElementById('formNuevaEntidad').onsubmit = function(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.dashboard = new DashboardVendedor();
+   document
+    .getElementById('modalGestionCategoria')
+    .addEventListener('show.bs.modal', cargarCategoriasEnModal);
 });
+function cargarCategoriasEnModal() {
+  fetch('/api/categorias/')
+    .then(response => response.json())
+    .then(data => {
+      const contenedor = document.getElementById('listaCategorias');
+      contenedor.innerHTML = '';
+
+      if (!data.length) {
+        contenedor.innerHTML = '<div class="text-muted text-center">No hay categorías disponibles.</div>';
+        return;
+      }
+
+      data.forEach(categoria => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'd-flex align-items-center justify-content-between border p-2 rounded';
+
+        const img = document.createElement('img');
+        img.src = categoria.imagen || '/static/autopart/img/no-image.png';
+        img.alt = categoria.nombre;
+        img.style = 'width: 60px; height: 60px; object-fit: contain; border: 1px solid #ccc; border-radius: 5px;';
+
+        const inputNombre = document.createElement('input');
+        inputNombre.type = 'text';
+        inputNombre.value = categoria.nombre;
+        inputNombre.className = 'form-control mx-2';
+        inputNombre.style.maxWidth = '200px';
+
+        const inputImagen = document.createElement('input');
+        inputImagen.type = 'file';
+        inputImagen.accept = 'image/*';
+        inputImagen.className = 'form-control me-2';
+        inputImagen.style.maxWidth = '200px';
+
+        const btnGuardar = document.createElement('button');
+        btnGuardar.className = 'btn btn-sm btn-success me-2';
+        btnGuardar.innerHTML = '💾';
+        btnGuardar.onclick = () => actualizarCategoriaConImagen(categoria.id, inputNombre.value, inputImagen.files[0]);
+
+        const btnEliminar = document.createElement('button');
+        btnEliminar.className = 'btn btn-sm btn-danger';
+        btnEliminar.innerHTML = '🗑️';
+        btnEliminar.onclick = () => eliminarCategoria(categoria.id);
+
+        const derecha = document.createElement('div');
+        derecha.className = 'd-flex align-items-center';
+        derecha.appendChild(inputNombre);
+        derecha.appendChild(inputImagen);
+        derecha.appendChild(btnGuardar);
+        derecha.appendChild(btnEliminar);
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(derecha);
+
+        contenedor.appendChild(wrapper);
+      });
+    });
+}
+function actualizarCategoriaConImagen(id, nuevoNombre, nuevaImagen) {
+  if (!nuevoNombre.trim()) {
+    Swal.fire('Error', 'El nombre no puede estar vacío', 'error');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('nombre', nuevoNombre);
+  if (nuevaImagen) {
+    formData.append('imagen', nuevaImagen);
+  }
+
+  fetch(`/api/categorias/${id}/`, {
+    method: 'PATCH',
+    headers: {
+      'X-CSRFToken': window.dashboard.csrfToken
+    },
+    body: formData
+  })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      Swal.fire('¡Actualizado!', 'La categoría fue actualizada', 'success');
+      cargarCategoriasEnModal();
+      window.dashboard.cargarCategoriasYMarcas(); // Para refrescar selects
+    })
+    .catch(() => Swal.fire('Error', 'No se pudo actualizar la categoría', 'error'));
+}
+function eliminarCategoria(id) {
+  Swal.fire({
+    title: '¿Eliminar categoría?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6'
+  }).then(result => {
+    if (result.isConfirmed) {
+      fetch(`/api/categorias/${id}/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': window.dashboard.csrfToken }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error();
+          Swal.fire('¡Eliminada!', 'La categoría fue eliminada.', 'success');
+          cargarCategoriasEnModal();
+          window.dashboard.cargarCategoriasYMarcas(); // refrescar selects
+        })
+        .catch(() => Swal.fire('Error', 'No se pudo eliminar', 'error'));
+    }
+  });
+}
