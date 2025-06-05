@@ -15,7 +15,6 @@
 
   <main class="container my-5">
     <div class="row" id="productos-container">
-      <!-- Aquí se insertarán los productos -->
     </div>
   </main>
 
@@ -47,8 +46,6 @@
         productos.forEach(prod => {
           const col = document.createElement("div");
           col.className = "col-md-3 mb-4";
-
-          // Formatear el precio como CLP sin decimales
           const precioFormateado = new Intl.NumberFormat("es-CL", {
             style: "currency",
             currency: "CLP",
