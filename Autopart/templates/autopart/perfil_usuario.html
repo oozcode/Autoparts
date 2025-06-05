@@ -1,30 +1,73 @@
 {% extends 'autopart/base/header.html' %}
+{% load static %}
 {% block title %}Mi Perfil{% endblock %}
 {% block content %}
 <main>
-<div class="container my-5">
-  <h2>Mi Perfil</h2>
-  <div class="card mb-4">
-    <div class="card-body">
-      <p><strong>Usuario:</strong> {{ request.user.username }}</p>
-      <p><strong>Email:</strong> {{ request.user.email }}</p>
-      {% if perfil %}
-        <p><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
-        <p>
-          <strong>Tipo de Cliente:</strong>
-          {% if perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista" %}
-            <span class="badge badge-success">Mayorista</span>
-          {% elif perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Minorista" %}
-            <span class="badge badge-secondary">Minorista</span>
-          {% else %}
-            <span class="badge badge-light">Sin asignar</span>
-          {% endif %}
-        </p>
-      {% endif %}
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4" style="border-top: 5px solid #003366;">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-4">
+              <!-- Avatar con iniciales o logo -->
+              <div class="me-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:70px; height:70px; font-size:2.2rem; font-weight:700; background: #000000; color: #7c7c7c;">
+                  {% if request.user.first_name %}
+                    {{ request.user.first_name|slice:":1"|upper }}{% if request.user.last_name %}{{ request.user.last_name|slice:":1"|upper }}{% endif %}
+                  {% else %}
+                    <img src="{% static 'autopart/img/logo_placeholder.png' %}" alt="Avatar" class="img-fluid rounded-circle" style="width:70px; height:70px;">
+                  {% endif %}
+                </div>
+              </div>
+              <div>
+                <h3 class="mb-0" style="color:#003366;">{{ request.user.get_full_name|default:request.user.username }}</h3>
+                <span class="text-muted">@{{ request.user.username }}</span>
+              </div>
+            </div>
+            <hr>
+            <ul class="list-group list-group-flush mb-4">
+              <li class="list-group-item px-0">
+                <i class="fas fa-envelope me-2" style="color:#003366;"></i>
+                <strong style="color:#003366;">Email:</strong> {{ request.user.email|default:"No registrado" }}
+              </li>
+              {% if perfil %}
+                <li class="list-group-item px-0">
+                  <i class="fas fa-phone me-2" style="color:#003366;"></i>
+                  <strong style="color:#003366;">Teléfono:</strong> {{ perfil.telefono|default:"No registrado" }}
+                </li>
+                <li class="list-group-item px-0">
+                  <i class="fas fa-user-tag me-2" style="color:#003366;"></i>
+                  <strong style="color:#003366;">Tipo de Cliente:</strong>
+                  {% if perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista" %}
+                    <span class="badge" style="background:#003366; color:#FFD700;">Mayorista</span>
+                  {% elif perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Minorista" %}
+                    <span class="badge" style="background:#FFD700; color:#003366;">Minorista</span>
+                  {% else %}
+                    <span class="badge bg-light text-dark">Sin asignar</span>
+                  {% endif %}
+                </li>
+              {% endif %}
+            </ul>
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'mis_pedidos' %}" class="btn" style="background:#7c7c7c; color:#000000; border:none;">
+                <i class="fas fa-box-open me-1"></i> Ver mis pedidos
+              </a>
+              <a href="#"
+   class="btn"
+   style="background:#7c7c7c; color:#000000; border:none;"
+   onclick="event.preventDefault(); localStorage.removeItem('cart'); document.getElementById('logout-form').submit();">
+   <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
+</a>
+<form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+    {% csrf_token %}
+</form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <a href="{% url 'mis_pedidos' %}" class="btn btn-primary">Ver mis pedidos</a>
-</div>
 </main>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

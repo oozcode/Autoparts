@@ -50,4 +50,6 @@ urlpatterns = [
     path('quitar-vendedor/<int:user_id>/', views.quitar_vendedor, name='quitar_vendedor'),
     path('quitar-mayorista/<int:user_id>/', views.quitar_mayorista, name='quitar_mayorista'),
     path('asignar-mayorista/<int:user_id>/', views.asignar_mayorista, name='asignar_mayorista'),
+    path('confirmar-retiro/<int:pedido_id>/', views.confirmar_retiro, name='confirmar_retiro'),
+    path('dashboard/pedidos/', views.dashboard_pedidos, name='dashboard_pedidos'),
 ]

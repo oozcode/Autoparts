@@ -237,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="swiper-wrapper">
         {% for marca in marcas_auto %}
           <div class="swiper-slide d-flex justify-content-center align-items-center" style="height:90px;">
-            <a href="#" class="d-block w-100 h-100 text-center" style="text-decoration:none;">
               {% if marca.imagen %}
                 <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" style="max-height:70px; max-width:120px; object-fit:contain; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.07));">
               {% else %}

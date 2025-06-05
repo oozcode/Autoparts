@@ -93,6 +93,23 @@
                           {% endfor %}
                       {% endif %}
                   {% endif %}
+                   {% if request.user.is_authenticated %}
+                      {% if request.user.is_staff %}
+                          <li class="nav-item">
+                              <a class="nav-link" href="{% url 'dashboard_pedidos' %}">Pedidos</a>
+                          </li>
+                      {% else %}
+                          {% for group in request.user.groups.all %}
+                              {% if group.name == "vendedor" %}
+                                  <li class="nav-item">
+                                      <a class="nav-link" href="{% url 'dashboard_pedidos' %}">Pedidos</a>
+                                  </li>
+                              {% endif %}
+                          {% endfor %}
+                      {% endif %}
+                  {% endif %}
+
+                  
                     {% if request.user.is_authenticated and request.user.is_staff %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'lista_usuarios' %}">Clientes</a>
@@ -226,4 +243,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
-

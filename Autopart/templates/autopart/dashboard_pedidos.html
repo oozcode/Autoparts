@@ -1,0 +1,178 @@
+{% extends 'autopart/base/header.html' %}
+{% load static %}
+{% block title %}Dashboard Pedidos{% endblock %}
+{% block content %}
+<main class="container py-5">
+  <h2 class="text-center mb-4">📦 Pedidos Realizados</h2>
+
+  <!-- Filtro por tipo de pedido y buscador por ID -->
+  <form method="GET" class="mb-4 row justify-content-center align-items-end g-2">
+    <div class="col-md-4">
+      <input type="text" name="pedido_id" class="form-control" placeholder="Buscar por ID" value="{{ request.GET.pedido_id }}">
+    </div>
+    <div class="col-md-3">
+      <select name="tipo_pedido" class="form-select">
+        <option value="">Todos los tipos</option>
+        <option value="retiro" {% if request.GET.tipo_pedido == 'retiro' %}selected{% endif %}>Retiro en tienda</option>
+        <option value="delivery" {% if request.GET.tipo_pedido == 'delivery' %}selected{% endif %}>Delivery</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-outline-primary w-100" type="submit">Filtrar</button>
+    </div>
+  </form>
+<div class="bg-white p-3 shadow rounded">
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center bg-white shadow rounded">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+          <td>{{ pedido.id }}</td>
+          <td>{{ pedido.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            {{ pedido.nombre }} {{ pedido.apellidos }}<br>
+            <small class="text-muted">
+              {{ pedido.rut }}
+              <i class="fas fa-copy text-primary ms-2" style="cursor:pointer;" onclick="copiarAlPortapapeles('{{ pedido.rut }}')"></i>
+            </small>
+          </td>
+          <td class="clp">{{ pedido.total|floatformat:0 }}</td>
+          <td>
+            {% if pedido.tipo_pedido == 'retiro' %}
+              <span class="badge bg-info">Retiro</span>
+        
+            
+            {% elif pedido.tipo_pedido == 'delivery' %}
+              <span class="badge bg-secondary">Delivery</span>
+            {% else %}
+              <span class="badge bg-light text-dark">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if pedido.estado == 'pendiente' %}
+              <span class="badge bg-warning text-dark">{{ pedido.estado|capfirst }}</span>
+            {% elif pedido.estado == 'pagado' %}
+              <span class="badge bg-success">{{ pedido.estado|capfirst }}</span>
+            {% elif pedido.estado == 'retirado' %}
+              <span class="badge bg-primary">{{ pedido.estado|capfirst }}</span>
+            {% else %}
+              <span class="badge bg-light text-dark">{{ pedido.estado|capfirst }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-grid gap-2">
+                {% if pedido.tipo_pedido == 'retiro' and pedido.estado == 'pagado' %}
+                <button
+                    class="btn btn-success btn-sm mb-1 fw-bold"
+                    onclick="confirmarRetiro({{ pedido.id }}, '{{ pedido.rut }}')"
+                    title="Confirmar retiro solo si el cliente está presente"
+                >
+                    <i class="fas fa-user-check me-1"></i> Confirmar Retiro
+                </button>
+                {% endif %}
+                <a href="{% url 'detalle_pedido' pedido.id %}?desde_dashboard=1"
+                class="btn btn-outline-primary btn-sm mt-1 fw-bold"
+                title="Ver detalle del pedido">
+                <i class="fas fa-eye me-1"></i> Ver Detalle
+                </a>
+            </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">No hay pedidos registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmarRetiro(pedidoId, rutEsperado) {
+  Swal.fire({
+    title: 'Confirmar Retiro',
+    input: 'text',
+    inputLabel: 'Ingresa el RUT del cliente',
+    inputPlaceholder: 'Ej: 12345678-9',
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar',
+    preConfirm: (rutIngresado) => {
+      if (!rutIngresado) {
+        Swal.showValidationMessage('Debes ingresar un RUT');
+      }
+      return fetch(`/confirmar-retiro/${pedidoId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ rut: rutIngresado })
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(err.error || 'Error al confirmar');
+          });
+        }
+        return response.json();
+      })
+      .catch(error => {
+        Swal.showValidationMessage(`Error: ${error.message}`);
+      });
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire('¡Confirmado!', 'El pedido fue marcado como retirado.', 'success')
+        .then(() => location.reload());
+    }
+  });
+}
+  function copiarAlPortapapeles(texto) {
+    navigator.clipboard.writeText(texto).then(() => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Copiado!',
+        text: `RUT ${texto} copiado al portapapeles`,
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }).catch(err => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo copiar al portapapeles'
+      });
+    });
+  }
+
+  function getCSRFToken() {
+    const cookieValue = document.cookie.split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    return cookieValue;
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.clp').forEach(function(el) {
+      let num = Number(el.textContent.replace(/[^0-9.-]+/g, ""));
+      el.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
+    });
+  });
+</script>
+{% include 'autopart/base/footer.html' %}
+{% endblock %}

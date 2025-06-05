@@ -52,7 +52,13 @@
       <h4><strong>Total:</strong> <span class="clp">{{ pedido.total|floatformat:0 }}</span></h4>
     </div>
   </div>
-  <a href="{% url 'mis_pedidos' %}" class="btn btn-secondary mt-3">Volver a mis pedidos</a>
+  <div class="mt-4">
+  {% if desde_dashboard %}
+    <a href="{% url 'dashboard_pedidos' %}" class="btn btn-secondary">← Volver al Dashboard</a>
+  {% else %}
+    <a href="{% url 'mis_pedidos' %}" class="btn btn-secondary">← Volver a Mis Pedidos</a>
+  {% endif %}
+</div>
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
