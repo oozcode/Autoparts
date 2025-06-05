@@ -1,3 +1,4 @@
+
 {% extends 'autopart/base/header.html' %}
 {% load static %}
 {% block title %}Dashboard{% endblock %}
@@ -188,6 +189,7 @@
 </div>
 
 <!-- Modal Editar Producto -->
+<!-- Modal Editar Producto -->
 <div class="modal fade" id="editarModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -196,83 +198,94 @@
           <h5 class="modal-title">Editar producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-          <div class="modal-body">
-            <!-- Información básica -->
-            <h6 class="mt-2 mb-1 text-primary">Información básica</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre</label>
-                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Filtro de aire">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Imagen</label>
-                <input type="file" class="form-control" name="imagen" accept="image/*">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" name="descripcion" rows="2" required placeholder="Describe el producto..."></textarea>
-              </div>
+        <div class="modal-body">
+          <!-- Información básica -->
+          <h6 class="mt-2 mb-1 text-primary">Información básica</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" name="nombre" required placeholder="Ej: Filtro de aire">
             </div>
-          
-
-            
-
-            <!-- Precios y Stock -->
-            <h6 class="mt-4 mb-1 text-primary">Precios y Stock</h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">Precio Minorista</label>
-                <input type="number" class="form-control" name="precio_minorista" required placeholder="Ej: 19990">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Precio Mayorista</label>
-                <input type="number" class="form-control" name="precio_mayorista" required placeholder="Ej: 15990">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Stock</label>
-                <input type="number" class="form-control" name="stock" required placeholder="Ej: 10">
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">Imagen</label>
+              <input type="file" class="form-control" name="imagen" accept="image/*">
             </div>
-
-            <!-- Dimensiones y Peso -->
-            <h6 class="mt-4 mb-1 text-primary">Dimensiones y Peso</h6>
-            <div class="row g-3">
-              <div class="col-md-3">
-                <label class="form-label">Peso (kg)</label>
-                <input type="number" class="form-control" name="peso" step="0.01" placeholder="Ej: 1.2">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Largo (cm)</label>
-                <input type="number" class="form-control" name="largo" step="0.01" placeholder="Ej: 30">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Ancho (cm)</label>
-                <input type="number" class="form-control" name="ancho" step="0.01" placeholder="Ej: 15">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Alto (cm)</label>
-                <input type="number" class="form-control" name="alto" step="0.01" placeholder="Ej: 10">
-              </div>
-            </div>
-
-            <!-- Compatibilidad -->
-            <h6 class="mt-4 mb-1 text-primary">Compatibilidad</h6>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Marcas de Auto</label>
-                <select name="marcas_auto" class="form-select" multiple required style="min-height: 90px"></select>
-                <small class="text-muted">Mantén presionada Ctrl (o Cmd) para seleccionar varias.</small>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Categoría</label>
-                <select name="categoria" class="form-select" required></select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Marca</label>
-                <select name="marca" class="form-select" required></select>
-              </div>
+            <div class="col-12">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" name="descripcion" rows="2" required placeholder="Describe el producto..."></textarea>
             </div>
           </div>
+
+          <!-- Precios y Stock -->
+          <h6 class="mt-4 mb-1 text-primary">Precios y Stock</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Precio Minorista</label>
+              <input type="number" class="form-control" name="precio_minorista" required placeholder="Ej: 19990">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Precio Mayorista</label>
+              <input type="number" class="form-control" name="precio_mayorista" required placeholder="Ej: 15990">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" name="stock" required placeholder="Ej: 10">
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="ofertaEditar" name="en_oferta">
+                <label class="form-check-label" for="ofertaEditar">¿Producto en oferta?</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Descuento (%)</label>
+              <input type="number" class="form-control" name="descuento" id="descuentoEditar" min="1" max="99" placeholder="Ej: 20" disabled>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Precio con Descuento</label>
+              <input type="text" class="form-control" id="precioConDescuentoEditar" readonly placeholder="$0">
+            </div>
+          </div>
+
+          <!-- Dimensiones y Peso -->
+          <h6 class="mt-4 mb-1 text-primary">Dimensiones y Peso</h6>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Peso (kg)</label>
+              <input type="number" class="form-control" name="peso" step="0.01" placeholder="Ej: 1.2">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Largo (cm)</label>
+              <input type="number" class="form-control" name="largo" step="0.01" placeholder="Ej: 30">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Ancho (cm)</label>
+              <input type="number" class="form-control" name="ancho" step="0.01" placeholder="Ej: 15">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Alto (cm)</label>
+              <input type="number" class="form-control" name="alto" step="0.01" placeholder="Ej: 10">
+            </div>
+          </div>
+
+          <!-- Compatibilidad -->
+          <h6 class="mt-4 mb-1 text-primary">Compatibilidad</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Marcas de Auto</label>
+              <select name="marcas_auto" class="form-select" multiple required style="min-height: 90px"></select>
+              <small class="text-muted">Mantén presionada Ctrl (o Cmd) para seleccionar varias.</small>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Categoría</label>
+              <select name="categoria" class="form-select" required></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Marca</label>
+              <select name="marca" class="form-select" required></select>
+            </div>
+          </div>
+        </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Guardar cambios</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -281,6 +294,7 @@
     </div>
   </div>
 </div>
+
 <!-- Modal para agregar nueva entidad -->
 <div class="modal fade" id="modalNuevaEntidad" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">

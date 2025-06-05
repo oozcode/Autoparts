@@ -1,60 +1,8 @@
 {% load static %}
-<style>
-.footer-marcas-auto {
-  width: 100%;
-  overflow: hidden;
-}
-.footer-marcas-auto .swiper {
-  width: 100%;
-}
-.footer-marcas-auto .swiper-slide img {
-  max-width: 90px;
-  max-height: 50px;
-}
-@media (max-width: 576px) {
-  .footer-marcas-auto .swiper-slide img {
-    max-width: 60px;
-    max-height: 35px;
-  }
-  .footer-marcas-auto h2 {
-    font-size: 1.2rem;
-  }
-}
-</style>
 <footer class="footer bg-dark text-light pt-5 pb-4 mt-5">
   <div class="container">
     <div class="row">
-<!-- ...antes del slider... -->
-<div class="footer-marcas-auto py-4">
-  <h2 class="text-center mb-4 font-weight-bold" style="font-size:2rem; color:#fff;">Marcas de Autos</h2>
-  <div class="swiper marcas-swiper">
-    <div class="swiper-wrapper">
-      {% for marca in marcas_auto %}
-        <div class="swiper-slide d-flex justify-content-center align-items-center" style="height:90px;">
-          <a href="#" class="d-block w-100 h-100 text-center" style="text-decoration:none;">
-            {% if marca.imagen %}
-              <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" style="max-height:70px; max-width:120px; object-fit:contain; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.07));">
-            {% else %}
-              <span class="h5" style="color:#fff;">{{ marca.nombre }}</span>
-            {% endif %}
-          </a>
-        </div>
-      {% endfor %}
-      {% for marca in marcas_auto %}
-        <div class="swiper-slide d-flex justify-content-center align-items-center" style="height:90px;">
-          <a href="#" class="d-block w-100 h-100 text-center" style="text-decoration:none;">
-            {% if marca.imagen %}
-              <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" style="max-height:70px; max-width:120px; object-fit:contain; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.07));">
-            {% else %}
-              <span class="h5" style="color:#fff;">{{ marca.nombre }}</span>
-            {% endif %}
-          </a>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-<!-- ...resto del footer... -->
+
       <!-- Logo y descripción -->
       <div class="col-md-4 mb-4">
         <h5 class="text-uppercase font-weight-bold">Autoparts</h5>
@@ -118,13 +66,13 @@ document.addEventListener('DOMContentLoaded', function() {
       disableOnInteraction: false,
     },
     grabCursor: true,
-  breakpoints: {
-  0: { slidesPerView: 2 },
-  576: { slidesPerView: 3 },
-  768: { slidesPerView: 4 },
-  992: { slidesPerView: 5 },
-  1200: { slidesPerView: 6 }
-}
+    breakpoints: {
+      0: { slidesPerView: 2 },
+      576: { slidesPerView: 3 },
+      768: { slidesPerView: 4 },
+      992: { slidesPerView: 5 },
+      1200: { slidesPerView: 6 }
+    }
   });
 });
 </script>

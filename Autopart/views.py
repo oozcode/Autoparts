@@ -327,7 +327,13 @@ def catalogo(request):
     solo_ofertas = request.GET.get('solo_ofertas')
     precio_min = request.GET.get('precio_min')
     precio_max = request.GET.get('precio_max')
-
+    q = request.GET.get('q')
+    if q:
+        productos = productos.filter(
+            Q(nombre__icontains=q) | Q(descripcion__icontains=q)
+        )
+    if request.GET.get('oferta') == '1':
+        productos = productos.filter(oferta_activa=True)
     if categoria_actual:
         productos = productos.filter(categoria_id=categoria_actual)
     if marca_actual:

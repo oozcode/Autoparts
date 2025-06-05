@@ -129,9 +129,9 @@
     </nav>
 <div class="categorias-bar bg-dark py-2" style="overflow-x:auto; width:100vw; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw;">
   <div class="d-flex flex-nowrap justify-content-center align-items-center" style="min-width:600px;">
-    <a href="#" class="btn btn-outline-light mr-4 font-weight-bold d-flex align-items-center">
-      <i class="bi bi-bag"></i>&nbsp;Ofertas
-    </a>
+  <a href="{% url 'catalogo' %}?oferta=1" class="btn btn-outline-light mr-4 font-weight-bold d-flex align-items-center">
+    <i class="bi bi-bag"></i>&nbsp;Ofertas
+  </a>
     {% for cat in categorias %}
       <a href="{% url 'productos_por_categoria' categoria_slug=cat.slug %}" class="nav-link text-white font-weight-bold mx-4 px-0 categoria-link" style="white-space:nowrap;">
         {{ cat.nombre }}

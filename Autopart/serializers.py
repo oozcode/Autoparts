@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Producto, Categoria, Marca, PerfilUsuario, MarcaAuto  # <-- agrega MarcaAuto
+from .models import Producto, Categoria, Marca, PerfilUsuario, MarcaAuto
+from decimal import Decimal
 
 class MarcaAutoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,11 +45,15 @@ class ProductoSerializer(serializers.ModelSerializer):
             'categoria_info',
             'marca',
             'marca_info',
-            'marcas_auto',         # <-- para escritura
-            'marcas_auto_info',    # <-- para lectura
+            'marcas_auto',
+            'marcas_auto_info',
             'creado_por',
             'modificado_por',
             'ultima_modificacion',
+            'oferta_activa',
+            'descuento_oferta',
+            'precio_oferta_minorista',
+            'precio_oferta_mayorista',
         ]
         read_only_fields = ['creado_por', 'modificado_por', 'ultima_modificacion']
 
@@ -56,10 +61,22 @@ class ProductoSerializer(serializers.ModelSerializer):
         if obj.imagen:
             return {"url": obj.imagen.url}
         return None
-    def get_imagen(self, obj):
-        if obj.imagen:
-            return {"url": obj.imagen.url}
-        return None
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+
+        # Calcular precios de oferta si corresponde
+        if validated_data.get('oferta_activa') and validated_data.get('descuento_oferta'):
+            descuento = Decimal(validated_data['descuento_oferta']) / Decimal('100')
+            instance.precio_oferta_minorista = instance.precio_minorista * (Decimal('1') - descuento)
+            instance.precio_oferta_mayorista = instance.precio_mayorista * (Decimal('1') - descuento)
+        else:
+            instance.precio_oferta_minorista = None
+            instance.precio_oferta_mayorista = None
+
+        instance.save()
+        return instance
+
 class PerfilUsuarioSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_first_name = serializers.CharField(source='user.first_name')

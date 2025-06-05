@@ -5,7 +5,28 @@
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/hero.css' %}">
 <link rel="stylesheet" href="{% static 'autopart/css/pages/home.css' %}">
 <link rel="stylesheet" href="{% static 'autopart/css/componentes/navcarro.css' %}">
-
+<style>
+.footer-marcas-auto {
+  width: 100%;
+  overflow: hidden;
+}
+.footer-marcas-auto .swiper {
+  width: 100%;
+}
+.footer-marcas-auto .swiper-slide img {
+  max-width: 90px;
+  max-height: 50px;
+}
+@media (max-width: 576px) {
+  .footer-marcas-auto .swiper-slide img {
+    max-width: 60px;
+    max-height: 35px;
+  }
+  .footer-marcas-auto h2 {
+    font-size: 1.2rem;
+  }
+}
+</style>
 {% block title %}AutoParts - Inicio{% endblock %}
 
 {% block content %}
@@ -53,7 +74,7 @@
       {% endfor %}
     </div>
     <div class="text-center mt-4">
-      <a href="#" class="btn btn-outline-danger fw-bold px-5 py-2" style="font-size:1.1rem;">
+      <a href="{% url 'catalogo' %}?oferta=1" class="btn btn-outline-danger fw-bold px-5 py-2" style="font-size:1.1rem;">
         Ver todas las ofertas
       </a>
     </div>
@@ -206,12 +227,112 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
+<footer class="footer bg-dark text-light pt-5 pb-4 mt-5">
+  <div class="container">
+    <div class="row">
+<div class="footer-marcas-auto py-4">
+  <div class="container">
+    <h2 class="text-center mb-4 font-weight-bold" style="font-size:2rem; color:#fff;">Marcas de Autos</h2>
+    <div class="swiper marcas-swiper">
+      <div class="swiper-wrapper">
+        {% for marca in marcas_auto %}
+          <div class="swiper-slide d-flex justify-content-center align-items-center" style="height:90px;">
+            <a href="#" class="d-block w-100 h-100 text-center" style="text-decoration:none;">
+              {% if marca.imagen %}
+                <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" style="max-height:70px; max-width:120px; object-fit:contain; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.07));">
+              {% else %}
+                <span class="h5" style="color:#fff;">{{ marca.nombre }}</span>
+              {% endif %}
+            </a>
+          </div>
+        {% endfor %}
+        {% for marca in marcas_auto %}
+          <div class="swiper-slide d-flex justify-content-center align-items-center" style="height:90px;">
+            <a href="#" class="d-block w-100 h-100 text-center" style="text-decoration:none;">
+              {% if marca.imagen %}
+                <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" style="max-height:70px; max-width:120px; object-fit:contain; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.07));">
+              {% else %}
+                <span class="h5" style="color:#fff;">{{ marca.nombre }}</span>
+              {% endif %}
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+      <!-- Logo y descripción -->
+      <div class="col-md-4 mb-4">
+        <h5 class="text-uppercase font-weight-bold">Autoparts</h5>
+        <p>
+          Tu tienda de confianza en repuestos y accesorios automotrices. Calidad, rapidez y atención personalizada 🚗.
+        </p>
 
+        <!-- Redes sociales -->
+        <div class="mt-3">
+          <a href="https://www.facebook.com/AutoPartsCenterSpA/" class="text-light mr-3" target="_blank"><i class="fab fa-facebook fa-lg"></i></a>
+          <a href="https://www.instagram.com/b.aastiaan/" class="text-light mr-3" target="_blank"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://www.twitter.com" class="text-light mr-3" target="_blank"><i class="fab fa-x-twitter fa-lg"></i></a>
+          <a href="https://wa.me/56946904800" class="text-light" target="_blank"><i class="fab fa-whatsapp fa-lg"></i></a>
+        </div>
+      </div>
 
+      <!-- Enlaces rápidos -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase font-weight-bold">Enlaces</h6>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'index' %}" class="text-light">Inicio</a></li>
+          <li><a href="{% url 'catalogo' %}" class="text-light">Catálogo</a></li>
+          <li><a href="{% url 'carrito' %}" class="text-light">Carrito de Compras</a></li>
+          
+        </ul>
+      </div>
 
-<!-- Swiper CSS -->
+      <!-- Contacto -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase font-weight-bold">Contacto</h6>
+        <ul class="list-unstyled">
+          <li><i class="fas fa-envelope mr-2"></i> contacto@autoparts.cl</li>
+          <li><i class="fas fa-phone mr-2"></i> +56 946904800</li>
+          <li>
+            <a href="https://www.google.com/maps?q=Antonio+Varas+666,+Providencia,+Chile" target="_blank" class="text-light" style="text-decoration: none;">
+              <i class="fas fa-map-marker-alt mr-2"></i> Antonio Varas 666, Providencia, Chile
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-<!-- Swiper JS -->
+    <hr class="bg-light">
 
-{% include 'autopart/base/footer.html' %}
+    <div class="text-center">
+      <p class="mb-0">&copy; {{ now|date:"Y" }} Autoparts. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  new Swiper('.marcas-swiper', {
+    slidesPerView: 6,
+    spaceBetween: 20,
+    loop: true,
+    speed: 3500,
+    centeredSlides: true,
+    autoplay: {
+      delay: 0,
+      disableOnInteraction: false,
+    },
+    grabCursor: true,
+    breakpoints: {
+      0: { slidesPerView: 2 },
+      576: { slidesPerView: 3 },
+      768: { slidesPerView: 4 },
+      992: { slidesPerView: 5 },
+      1200: { slidesPerView: 6 }
+    }
+  });
+});
+</script>
+</html>
 {% endblock %}

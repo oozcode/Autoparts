@@ -268,6 +268,26 @@ eliminarProducto(id) {
     this.modalEditar.show();
   }
   editarProducto(id, formData, form) {
+  const isOferta = form.querySelector('#ofertaEditar').checked;
+  const descuento = parseFloat(form.querySelector('#descuentoEditar').value);
+  const precioMinorista = parseFloat(form.querySelector('input[name="precio_minorista"]').value);
+  const precioMayorista = parseFloat(form.querySelector('input[name="precio_mayorista"]').value);
+
+  if (isOferta && !isNaN(descuento) && descuento > 0 && descuento < 100) {
+    const factor = (100 - descuento) / 100;
+    const ofertaMinorista = Math.round(precioMinorista * factor);
+    const ofertaMayorista = Math.round(precioMayorista * factor);
+    formData.set('precio_oferta_minorista', ofertaMinorista);
+    formData.set('precio_oferta_mayorista', ofertaMayorista);
+    formData.set('oferta_activa', 'true');
+    formData.set('descuento_oferta', descuento);
+  } else {
+    formData.set('oferta_activa', 'false');
+    formData.set('descuento_oferta', '0');
+    formData.set('precio_oferta_minorista', '');
+    formData.set('precio_oferta_mayorista', '');
+  }
+
   Swal.fire({
     title: '¿Editar producto?',
     text: '¿Estás seguro de que deseas guardar los cambios?',
@@ -297,6 +317,8 @@ eliminarProducto(id) {
         .catch(() => Swal.fire('Error', 'Error al editar producto. Revisa los datos.', 'error'));
     }
   });
+
+
 }
 
 
@@ -523,3 +545,47 @@ function eliminarCategoria(id) {
     }
   });
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('formEditarProducto');
+  const ofertaCheckbox = document.getElementById('ofertaEditar');
+  const descuentoInput = document.getElementById('descuentoEditar');
+  const precioMinoristaInput = form.querySelector('input[name="precio_minorista"]');
+  const precioMayoristaInput = form.querySelector('input[name="precio_mayorista"]');
+  const precioDescuentoOutput = document.getElementById('precioConDescuentoEditar');
+
+  // Mostrar precio de oferta calculado en pantalla
+  function mostrarPrecioConDescuento() {
+    const descuento = parseFloat(descuentoInput.value);
+    const precioMinorista = parseFloat(precioMinoristaInput.value);
+
+    if (!isNaN(descuento) && descuento > 0 && descuento < 100 && !isNaN(precioMinorista)) {
+      const factor = (100 - descuento) / 100;
+      const precioDescuento = Math.round(precioMinorista * factor);
+      precioDescuentoOutput.value = `$${precioDescuento.toLocaleString('es-CL')}`;
+    } else {
+      precioDescuentoOutput.value = '';
+    }
+  }
+
+  // Maneja activación/desactivación de oferta
+  ofertaCheckbox.addEventListener('change', () => {
+    descuentoInput.disabled = !ofertaCheckbox.checked;
+    if (!ofertaCheckbox.checked) {
+      descuentoInput.value = '';
+      precioDescuentoOutput.value = '';
+    } else {
+      mostrarPrecioConDescuento();
+    }
+  });
+
+  descuentoInput.addEventListener('input', mostrarPrecioConDescuento);
+  precioMinoristaInput.addEventListener('input', mostrarPrecioConDescuento);
+
+  // Al enviar el formulario, no modificar los precios visibles, solo mandar info correcta
+  form.addEventListener('submit', function (e) {
+    if (ofertaCheckbox.checked && descuentoInput.value) {
+      // Nos aseguramos que el descuento se incluya en el cuerpo de la solicitud
+      descuentoInput.disabled = false;  // forzado para evitar que el input vacío no se envíe
+    }
+  });
+});
