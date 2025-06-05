@@ -9,6 +9,7 @@
 {% block title %}AutoParts - Inicio{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
 <main>
     <!-- Hero Section -->
     <section class="hero" style="min-height:250px; padding:2rem 0;">
@@ -78,34 +79,7 @@
             </div>
         </div>
     </section>
-    <section class="marcas-auto-slider py-5 bg-white">
-  <div class="container">
-    <h2 class="text-center mb-4 font-weight-bold">Marcas de Autos</h2>
-    <div id="carouselMarcasAuto" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000" data-bs-pause="false">
-      <div class="carousel-inner">
-        {% for marca in marcas_auto %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <div class="d-flex justify-content-center align-items-center" style="height:120px;">
-              {% if marca.imagen %}
-                <img src="{{ marca.imagen.url }}" alt="{{ marca.nombre }}" class="d-block" style="max-height:100px; max-width:180px; object-fit:contain;">
-              {% else %}
-                <span class="h4">{{ marca.nombre }}</span>
-              {% endif %}
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselMarcasAuto" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselMarcasAuto" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
-      </button>
-    </div>
-  </div>
-</section>
+
     <!-- Más vendidos -->
     <section class="best-sellers-section py-5">
         <div class="container">
@@ -164,7 +138,6 @@
         </div>
     </section>
 </main>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   // Formatear todos los precios a CLP
@@ -233,6 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+<!-- Swiper CSS -->
+
+<!-- Swiper JS -->
+
 {% include 'autopart/base/footer.html' %}
 {% endblock %}

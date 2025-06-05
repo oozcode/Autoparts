@@ -52,6 +52,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'Autopart.context_processors.categorias_disponibles',
+                'Autopart.context_processors.marcas_disponibles',
             ],
         },
     },
