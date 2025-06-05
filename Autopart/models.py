@@ -162,7 +162,11 @@ class Order(models.Model):
         ('recibido', 'Recibido'),
         ('retirado', 'Retirado'),
     ]
+
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    def __str__(self):
+        return self.rut
+    
 # Items dentro de una orden con cantidad y precio
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

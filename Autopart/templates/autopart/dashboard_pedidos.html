@@ -86,6 +86,12 @@
                 title="Ver detalle del pedido">
                 <i class="fas fa-eye me-1"></i> Ver Detalle
                 </a>
+                <a href="#"
+                  class="btn btn-outline-danger btn-sm mt-1 fw-bold"
+                  title="Eliminar pedido"
+                  onclick="eliminarPedido({{ pedido.id }})">
+                  <i class="fas fa-trash-alt me-1"></i> Eliminar
+                </a>
             </div>
             </td>
         </tr>
@@ -139,6 +145,41 @@
     if (result.isConfirmed) {
       Swal.fire('¡Confirmado!', 'El pedido fue marcado como retirado.', 'success')
         .then(() => location.reload());
+    }
+  });
+}
+function eliminarPedido(pedidoId) {
+  Swal.fire({
+    title: '¿Eliminar pedido?',
+    text: "Esta acción no se puede deshacer.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/eliminar-pedido/${pedidoId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => { throw new Error(err.error || 'Error al eliminar'); });
+        }
+        return response.json();
+      })
+      .then(() => {
+        Swal.fire('Eliminado', 'El pedido ha sido eliminado.', 'success')
+          .then(() => location.reload());
+      })
+      .catch(error => {
+        Swal.fire('Error', error.message, 'error');
+      });
     }
   });
 }

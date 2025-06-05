@@ -52,4 +52,5 @@ urlpatterns = [
     path('asignar-mayorista/<int:user_id>/', views.asignar_mayorista, name='asignar_mayorista'),
     path('confirmar-retiro/<int:pedido_id>/', views.confirmar_retiro, name='confirmar_retiro'),
     path('dashboard/pedidos/', views.dashboard_pedidos, name='dashboard_pedidos'),
+    path('eliminar-pedido/<int:pedido_id>/', views.eliminar_pedido, name='eliminar_pedido'),
 ]

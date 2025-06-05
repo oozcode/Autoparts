@@ -563,3 +563,11 @@ def pago_exitoso(request):
     else:
         messages.error(request, "Pago rechazado. Por favor, intenta nuevamente.")
         return redirect('carrito')
+    
+@login_required
+@user_passes_test(es_vendedor_o_superuser)
+@require_POST
+def eliminar_pedido(request, pedido_id):
+    pedido = get_object_or_404(Order, id=pedido_id)
+    pedido.delete()
+    return JsonResponse({'success': True})
