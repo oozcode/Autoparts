@@ -23,6 +23,15 @@
     <p class="mb-0">© 2025  - Vista Mayorista</p>
   </footer>
 
+  <style>
+    body {
+      background-image: url("{% static 'autopart\img\lml.png' %}");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  </style>
+
   <script>
   document.addEventListener("DOMContentLoaded", function () {
     fetch("/api/productos-mayorista/")
