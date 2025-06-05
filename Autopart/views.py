@@ -17,12 +17,13 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthentic
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from .serializers import MarcaAutoSerializer, ProductoSerializer, CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer
+from .serializers import MarcaAutoSerializer, ProductoSerializer, CategoriaSerializer, MarcaSerializer, PerfilUsuarioSerializer,ProductoMayoristaSerializer
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django import forms, template
 from django.db.models import Prefetch
 from django.views.decorators.cache import never_cache
+from rest_framework.views import APIView
 import os
 from dotenv import load_dotenv
 
@@ -571,3 +572,12 @@ def eliminar_pedido(request, pedido_id):
     pedido = get_object_or_404(Order, id=pedido_id)
     pedido.delete()
     return JsonResponse({'success': True})
+
+def vista_mayorista_api(request):
+    return render(request, 'autopart/vista_mayorista_api.html')
+
+class ProductosMayoristaAPIView(APIView):
+    def get(self, request):
+        productos = Producto.objects.all()
+        serializer = ProductoMayoristaSerializer(productos, many=True, context={'request': request})
+        return Response(serializer.data)

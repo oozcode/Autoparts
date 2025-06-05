@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views 
-from .views import MarcaAutoViewSet, ProductoViewSet, dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso
+from .views import MarcaAutoViewSet, ProductoViewSet, dashboard_vendedor, CategoriaViewSet, MarcaViewSet, pago_exitoso,vista_mayorista_api
 from django.contrib.auth import views as auth_views
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
@@ -53,4 +53,6 @@ urlpatterns = [
     path('confirmar-retiro/<int:pedido_id>/', views.confirmar_retiro, name='confirmar_retiro'),
     path('dashboard/pedidos/', views.dashboard_pedidos, name='dashboard_pedidos'),
     path('eliminar-pedido/<int:pedido_id>/', views.eliminar_pedido, name='eliminar_pedido'),
+    path('mayorista-visual/', vista_mayorista_api, name='vista_mayorista_api'),
+    
 ]

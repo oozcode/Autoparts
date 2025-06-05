@@ -86,3 +86,16 @@ class PerfilUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerfilUsuario
         fields = ['id', 'user_email', 'user_first_name', 'user_last_name', 'tipo_cliente', 'telefono']
+
+class ProductoMayoristaSerializer(serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Producto
+        fields = ['id', 'nombre', 'precio_mayorista', 'stock', 'imagen_url']
+
+    def get_imagen_url(self, obj):
+        request = self.context.get('request')
+        if obj.imagen:
+            return request.build_absolute_uri(obj.imagen.url)
+        return None
