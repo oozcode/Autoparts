@@ -33,14 +33,23 @@
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" id="cantidad" value="1" min="1" max="100" class="form-control w-50" />
               </div>
-              <button class="btn btn-primary btn-lg w-100" id="agregarCarrito"
-                      data-id="{{ producto.id }}"
-                      data-name="{{ producto.nombre }}"
-                      data-price="{% if producto.oferta_activa and producto.descuento_oferta %}{{ producto.precio_oferta_minorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
-                      data-image="{{ producto.imagen.url }}"
-                      data-description="{{ producto.descripcion }}">
-                <i class="fas fa-cart-plus me-2"></i> Agregar al carrito
-              </button>
+              <button class="btn btn-primary btn-block add-to-cart mb-2"
+                                        data-id="{{ producto.id }}"
+                                        data-name="{{ producto.nombre|escapejs }}"
+                                        data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
+                                        {% if producto.imagen %}
+                                            data-image="{{ producto.imagen.url }}"
+                                        {% else %}
+                                            data-image="{% static 'autopart/img/default.jpg' %}"
+                                        {% endif %}
+                                        data-description="{{ producto.descripcion|escapejs }}"
+                                        data-peso="{{ producto.peso }}"
+                                        data-largo="{{ producto.largo }}"
+                                        data-ancho="{{ producto.ancho }}"
+                                        data-alto="{{ producto.alto }}"
+                                        data-stock="{{ producto.stock }}">
+                                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                                    </button>
               <div class="mt-4">
                 <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary w-100">
                   <i class="fas fa-arrow-left me-2"></i> Volver al catálogo
@@ -66,6 +75,7 @@
             <ul class="list-unstyled mb-0">
               <li><strong>Marca:</strong> {{ producto.marca }}</li>
               <li><strong>Categoría:</strong> {{ producto.categoria }}</li>
+              <li><strong>Stock:</strong> {{ producto.stock }}</li>
               <li><strong>Marca de auto:</strong>
                 {% for marca in producto.marcas_auto.all %}
                   {{ marca.nombre }}{% if not forloop.last %}, {% endif %}
@@ -82,10 +92,26 @@
   </div>
 </main>
 <hr class="my-5">
-<div class="card shadow-sm mb-4">
   <div class="card-header bg-primary text-white fw-bold">
-    Comentarios de clientes
-  </div>
+  Comentarios de clientes
+  {% if promedio_calificacion %}
+    <span class="ms-3">
+      <!-- Estrellas visuales -->
+      {% for i in "12345"|make_list %}
+        {% if i|add:'0' <= promedio_calificacion %}
+          <i class="fas fa-star text-warning"></i>
+        {% elif i|add:'0' > promedio_calificacion and i|add:'-1' < promedio_calificacion %}
+          <i class="fas fa-star-half-alt text-warning"></i>
+        {% else %}
+          <i class="far fa-star text-warning"></i>
+        {% endif %}
+      {% endfor %}
+      <span class="ms-2">Promedio: {{ promedio_calificacion|floatformat:1 }}/5</span>
+    </span>
+  {% else %}
+    <span class="ms-3 text-light small">(Sin calificaciones aún)</span>
+  {% endif %}
+</div>
   <div class="card-body">
     {% if user.is_authenticated %}
       <form method="post" class="mb-4">
@@ -108,7 +134,6 @@
     {% else %}
       <p>Debes <a href="{% url 'login' %}">iniciar sesión</a> para dejar un comentario.</p>
     {% endif %}
-
     {% for comentario in comentarios %}
       <div class="border-bottom pb-2 mb-2">
         <strong>{{ comentario.usuario.username }}</strong>
@@ -169,31 +194,65 @@ document.addEventListener('DOMContentLoaded', function() {
       precio.textContent = num.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
     }
 
-    const btn = document.getElementById("agregarCarrito");
-    btn.addEventListener("click", () => {
+ // Agregar al carrito y mostrar toast, validando stock
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', () => {
+      const stock = parseInt(button.dataset.stock);
       const product = {
-        id: parseInt(btn.dataset.id),
-        name: btn.dataset.name,
-        price: parseInt(btn.dataset.price),
-        image: btn.dataset.image,
-        description: btn.dataset.description,
-        quantity: parseInt(document.getElementById("cantidad").value)
+        id: parseInt(button.dataset.id),
+        name: button.dataset.name,
+        price: parseInt(button.dataset.price),
+        image: button.dataset.image,
+        description: button.dataset.description,
+        peso: parseFloat(button.dataset.peso),
+        largo: parseFloat(button.dataset.largo),
+        ancho: parseFloat(button.dataset.ancho),
+        alto: parseFloat(button.dataset.alto),
+        stock: parseInt(button.dataset.stock),
+        quantity: 1
       };
 
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existing = cart.find(item => item.id === product.id);
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const existing = cart.find(p => p.id === product.id);
+
       if (existing) {
-        existing.quantity += product.quantity;
-        if (existing.quantity > 100) existing.quantity = 100;
+        if (existing.quantity < stock) {
+          existing.quantity++;
+        } else {
+          alert('No puedes agregar más de la cantidad disponible en stock.');
+          return;
+        }
       } else {
-        cart.push(product);
+        if (stock > 0) {
+          cart.push(product);
+        } else {
+          alert('Producto sin stock disponible.');
+          return;
+        }
       }
 
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert("Producto agregado al carrito 🛒");
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      // Mostrar toast visual
+      var toastEl = document.getElementById('addToast');
+      if (toastEl) {
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
     });
   });
+});
 </script>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        Producto agregado al carrito con éxito 🛒
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
 

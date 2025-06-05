@@ -9,6 +9,7 @@ from .forms import RegistroForm, EmailAuthenticationForm, PerfilUsuarioAdminForm
 from django.views.decorators.http import require_POST     
 from django.http import JsonResponse
 import json
+from django.db.models import Avg
 from transbank.webpay.webpay_plus.transaction import Transaction,WebpayOptions
 from transbank.common.integration_type import IntegrationType
 from django.views.decorators.csrf import csrf_exempt
@@ -415,6 +416,7 @@ def catalogo(request):
 def detalle_producto(request, producto_id):
     producto = Producto.objects.get(pk=producto_id)
     comentarios = producto.comentarios.select_related('usuario').order_by('-fecha')
+    promedio = comentarios.aggregate(prom=Avg('calificacion'))['prom'] or 0
     if request.method == 'POST' and request.user.is_authenticated:
         form = ComentarioForm(request.POST)
         if form.is_valid():
@@ -429,6 +431,7 @@ def detalle_producto(request, producto_id):
         'producto': producto,
         'comentarios': comentarios,
         'comentario_form': form,
+        'promedio_calificacion': promedio,
     })
 class ComentarioForm(forms.ModelForm):
     class Meta:
@@ -513,13 +516,26 @@ def pagar_pedido(request, pedido_id):
         messages.error(request, "Error al procesar el pago.")
         return redirect('resumen_pedido')
 
+from django.contrib import messages
+
 def pago_exitoso(request):
-    token_ws = request.GET.get('token_ws')  
-    transaction = Transaction(options) 
-    result = transaction.commit(token_ws)  
+    token_ws = request.GET.get('token_ws')
+    tbk_token = request.GET.get('TBK_TOKEN')
+
+    # Si viene TBK_TOKEN y NO token_ws, es anulación o rechazo por el usuario
+    if tbk_token and not token_ws:
+        messages.error(request, "Pago anulado o rechazado. No se realizó el cobro.")
+        return redirect('carrito')
+
+    if not token_ws:
+        messages.error(request, "No se recibió el token de pago. Intenta nuevamente.")
+        return redirect('carrito')
+
+    transaction = Transaction(options)
+    result = transaction.commit(token_ws)
 
     if result['status'] == 'AUTHORIZED':
-        pedido_id = int(result['buy_order'])  
+        pedido_id = int(result['buy_order'])
         pedido = get_object_or_404(Order, id=pedido_id)
         productos = OrderItem.objects.filter(order=pedido)
         if pedido.estado == 'pendiente':
@@ -534,7 +550,8 @@ def pago_exitoso(request):
 
         return render(request, 'autopart/pago_exitoso.html', {'pedido': pedido, 'producto': productos})
     else:
-        return render(request, 'autopart/pago_fallido.html') 
+        messages.error(request, "Pago rechazado. Por favor, intenta nuevamente.")
+        return redirect('carrito')
 @login_required
 def mis_pedidos(request):
     pedidos = Order.objects.filter(user=request.user).order_by('-created_at')

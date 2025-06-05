@@ -20,7 +20,7 @@
         <form id="billingForm" novalidate>
           <div class="mb-3">
             <label for="rut" class="form-label">RUT</label>
-            <input type="text" class="form-control" id="rut" placeholder="12345678-9" required />
+            <input type="text" class="form-control" id="rut" placeholder="12345678-9" required pattern="^\d{7,8}-[\dkK]{1}$" title="Ejemplo: 12345678-9" />
           </div>
 
           <div class="row g-3 mb-3">
@@ -50,13 +50,14 @@
 
           <div class="mb-3">
             <label for="calle" class="form-label">Nombre de la Calle</label>
-            <input type="text" class="form-control" id="calle" required />
+                          <input type="text" class="form-control" id="calle" />
+
           </div>
 
           <div class="row g-3 mb-3">
             <div class="col-md-6">
               <label for="numero" class="form-label">Número</label>
-              <input type="text" class="form-control" id="numero" />
+            <input type="text" class="form-control" id="numero" pattern="^\d+$" title="Solo números" />
             </div>
             <div class="col-md-6">
               <label for="complemento" class="form-label">Complemento (opcional)</label>
@@ -71,7 +72,7 @@
             </div>
             <div class="col-md-6">
               <label for="telefono" class="form-label">Teléfono</label>
-              <input type="tel" class="form-control" id="telefono" required />
+              <input type="tel" class="form-control"  placeholder="987654321"  id="telefono" required pattern="^\d{9}$" title="Solo números, 9 dígitos" />
             </div>
           </div>
           <div class="mt-3">
@@ -95,6 +96,7 @@
       </section>
 
       <!-- Resumen del pedido -->
+      <!-- ...dentro del resumen del pedido... -->
       <section class="col-md-5 order-summary p-4 shadow rounded bg-white animate-fade-in delay-1">
         <h4 class="mb-4">Tu pedido</h4>
         <div id="cartItems" class="mb-4"></div>
@@ -102,6 +104,12 @@
         <div class="d-flex justify-content-between mb-2 summary-line">
           <span>Subtotal</span>
           <span id="subtotal"></span>
+        </div>
+
+        <!-- NUEVO: Línea para mostrar el IVA -->
+        <div class="d-flex justify-content-between mb-2 summary-line">
+          <span>IVA (19%)</span>
+          <span id="impuestos"></span>
         </div>
 
         <div class="row mb-3" id="envioContainer" style="display: none;">
@@ -129,21 +137,36 @@
   <script src="{% static 'autopart/js/envio_chilexpress.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("billingForm");
   const btnSiguiente = document.getElementById("btnSiguiente");
+  const tipoPedido = document.getElementById("tipo_pedido");
+  const envio = document.getElementById("envio");
 
+  function validarEnvio() {
+    const isFormValid = form.checkValidity();
+    const isDelivery = tipoPedido.value === "delivery";
+    // Considera envío como número (puede venir como "$0" o "0")
+    const envioValor = parseInt(envio.textContent.replace(/[^\d]/g, "")) || 0;
 
-  form.addEventListener("input", () => {
-    btnSiguiente.disabled = !form.checkValidity();
-  });
+    if (isDelivery && envioValor === 0) {
+      btnSiguiente.disabled = true;
+    } else {
+      btnSiguiente.disabled = !isFormValid;
+    }
+  }
+
+  form.addEventListener("input", validarEnvio);
+  tipoPedido.addEventListener("change", validarEnvio);
+
+  // Si el valor de envío puede cambiar dinámicamente, observa cambios:
+  const observer = new MutationObserver(validarEnvio);
+  observer.observe(envio, { childList: true, subtree: true });
 
   form.addEventListener("submit", e => {
     e.preventDefault();
 
     const cliente = {
-      
       rut: document.getElementById("rut").value,
       nombre: document.getElementById("nombre").value,
       apellidos: document.getElementById("apellidos").value,
@@ -176,9 +199,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(resumen)
     window.location.href = "/resumen_pedido/";
   });
-});
 
-  </script>
+  // Llama una vez al cargar para el estado inicial
+  validarEnvio();
+});
+</script>
   {% include 'autopart/base/footer.html' %}
 </body>
 </html>

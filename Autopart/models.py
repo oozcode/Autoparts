@@ -98,7 +98,9 @@ class Producto(models.Model):
             self.precio_oferta_mayorista = None
         self.ultima_modificacion = timezone.now()
         super().save(*args, **kwargs)
-
+    def __str__(self):
+        return self.nombre
+    
 class Comentario(models.Model):
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='comentarios')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)

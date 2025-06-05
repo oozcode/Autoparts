@@ -27,8 +27,9 @@ function actualizarResumen() {
   impuestosEl.textContent = resumen.iva.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   totalFinalEl.textContent = resumen.total.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
   document.getElementById("envio").textContent = resumen.envio.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
-}
 
+  validarEnvio(); // <-- Llama a la validación cada vez que se actualiza el resumen
+}
 
 function mostrarResumenPedido() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -41,7 +42,6 @@ function mostrarResumenPedido() {
     cartItemsContainer.innerHTML = "<p class='text-muted'>Tu carrito está vacío.</p>";
     return;
   }
-  
 
   cart.forEach(item => {
     const totalItem = item.price * item.quantity;
@@ -64,13 +64,10 @@ tipoPedido.addEventListener("change", () => {
     calcularBtn.style.display = "inline-block";
   } else {
     envioContainer.style.display = "block";
-    shippingOptions.innerHTML =`<p class="text-muted">Retiro disponible en: <br><strong>Providencia 666, Providencia</strong></p>` ;
-    
-
+    shippingOptions.innerHTML = `<p class="text-muted">Retiro disponible en: <br><strong>Providencia 666, Providencia</strong></p>`;
   }
   actualizarResumen();
 });
-
 
 fetch("https://testservices.wschilexpress.com/georeference/api/v1.0/regions", {
   headers: { "Ocp-Apim-Subscription-Key": API_KEY }
@@ -142,7 +139,7 @@ calcularBtn.addEventListener("click", () => {
     declaredWorth: resumen.subtotal.toString(),
     deliveryTime: 0
   };
-  
+
   fetch("https://testservices.wschilexpress.com/rating/api/v1.0/rates/courier", { 
     method: "POST",
     headers: {
@@ -166,21 +163,57 @@ calcularBtn.addEventListener("click", () => {
             </label>
           </div>`;
       });
-      
+
       document.querySelectorAll("input[name='opcionEnvio']").forEach(radio => {
-        
         radio.addEventListener("change", actualizarResumen);
+        radio.addEventListener("change", validarEnvio); // <-- Importante para la validación
       });
     } else {
       shippingOptions.innerHTML = "<p>No hay opciones de envío disponibles.</p>";
     }
+    validarEnvio(); // <-- Llama a la validación después de cargar opciones
   })
   .catch(() => {
     shippingOptions.innerHTML = "<p>Error al calcular envío.</p>";
+    validarEnvio();
   });
 });
 
+// --- VALIDACIÓN DEL BOTÓN SIGUIENTE ---
+function validarEnvio() {
+  const form = document.getElementById("billingForm");
+  const btnSiguiente = document.getElementById("btnSiguiente");
+  if (!form || !btnSiguiente) return;
+
+  const isFormValid = form.checkValidity();
+  const isDelivery = tipoPedido.value === "delivery";
+  const envioSeleccionado = document.querySelector("input[name='opcionEnvio']:checked");
+  const envioValor = envioSeleccionado ? parseInt(envioSeleccionado.value) : 0;
+
+  if (isDelivery && envioValor === 0) {
+    btnSiguiente.disabled = true;
+  } else {
+    btnSiguiente.disabled = !isFormValid;
+  }
+}
+
+// Observa cambios en las opciones de envío (por si se actualizan dinámicamente)
+if (shippingOptions) {
+  const observer = new MutationObserver(validarEnvio);
+  observer.observe(shippingOptions, { childList: true, subtree: true });
+}
+
+// Valida también al cambiar el tipo de pedido o cualquier input del form
 document.addEventListener("DOMContentLoaded", () => {
   mostrarResumenPedido();
   envioContainer.style.display = "none";
+
+  const form = document.getElementById("billingForm");
+  if (form) {
+    form.addEventListener("input", validarEnvio);
+  }
+  if (tipoPedido) {
+    tipoPedido.addEventListener("change", validarEnvio);
+  }
+  validarEnvio();
 });
