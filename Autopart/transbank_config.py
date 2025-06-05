@@ -1,4 +1,10 @@
-TBK_API_KEY = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
-TBK_MALL_ID = 'carcamo.bast@gmail.com'
-TBK_COMMERCE_CODE = '597055555532'
-TBK_INTEGRATION_TYPE = 'TEST' 
+import os
+from dotenv import load_dotenv
+
+# Carga el archivo .env que debe estar en la raíz del proyecto
+load_dotenv()
+
+TBK_API_KEY = os.getenv('TRANSBANK_API_KEY')
+TBK_MALL_ID = os.getenv('TRANSBANK_MALL_ID')
+TBK_COMMERCE_CODE = os.getenv('TRANSBANK_COMMERCE_CODE')
+TBK_INTEGRATION_TYPE = os.getenv('TRANSBANK_ENV', 'TEST')

@@ -23,12 +23,25 @@ from django.db.models import Q
 from django import forms, template
 from django.db.models import Prefetch
 from django.views.decorators.cache import never_cache
+import os
+from dotenv import load_dotenv
 
-CommerCode = '597055555532'
-ApiKeySecret = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
-options = WebpayOptions(CommerCode, ApiKeySecret, IntegrationType.TEST)
+load_dotenv()  # Carga las variables del archivo .env
+
+CommerCode = os.getenv('TRANSBANK_COMMERCE_CODE')
+ApiKeySecret = os.getenv('TRANSBANK_API_KEY')
+integration_type = os.getenv('TRANSBANK_ENV', 'TEST')
+
+from transbank.common.integration_type import IntegrationType
+
+# Selecciona el tipo de integración según variable
+if integration_type == 'PRODUCTION':
+    integration_type = IntegrationType.LIVE
+else:
+    integration_type = IntegrationType.TEST
+
+options = WebpayOptions(CommerCode, ApiKeySecret, integration_type)
 transaction = Transaction(options)
-
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
