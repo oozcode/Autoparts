@@ -46,4 +46,9 @@ urlpatterns = [
     path('mis-pedidos/', views.mis_pedidos, name='mis_pedidos'),
     path('perfil/', views.perfil_usuario, name='perfil_usuario'),
     path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
+    path('asignar-vendedor/<int:user_id>/', views.asignar_vendedor, name='asignar_vendedor'),
+    path('quitar-vendedor/<int:user_id>/', views.quitar_vendedor, name='quitar_vendedor'),
+    path('quitar-mayorista/<int:user_id>/', views.quitar_mayorista, name='quitar_mayorista'),
+    path('asignar-mayorista/<int:user_id>/', views.asignar_mayorista, name='asignar_mayorista'),
+
 ]

@@ -56,6 +56,7 @@ class Producto(models.Model):
     ultima_modificacion = models.DateTimeField(null=True, blank=True)
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
     oferta_activa = models.BooleanField(default=False, verbose_name="¿Está en oferta?")
+    
     descuento_oferta = models.PositiveIntegerField(
         null=True, blank=True,
         help_text="Porcentaje de descuento (ej: 15 para 15%)"

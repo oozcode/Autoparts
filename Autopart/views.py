@@ -291,13 +291,47 @@ def asignar_tipo_cliente(request, user_id):
         })
 
 
+from django.contrib.auth.models import Group
+from django.views.decorators.http import require_POST
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+def asignar_vendedor(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    grupo_vendedor, _ = Group.objects.get_or_create(name='vendedor')
+    user.groups.add(grupo_vendedor)
+    user.save()
+    return redirect('lista_usuarios')
+@user_passes_test(lambda u: u.is_superuser)
+def quitar_vendedor(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    grupo = Group.objects.filter(name='vendedor').first()
+    if grupo:
+        user.groups.remove(grupo)
+    return redirect('lista_usuarios')
+
+@user_passes_test(lambda u: u.is_superuser)
+def quitar_mayorista(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    perfil = getattr(user, 'perfilusuario', None)
+    if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre.lower() == "mayorista":
+        perfil.tipo_cliente = None
+        perfil.save()
+    return redirect('lista_usuarios')
+
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from django.db.models import Q
+
 @user_passes_test(lambda u: u.is_superuser)
 def lista_usuarios(request):
     query = request.GET.get('q')
-    tipo = request.GET.get('tipo')  # 'mayorista', 'minorista' o None
+    tipo = request.GET.get('tipo')  # 'mayorista', 'minorista', 'vendedor', 'staff'
 
-    usuarios = User.objects.filter(is_staff=False, is_superuser=False)
+    usuarios = User.objects.all().select_related('perfilusuario').prefetch_related('groups')
 
+    # Filtro por búsqueda de texto
     if query:
         usuarios = usuarios.filter(
             Q(first_name__icontains=query) |
@@ -305,15 +339,31 @@ def lista_usuarios(request):
             Q(email__icontains=query)
         )
 
-    usuarios = usuarios.select_related('perfilusuario')
-
-    # Filtrado por tipo de cliente
+    # Filtro por tipo de usuario
     if tipo == 'mayorista':
         usuarios = usuarios.filter(perfilusuario__tipo_cliente__nombre__iexact='Mayorista')
     elif tipo == 'minorista':
         usuarios = usuarios.exclude(perfilusuario__tipo_cliente__nombre__iexact='Mayorista')
+    elif tipo == 'vendedor':
+        usuarios = usuarios.filter(groups__name='vendedor')
+    elif tipo == 'staff':
+        usuarios = usuarios.filter(is_staff=True)
 
-    return render(request, 'autopart/listar_clientes.html', {'usuarios': usuarios, 'query': query, 'tipo': tipo})
+    # Anexar atributos para usar en el template
+    for user in usuarios:
+        user.es_vendedor = user.groups.filter(name='vendedor').exists()
+        user.es_mayorista = (
+            hasattr(user, 'perfilusuario') and 
+            user.perfilusuario.tipo_cliente and 
+            user.perfilusuario.tipo_cliente.nombre.strip().lower() == 'mayorista'
+        )
+
+    return render(request, 'autopart/listar_clientes.html', {
+        'usuarios': usuarios,
+        'query': query,
+        'tipo': tipo
+    })
+
 
 def catalogo(request):
     productos = Producto.objects.all()
@@ -500,3 +550,14 @@ def detalle_pedido(request, pedido_id):
 def perfil_usuario(request):
     perfil = getattr(request.user, 'perfilusuario', None)
     return render(request, 'autopart/perfil_usuario.html', {'perfil': perfil})
+
+@require_POST
+@user_passes_test(lambda u: u.is_superuser)
+def asignar_mayorista(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    perfil, _ = PerfilUsuario.objects.get_or_create(user=user)
+    tipo_mayorista, _ = TipoCliente.objects.get_or_create(nombre__iexact='Mayorista', defaults={'nombre': 'Mayorista'})
+
+    perfil.tipo_cliente = tipo_mayorista
+    perfil.save()
+    return JsonResponse({'status': 'ok'})

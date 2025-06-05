@@ -1,6 +1,7 @@
 {% extends 'autopart/base/header.html' %}
 {% block title %}Mi Perfil{% endblock %}
 {% block content %}
+<main>
 <div class="container my-5">
   <h2>Mi Perfil</h2>
   <div class="card mb-4">
@@ -24,5 +25,6 @@
   </div>
   <a href="{% url 'mis_pedidos' %}" class="btn btn-primary">Ver mis pedidos</a>
 </div>
+</main>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
