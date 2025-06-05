@@ -15,7 +15,8 @@ class MarcaSerializer(serializers.ModelSerializer):
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
-        fields = ['id', 'nombre']
+        fields = ['id', 'nombre', 'imagen']  # <-- importante incluir 'imagen'
+
 
 class ProductoSerializer(serializers.ModelSerializer):
     categoria_info = CategoriaSerializer(source='categoria', read_only=True)
