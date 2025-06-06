@@ -371,6 +371,7 @@ def catalogo(request):
     precio_min = request.GET.get('precio_min')
     precio_max = request.GET.get('precio_max')
     q = request.GET.get('q')
+    es_mayorista = False
     if q:
         productos = productos.filter(
             Q(nombre__icontains=q) | Q(descripcion__icontains=q)
@@ -395,6 +396,10 @@ def catalogo(request):
             productos = productos.filter(precio_oferta_minorista__lte=precio_max)
         else:
             productos = productos.filter(precio_minorista__lte=precio_max)
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfilusuario', None)
+        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista":
+            es_mayorista = True
     return render(request, 'autopart/catalogo.html', {
         'productos': productos.distinct(),
         'categorias': categorias,
@@ -403,12 +408,18 @@ def catalogo(request):
         'categoria_actual': categoria_actual,
         'marca_actual': marca_actual,
         'marca_auto_actual': marca_auto_actual,
+        'es_mayorista': es_mayorista,
     })
 
 def detalle_producto(request, producto_id):
     producto = Producto.objects.get(pk=producto_id)
     comentarios = producto.comentarios.select_related('usuario').order_by('-fecha')
     promedio = comentarios.aggregate(prom=Avg('calificacion'))['prom'] or 0
+    es_mayorista = False
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'perfilusuario', None)
+        if perfil and perfil.tipo_cliente and perfil.tipo_cliente.nombre == "Mayorista":
+            es_mayorista = True  # Ajusta esto según tu modelo
     if request.method == 'POST' and request.user.is_authenticated:
         form = ComentarioForm(request.POST)
         if form.is_valid():
@@ -424,6 +435,7 @@ def detalle_producto(request, producto_id):
         'comentarios': comentarios,
         'comentario_form': form,
         'promedio_calificacion': promedio,
+        'es_mayorista': es_mayorista,
     })
 
 class ComentarioForm(forms.ModelForm):
@@ -498,6 +510,7 @@ def confirmar_retiro(request, pedido_id):
 def detalle_pedido_admin(request, pedido_id):
     pedido = get_object_or_404(Order, id=pedido_id)
     productos = OrderItem.objects.filter(order=pedido)
+    
     return render(request, 'autopart/detalle_pedido_admin.html', {
         'pedido': pedido,
         'productos': productos

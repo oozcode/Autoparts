@@ -1,5 +1,6 @@
 {% extends 'autopart/base/header.html' %}
 {% load static %}
+{% load formatos %}
 {% load humanize %}
 {% block title %}{{ producto.nombre }} - AutoParts{% endblock %}
 {% block content %}
@@ -17,39 +18,57 @@
             <div class="card-body">
               <h2 class="card-title mb-3">{{ producto.nombre }}</h2>
               <p class="card-text text-muted mb-4">{{ producto.descripcion }}</p>
-              {% if producto.oferta_activa and producto.descuento_oferta %}
-                <h4 class="text-success fw-bold mb-4">
-                  <span class="badge bg-danger me-2">{{ producto.descuento_oferta }}% OFF</span>
-                  <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|floatformat:0|intcomma }} CLP</span><br>
-                  Ahora: <span id="precioProducto">{{ producto.precio_oferta_minorista|floatformat:0 }}</span> CLP
-                </h4>
-              {% else %}
-                <h4 class="text-success fw-bold mb-4">
-                  Precio: <span id="precioProducto">{{ producto.precio_minorista|floatformat:0 }}</span> CLP
-                </h4>
-              {% endif %}
+                {% if es_mayorista %}
+    {% if producto.oferta_activa and producto.descuento_oferta %}
+      <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
+      <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_mayorista|clp }}</span><br>
+      <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_mayorista|clp }}</span>
+    {% else %}
+      <span class="h5 text-success font-weight-bold">{{ producto.precio_mayorista|clp }}</span>
+    {% endif %}
+  {% else %}
+    {% if producto.oferta_activa and producto.descuento_oferta %}
+      <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
+      <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|clp }}</span><br>
+      <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_minorista|clp }}</span>
+    {% else %}
+      <span class="h5 text-success font-weight-bold">{{ producto.precio_minorista|clp }}</span>
+    {% endif %}
+  {% endif %}
 
               <div class="mb-3">
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" id="cantidad" value="1" min="1" max="100" class="form-control w-50" />
               </div>
               <button class="btn btn-primary btn-block add-to-cart mb-2"
-                                        data-id="{{ producto.id }}"
-                                        data-name="{{ producto.nombre|escapejs }}"
-                                        data-price="{% if es_mayorista %}{{ producto.precio_mayorista }}{% else %}{{ producto.precio_minorista }}{% endif %}"
-                                        {% if producto.imagen %}
-                                            data-image="{{ producto.imagen.url }}"
-                                        {% else %}
-                                            data-image="{% static 'autopart/img/default.jpg' %}"
-                                        {% endif %}
-                                        data-description="{{ producto.descripcion|escapejs }}"
-                                        data-peso="{{ producto.peso }}"
-                                        data-largo="{{ producto.largo }}"
-                                        data-ancho="{{ producto.ancho }}"
-                                        data-alto="{{ producto.alto }}"
-                                        data-stock="{{ producto.stock }}">
-                                        <i class="fas fa-cart-plus"></i> Agregar al carrito
-                                    </button>
+  data-id="{{ producto.id }}"
+  data-name="{{ producto.nombre|escapejs }}"
+  data-price="{% if es_mayorista %}
+                {% if producto.oferta_activa and producto.descuento_oferta %}
+                  {{ producto.precio_oferta_mayorista }}
+                {% else %}
+                  {{ producto.precio_mayorista }}
+                {% endif %}
+              {% else %}
+                {% if producto.oferta_activa and producto.descuento_oferta %}
+                  {{ producto.precio_oferta_minorista }}
+                {% else %}
+                  {{ producto.precio_minorista }}
+                {% endif %}
+              {% endif %}"
+  {% if producto.imagen %}
+    data-image="{{ producto.imagen.url }}"
+  {% else %}
+    data-image="{% static 'autopart/img/default.jpg' %}"
+  {% endif %}
+  data-description="{{ producto.descripcion|escapejs }}"
+  data-peso="{{ producto.peso }}"
+  data-largo="{{ producto.largo }}"
+  data-ancho="{{ producto.ancho }}"
+  data-alto="{{ producto.alto }}"
+  data-stock="{{ producto.stock }}">
+  <i class="fas fa-cart-plus"></i> Agregar al carrito
+</button>
               <div class="mt-4">
                 <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary w-100">
                   <i class="fas fa-arrow-left me-2"></i> Volver al catálogo
