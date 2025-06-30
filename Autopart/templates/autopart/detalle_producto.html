@@ -19,56 +19,56 @@
               <h2 class="card-title mb-3">{{ producto.nombre }}</h2>
               <p class="card-text text-muted mb-4">{{ producto.descripcion }}</p>
                 {% if es_mayorista %}
-    {% if producto.oferta_activa and producto.descuento_oferta %}
-      <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
-      <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_mayorista|clp }}</span><br>
-      <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_mayorista|clp }}</span>
-    {% else %}
-      <span class="h5 text-success font-weight-bold">{{ producto.precio_mayorista|clp }}</span>
-    {% endif %}
-  {% else %}
-    {% if producto.oferta_activa and producto.descuento_oferta %}
-      <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
-      <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|clp }}</span><br>
-      <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_minorista|clp }}</span>
-    {% else %}
-      <span class="h5 text-success font-weight-bold">{{ producto.precio_minorista|clp }}</span>
-    {% endif %}
-  {% endif %}
+                {% if producto.oferta_activa and producto.descuento_oferta %}
+                  <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
+                  <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_mayorista|clp }}</span><br>
+                  <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_mayorista|clp }}</span>
+                {% else %}
+                  <span class="h5 text-success font-weight-bold">{{ producto.precio_mayorista|clp }}</span>
+                {% endif %}
+              {% else %}
+                {% if producto.oferta_activa and producto.descuento_oferta %}
+                  <span class="badge bg-danger mb-1">{{ producto.descuento_oferta }}% OFF</span>
+                  <span class="text-muted text-decoration-line-through">Antes: {{ producto.precio_minorista|clp }}</span><br>
+                  <span class="h5 text-success font-weight-bold">Ahora: {{ producto.precio_oferta_minorista|clp }}</span>
+                {% else %}
+                  <span class="h5 text-success font-weight-bold">{{ producto.precio_minorista|clp }}</span>
+                {% endif %}
+              {% endif %}
 
               <div class="mb-3">
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" id="cantidad" value="1" min="1" max="100" class="form-control w-50" />
               </div>
               <button class="btn btn-primary btn-block add-to-cart mb-2"
-  data-id="{{ producto.id }}"
-  data-name="{{ producto.nombre|escapejs }}"
-  data-price="{% if es_mayorista %}
-                {% if producto.oferta_activa and producto.descuento_oferta %}
-                  {{ producto.precio_oferta_mayorista }}
+                data-id="{{ producto.id }}"
+                data-name="{{ producto.nombre|escapejs }}"
+                data-price="{% if es_mayorista %}
+                              {% if producto.oferta_activa and producto.descuento_oferta %}
+                                {{ producto.precio_oferta_mayorista }}
+                              {% else %}
+                                {{ producto.precio_mayorista }}
+                              {% endif %}
+                            {% else %}
+                              {% if producto.oferta_activa and producto.descuento_oferta %}
+                                {{ producto.precio_oferta_minorista }}
+                              {% else %}
+                                {{ producto.precio_minorista }}
+                              {% endif %}
+                            {% endif %}"
+                {% if producto.imagen %}
+                  data-image="{{ producto.imagen.url }}"
                 {% else %}
-                  {{ producto.precio_mayorista }}
+                  data-image="{% static 'autopart/img/default.jpg' %}"
                 {% endif %}
-              {% else %}
-                {% if producto.oferta_activa and producto.descuento_oferta %}
-                  {{ producto.precio_oferta_minorista }}
-                {% else %}
-                  {{ producto.precio_minorista }}
-                {% endif %}
-              {% endif %}"
-  {% if producto.imagen %}
-    data-image="{{ producto.imagen.url }}"
-  {% else %}
-    data-image="{% static 'autopart/img/default.jpg' %}"
-  {% endif %}
-  data-description="{{ producto.descripcion|escapejs }}"
-  data-peso="{{ producto.peso }}"
-  data-largo="{{ producto.largo }}"
-  data-ancho="{{ producto.ancho }}"
-  data-alto="{{ producto.alto }}"
-  data-stock="{{ producto.stock }}">
-  <i class="fas fa-cart-plus"></i> Agregar al carrito
-</button>
+                data-description="{{ producto.descripcion|escapejs }}"
+                data-peso="{{ producto.peso }}"
+                data-largo="{{ producto.largo }}"
+                data-ancho="{{ producto.ancho }}"
+                data-alto="{{ producto.alto }}"
+                data-stock="{{ producto.stock }}">
+                <i class="fas fa-cart-plus"></i> Agregar al carrito
+              </button>
               <div class="mt-4">
                 <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary w-100">
                   <i class="fas fa-arrow-left me-2"></i> Volver al catálogo
@@ -214,64 +214,138 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
  // Agregar al carrito y mostrar toast, validando stock
-  document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', () => {
-      const stock = parseInt(button.dataset.stock);
-      const product = {
-        id: parseInt(button.dataset.id),
-        name: button.dataset.name,
-        price: parseInt(button.dataset.price),
-        image: button.dataset.image,
-        description: button.dataset.description,
-        peso: parseFloat(button.dataset.peso),
-        largo: parseFloat(button.dataset.largo),
-        ancho: parseFloat(button.dataset.ancho),
-        alto: parseFloat(button.dataset.alto),
-        stock: parseInt(button.dataset.stock),
-        quantity: 1
-      };
 
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existing = cart.find(p => p.id === product.id);
+document.querySelectorAll('.add-to-cart').forEach(button => {
+  button.addEventListener('click', () => {
+    const stock = parseInt(button.dataset.stock, 10);
+    // 1. Leemos la cantidad del input
+    const cantidadInput = document.getElementById('cantidad');
+    let quantity = parseInt(cantidadInput.value, 10) || 1;
+    quantity = Math.max(1, Math.min(quantity, stock));
 
-      if (existing) {
-        if (existing.quantity < stock) {
-          existing.quantity++;
-        } else {
-          alert('No puedes agregar más de la cantidad disponible en stock.');
-          return;
-        }
+    // 2. Construimos el producto
+    const product = {
+      id:           parseInt(button.dataset.id, 10),
+      name:         button.dataset.name,
+      price:        parseInt(button.dataset.price, 10),
+      image:        button.dataset.image,
+      description:  button.dataset.description,
+      peso:         parseFloat(button.dataset.peso),
+      largo:        parseFloat(button.dataset.largo),
+      ancho:        parseFloat(button.dataset.ancho),
+      alto:         parseFloat(button.dataset.alto),
+      stock:        stock,
+      quantity:     quantity
+    };
+
+    // 3. Actualizamos el cart en localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(p => p.id === product.id);
+    const inCartQty = existing ? existing.quantity : 0;
+    if (existing) {
+      if (existing.quantity + quantity <= stock) {
+        existing.quantity += quantity;
       } else {
-        if (stock > 0) {
-          cart.push(product);
-        } else {
-          alert('Producto sin stock disponible.');
-          return;
+        // notificación de stock insuficiente
+        return Swal.fire({
+          title: '⚠️ ¡Stock insuficiente!',
+          html: `
+            <p>Solo quedan <strong>${stock}</strong> unidad(es) disponibles.</p>
+              <p>Actualmente tienes <strong>${inCartQty}</strong> unidad(es) de <em>${product.name}</em> en tu carrito.</p>
+              <p><img src="${product.image}" alt="${product.name}" style="width:80px; margin:10px auto; display:block; border-radius:5px;"></p>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'Aceptar',
+            buttonsStyling: false,
+            customClass: { confirmButton: 'btn btn-primary' },
+            width: '400px',
+            background: '#f8f9fa'
+          }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirige a catálogo
+
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // Aquí podrías abrir un modal para que el cliente deje su e-mail
+          // o invocar tu propia función de “notificar cuando reponga stock”.
+          console.log('Cliente quiere notificación de reposición.');
         }
+      });
       }
+    } else {
+      if (stock > 0) {
+        cart.push(product);
+      } else {
+        const inCart = existing ? existing.quantity : 0;
+          return Swal.fire({
+            title: '😞 ¡Producto agotado!',
+            html: `
+              <p><strong>${product.name}</strong> no está disponible.</p>
+              <p>Actualmente tienes <strong>${inCart}</strong> unidad(es) de este producto en tu carrito.</p>
+              <p>¿Quieres que te notifiquemos cuando repongamos stock?</p>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Volver al catálogo',
+            cancelButtonText: 'Notificarme',
+            buttonsStyling: false,
+            customClass: {
+              popup: 'swal2-popup-autoparts',
+              title: 'swal2-title-autoparts',
+              htmlContainer: 'swal2-html-autoparts',
+              confirmButton: 'btn btn-outline-secondary mx-1',
+              cancelButton: 'btn btn-primary mx-1'
+            },
+            width: '400px',
+            background: '#f8f9fa',
+            backdrop: `
+              rgba(0,0,0,0.4)
+              url("/static/autopart/img/sad-car.gif")
+              center top
+              no-repeat
+            `
+          }).then(result => {
+            if (result.isConfirmed) {
+              window.location.href = "{% url 'catalogo' %}";
+            }
+          });
+      }
+    }
 
-      localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('cart', JSON.stringify(cart));
 
-      // Mostrar toast visual
-      var toastEl = document.getElementById('addToast');
-      if (toastEl) {
-        var toast = new bootstrap.Toast(toastEl);
-        toast.show();
+    // 4. Ahora sí, notificamos siempre
+    const inCart = cart.find(p => p.id === product.id).quantity;
+    Swal.fire({
+      title: '🛒 ¡Producto agregado!',
+      html: `
+        <p>Has agregado <strong>${quantity}</strong> unidad(es) de:</p>
+        <p><em>${product.name}</em></p>
+        <img src="${product.image}" alt="${product.name}"
+             style="width:80px; margin:10px auto; display:block; border-radius:5px;">
+        <p>Ahora tienes <strong>${inCart}</strong> en tu carrito.</p>
+      `,
+      icon: 'success',
+      showCancelButton: true,
+      confirmButtonText: 'Ver carrito',
+      cancelButtonText: 'Seguir comprando',
+      customClass: {
+        confirmButton: 'btn btn-primary mx-1',
+        cancelButton:  'btn btn-outline-secondary mx-1'
+      },
+      buttonsStyling: false,
+      width: '400px',
+      background: '#f8f9fa'
+    }).then(result => {
+      if (result.isConfirmed) {
+        window.location.href = "{% url 'carrito' %}";
       }
     });
+
   });
 });
+  });
 </script>
-<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-  <div id="addToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        Producto agregado al carrito con éxito 🛒
-      </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-    </div>
-  </div>
-</div>
+</script>
 {% include 'autopart/base/footer.html' %}
 {% endblock %}
 
