@@ -1,0 +1,152 @@
+{% extends 'autopart/base/header.html' %}
+{% load static %}
+{% load formatos %}
+{% load custom_filters %}
+{% block title %}Transferencia Bancaria - AutoParts{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <span class="me-2" style="font-size:1.7rem;">💳</span>
+          <h4 class="mb-0">Datos para Transferencia Bancaria</h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                  <span class="me-2" style="font-size:1.3rem;">🏦</span>
+                  <span class="fw-bold">Datos de Transferencia</span>
+                </div>
+                <div class="card-body">
+                  <button id="copy-all-btn" class="btn btn-primary btn-sm mb-3 float-end">
+                    📋 Copiar todos los datos
+                  </button>
+                  <ul class="list-group mb-3">
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Banco:</span> <span id="bank-name">{{ bank_name }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Cuenta Corriente:</span> <span id="account-number">{{ account_number }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">RUT:</span> <span id="rut">{{ rut }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Nombre Empresa:</span> <span id="company-name">{{ company_name }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Correo Empresa:</span> <span id="company-email">{{ company_email }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Monto:</span> <span id="monto">{{ total|clp }}</span></li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Código de Pedido:</span> <span id="pedido-code">{{ pedido_code }}</span></li>
+                  </ul>
+                  <div class="alert alert-info d-flex align-items-center mb-0" role="alert">
+                    <span class="me-2" style="font-size:1.1rem;">⬆️</span>
+                    <div>
+                      <strong>Importante:</strong> Una vez realizada la transferencia, sube tu comprobante para validar tu pago y agilizar el despacho.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-4">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-secondary text-white d-flex align-items-center">
+                  <span class="me-2" style="font-size:1.3rem;">🧾</span>
+                  <span class="fw-bold">Información del Pedido</span>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group mb-3">
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Código de Pedido:</span> {{ pedido_code }}</li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Subtotal:</span> {{ subtotal|clp }}</li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">IVA:</span> {{ iva|clp }}</li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Envío:</span> {{ envio|clp }}</li>
+                    <li class="list-group-item border-0 ps-0"><span class="fw-bold">Total:</span> <span class="text-success fw-bold">{{ total|clp }}</span></li>
+                  </ul>
+                  <div class="mb-2 fw-bold">Productos del pedido:</div>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Producto</th>
+                          <th class="text-center">Cantidad</th>
+                          <th class="text-end">Precio Unitario</th>
+                          <th class="text-end">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                           <td>{{ item.producto.nombre }}</td>
+                           <td class="text-center">{{ item.quantity }}</td>
+                           <td class="text-end">{{ item.price|clp }}</td>
+                           <td class="text-end">{{ item.quantity|mul:item.price|clp }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">No hay productos en este pedido.</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            {% if error %}
+              <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            <div class="mb-3">
+              <label for="comprobante" class="form-label fw-bold">Comprobante de Transferencia <span class="text-danger">*</span></label>
+              <input type="file" name="comprobante" id="comprobante"
+                     class="form-control" accept=".jpg,.png,.pdf" required>
+              <div class="form-text">Formatos permitidos: JPG, PNG, PDF. Tamaño máximo: 5MB.</div>
+              <div class="invalid-feedback">Por favor sube el comprobante de tu transferencia.</div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-success px-4 shadow">
+                <span style="font-size:1.2rem;">📤</span> Enviar comprobante
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Copiar todos los datos de transferencia
+  document.getElementById('copy-all-btn').addEventListener('click', function() {
+    const datos =
+      `Banco: ${document.getElementById('bank-name').innerText}\n` +
+      `Cuenta Corriente: ${document.getElementById('account-number').innerText}\n` +
+      `RUT: ${document.getElementById('rut').innerText}\n` +
+      `Nombre Empresa: ${document.getElementById('company-name').innerText}\n` +
+      `Correo Empresa: ${document.getElementById('company-email').innerText}\n` +
+      `Monto: ${document.getElementById('monto').innerText}\n` +
+      `Código de Pedido: ${document.getElementById('pedido-code').innerText}`;
+    navigator.clipboard.writeText(datos).then(() => {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Todos los datos copiados',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    });
+  });
+  // Bootstrap validation
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+{% include 'autopart/base/footer.html' %}
+{% endblock %}

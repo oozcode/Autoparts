@@ -1,0 +1,42 @@
+{% extends 'autopart/base/header.html' %}
+{% load static %}
+
+{% block title %}Comprobante Enviado - AutoParts{% endblock %}
+
+{% block content %}
+<main class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm text-center">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">¡Comprobante Recibido!</h4>
+        </div>
+        <div class="card-body">
+          <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+          <p class="lead">Hemos recibido tu comprobante de pago para el pedido <strong>#{{ order.id }}</strong>.</p>
+          <p>En breve validaremos tu transferencia y te notificaremos por correo electrónico cuando el pago sea aprobado.</p>
+          <div class="mt-4">
+            <a href="{% url 'home' %}" class="btn btn-primary me-2">
+              <i class="fas fa-home me-1"></i> Ir a Inicio
+            </a>
+            <a href="{% url 'mis_pedidos' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-receipt me-1"></i> Ver mis pedidos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Limpiar el carrito y datos relacionados tras subir comprobante
+    localStorage.removeItem('cart');
+    localStorage.removeItem('resumen');
+    localStorage.removeItem('order_id');
+  });
+</script>
+
+{% include 'autopart/base/footer.html' %}
+{% endblock %}

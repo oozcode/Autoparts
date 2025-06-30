@@ -594,3 +594,51 @@ class ProductosMayoristaAPIView(APIView):
         productos = Producto.objects.all()
         serializer = ProductoMayoristaSerializer(productos, many=True, context={'request': request})
         return Response(serializer.data)
+    
+
+@login_required
+def pago_transferencia(request, order_id):
+    # 1) Buscamos tu Order en base al order_id y usuario
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if request.method == 'POST':
+        # aquí recoges el comprobante que envía el formulario
+        comprobante = request.FILES.get('comprobante')
+        if comprobante:
+            order.comprobante = comprobante  # asumiendo que añadiste ese campo
+            order.estado = 'pagado'
+            order.save()
+            return redirect('pago_transferencia_confirmacion', order_id=order_id)
+        # si quieres manejar error por falta de archivo:
+        return render(request, 'autopart/pago_transferencia.html', {
+            **get_context_data(order),
+            'error': 'Debes adjuntar el comprobante.'
+        })
+
+    # 2) Si es GET, simplemente mostramos la plantilla con los datos bancarios
+    return render(request, 'autopart/pago_transferencia.html', get_context_data(order))
+
+
+def get_context_data(order):
+    """Extrae los datos para el template de transferencia."""
+    return {
+        'order':          order,
+        'subtotal':       order.subtotal,
+        'iva':            order.iva,
+        'envio':          order.envio,
+        'total':          order.total,
+        'bank_name':      'Banco Bci',
+        'account_number': '999999999',  # o el número de cuenta de tu empresa
+        'rut':            '12.345.678-9',
+        'company_name': 'Autoparts S.A.',  # o el nombre de tu empresa
+        'company_email': 'ventas@autoparts.cl',
+        'pedido_code':    order.id,  # o como lo quieras mostrar
+    }
+
+@login_required
+def pago_transferencia_confirmacion(request, order_id):
+    # Simplemente muestra la plantilla de confirmación
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'autopart/pago_transferencia_confirmacion.html', {
+        'order': order
+    })

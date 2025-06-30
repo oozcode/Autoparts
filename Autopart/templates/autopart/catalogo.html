@@ -230,15 +230,30 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existing.quantity < stock) {
           existing.quantity++;
         } else {
-          alert('No puedes agregar más de la cantidad disponible en stock.');
-          return;
+          return Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Sin stock',
+            text: `No puedes agregar más de la cantidad disponible en stock.`,
+            showConfirmButton: false,
+            timer: 2000
+          });
         }
       } else {
         if (stock > 0) {
           cart.push(product);
+          
         } else {
-          alert('Producto sin stock disponible.');
-          return;
+          return Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Sin stock',
+          text: `No hay unidades disponibles.`,
+          showConfirmButton: false,
+          timer: 2000
+        });
         }
       }
 
@@ -323,6 +338,13 @@ document.addEventListener('DOMContentLoaded', function() {
   width: 2px;
   left: 7px;
   top: 4px;
+}
+.swal2-container {
+  z-index: 11000 !important;
+}
+.swal2-container.swal2-top-end {
+  top: 4rem !important;    /* baja el toast 4rem desde arriba */
+  right: 1rem !important;  /* ajusta la separación del borde derecho */
 }
 </style>
 {% include 'autopart/base/footer.html' %}

@@ -6,6 +6,9 @@
 <main>
   <div class="container my-5">
     <h2 class="mb-4 text-primary text-center">Productos en la categoría: {{ categoria.nombre }}</h2>
+    <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al catálogo
+      </a>
     <div class="row">
       {% for p in productos %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
@@ -103,15 +106,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existing.quantity < stock) {
           existing.quantity++;
         } else {
-          alert('No puedes agregar más de la cantidad disponible en stock.');
-          return;
+          return Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Sin stock',
+            text: `No puedes agregar más de la cantidad disponible en stock.`,
+            showConfirmButton: false,
+            timer: 2000
+          });
         }
       } else {
         if (stock > 0) {
           cart.push(product);
         } else {
-          alert('Producto sin stock disponible.');
-          return;
+          return Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Sin stock',
+          text: `No hay unidades disponibles.`,
+          showConfirmButton: false,
+          timer: 2000
+        });
         }
       }
 
@@ -136,6 +153,13 @@ document.addEventListener('DOMContentLoaded', () => {
   transform: translateY(-6px) scale(1.03);
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   z-index: 2;
+}
+.swal2-container {
+  z-index: 11000 !important;
+}
+.swal2-container.swal2-top-end {
+  top: 4rem !important;    /* baja el toast 4rem desde arriba */
+  right: 1rem !important;  /* ajusta la separación del borde derecho */
 }
 </style>
 

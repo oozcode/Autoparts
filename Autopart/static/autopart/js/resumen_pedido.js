@@ -65,27 +65,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   fetch("/crear_pedido/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken")
-    },
-    body: JSON.stringify({
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      body: JSON.stringify({
         ...cliente,
         cart,
         resumen,
         tipo_pedido: cliente.tipo_pedido
-        })
-  })
+      })
+    })
     .then(res => res.json())
     .then(data => {
       if (data.order_id) {
         localStorage.setItem("order_id", data.order_id);
 
         if (metodo === "tarjeta") {
+          // Tu enlace actual a Transbank (sin cambios)
           window.location.href = `/pagar/${data.order_id}/`;
         } else {
-          alert("Método de pago no implementado todavía.");
+          // Redirige a tu vista de transferencia, pasando order_id
+          window.location.href = `/pago/transferencia/${data.order_id}/`;
         }
       } else {
         alert("Error al crear el pedido.");
@@ -95,6 +97,5 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(err);
       alert("Ocurrió un error al procesar tu pedido.");
     });
-});
-
+  });
 });
